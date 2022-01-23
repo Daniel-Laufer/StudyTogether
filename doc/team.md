@@ -6,4 +6,4 @@
 |Milind Vishnoi| vishnoim | 1005416444 | milind.vishnoi@mail.utoronto.ca | Discord/Email | Mills#0127 |
 |Maor Gornic|gornicma|1005966876|maor.gornic@mail.utoronto.ca|Discord/Email|Abwatts#4523|
 
-
+**Discord Chat/Server Invite :** https://discord.gg/sH5YQB9aha
