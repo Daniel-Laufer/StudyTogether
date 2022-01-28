@@ -2,11 +2,14 @@
 
 # Installation/Usage
 
-Clone this repository to your computer using git and `cd` into it.
-## Installation/Usage
-- ## Front-end 
+Begin by cloning this repository onto your computer by **git** and `cd` into it.
+```bash
+$ git clone https://github.com/UTSCCSCC01/finalprojectw22-studytogether.git my-app
+$ cd my-app
+```
+## Front-end 
 
-    - First `cd` into the front-end directory and then run `npm install` to install all of the front-end's dependencies.
+   - First `cd` into the front-end directory and then run `npm install` to install all of the front-end's dependencies.
     
         - After doing that, here is a list of useful commands:
 
@@ -18,12 +21,34 @@ Clone this repository to your computer using git and `cd` into it.
 
           - `npm test`
             - Starts the test runner
+           
+## Back-end 
 
-# Stlying Guidelines 
+### Installation
+```bash
+$ cd back-end
+$ npm install #install all required packages
+```
+
+### Running the express-server
+
+```bash
+# development - port 3000
+$ npm start 
+```
+
+### Database
+Your **MongoDB Atlas** Database Uri should be stored in `.env`. An example of how the `.env` should  be is provided in `env.example`
+```js
+ATLAS_URI=mongodb+srv://TodSmith:passw0rd@cluster0....
+```
+
+
+# Styling Guidelines 
 
 - ## Front-end 
 
-    - Use the VSCode Editor with the [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) extension to automatically format the code according to the style guildine specified by [eslint-config-airbnb](https://www.npmjs.com/package/eslint-config-airbnb). You can enable Prettier to automaticallt format by going to Prettier's Extension settings VSCode and enable "Format on save".
+    - Use the VSCode Editor with the [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) extension to automatically format the code according to the style guideline specified by [eslint-config-airbnb](https://www.npmjs.com/package/eslint-config-airbnb). You can enable Prettier to automatically format by going to Prettier's Extension settings VSCode and enable "Format on save".
 
 ## Contribution
 We have two primary branches: 
