@@ -1,15 +1,29 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import React from 'react';
-import { ChakraProvider, Box, theme } from '@chakra-ui/react';
-import cat from './assets/images/cat.jpeg';
+import { createStore, applyMiddleware } from 'redux';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import thunk from 'redux-thunk';
+import { composeWithDevTools } from 'redux-devtools-extension';
+
+import rootReducer from './reducers/root';
+import LandingPage from './modules/LandingPage/index';
+
+const store = createStore(
+  rootReducer,
+  composeWithDevTools(applyMiddleware(thunk))
+);
 
 function App() {
   return (
-    <ChakraProvider theme={theme}>
-      <Box textAlign="center" fontSize="xl">
-        Study Together
-        <img src={cat} alt="cat" />
-      </Box>
-    </ChakraProvider>
+    <Provider store={store}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/heyo" element={<div>heyo</div>} />
+        </Routes>
+      </BrowserRouter>
+    </Provider>
   );
 }
 

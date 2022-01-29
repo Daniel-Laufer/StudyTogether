@@ -1,4 +1,9 @@
-# final-project-study-group-finder
+# StudyTogether
+
+Studying with others is an effective way of preparing for assessments, however it can be challenging to find others to study with at times. That’s where **StudyTogether** comes in to the rescue! 
+
+**StudyTogether** is a web application that facilitates the process of forming study groups at a university. Users will be able to form their own study groups that others can then view and request to join. Users can easily filter through study groups using specific fields like dates, times, courses, topics, locations etc, and request to join the study group that’s perfect for them! 
+
 
 # Installation/Usage
 
@@ -42,6 +47,7 @@ Your **MongoDB Atlas** Database Uri should be stored in `.env`. An example of ho
 ```js
 ATLAS_URI=mongodb+srv://TodSmith:passw0rd@cluster0....
 ```
+Note: we temporarily have the .env file present in back-end/ directory of this repository with the raw value of the MongoDB atlas URI until we setup hosting for the back-end. We will remove the URI from this repository at that point.
 
 
 # Styling Guidelines 
@@ -59,4 +65,5 @@ We have two primary branches:
       - Ensure you get at least one person to review your changes before merging into the dev branch.
   - **prod**
     - This is the branch that that contains the code used in production (ie the live product).
-    - Merging into this branch is to ONLY be done at the end of each sprint.
+    - Merging into this branch is to ONLY be done at the end of each sprint and will require al thorough review of the code by all members of the StudyTogether team.
+    - 
