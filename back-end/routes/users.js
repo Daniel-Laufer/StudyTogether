@@ -1,16 +1,13 @@
 var express = require('express');
 var router = express.Router();
+let user = require('../models/user.model');
 
-/* get hardcoded user for now - to help test*/
-router.get('/', function(req, res, next) {
-  var user = {
-    firstName:"Tobey",
-    lastName:"Maguire",
-    email:"Tobey.Maguire@mail.utoronto.ca",
-    role:"student",
-    verified: false
-  }
-  res.status(200).json(user);
+
+/* get all users*/
+router.get('/', function(req, res) {
+  user.find()
+  .then(user => res.status(200).json(user))
+  .catch(err => res.status(400).json('Error: ' + err));
 });
 
 module.exports = router;
