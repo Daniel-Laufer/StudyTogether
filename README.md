@@ -32,7 +32,7 @@ $ cd my-app
 ### Installation
 ```bash
 $ cd back-end
-$ npm install #install all required packages
+$ npm install --include=dev #install all required packages
 ```
 
 ### Running the express-server
@@ -42,10 +42,18 @@ $ npm install #install all required packages
 $ npm start 
 ```
 
+
+### Running tests
+
+```bash
+$ npm test
+```
+
 ### Database
 Your **MongoDB Atlas** Database Uri should be stored in `.env`. An example of how the `.env` should  be is provided in `env.example`
 ```js
 ATLAS_URI=mongodb+srv://TodSmith:passw0rd@cluster0....
+PORT=3001 #optional 
 ```
 Note: we temporarily have the .env file present in back-end/ directory of this repository with the raw value of the MongoDB atlas URI until we setup hosting for the back-end. We will remove the URI from this repository at that point.
 
