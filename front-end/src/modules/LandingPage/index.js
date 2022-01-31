@@ -2,9 +2,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import {
-  ChakraProvider,
   Box,
-  theme,
   Heading,
   Center,
   UnorderedList,
@@ -34,27 +32,25 @@ function LandingPage() {
   }, [users]);
 
   return (
-    <ChakraProvider theme={theme}>
-      <Box textAlign="center" fontSize="xl">
-        <Heading>Study Together</Heading>
-        <Center>
-          <img src={groupOnBooks} alt="cat" />
-        </Center>
-        <Heading as="h8" size="md">
-          Users retrieved from the StudyTogether MongoDB Database:
-        </Heading>
-        <Center>
-          <UnorderedList>
-            {users.map((user, i) => (
-              <ListItem key={i}>
-                First name: {user.firstName}, Last name: {user.lastName}, email:{' '}
-                {user.email}
-              </ListItem>
-            ))}
-          </UnorderedList>
-        </Center>
-      </Box>
-    </ChakraProvider>
+    <Box textAlign="center" fontSize="xl">
+      <Heading>Study Together</Heading>
+      <Center>
+        <img src={groupOnBooks} alt="cat" />
+      </Center>
+      <Heading as="h8" size="md">
+        Users retrieved from the StudyTogether MongoDB Database:
+      </Heading>
+      <Center>
+        <UnorderedList>
+          {users.map((user, i) => (
+            <ListItem key={i}>
+              First name: {user.firstName}, Last name: {user.lastName}, email:{' '}
+              {user.email}
+            </ListItem>
+          ))}
+        </UnorderedList>
+      </Center>
+    </Box>
   );
 }
 
