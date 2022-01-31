@@ -1,3 +1,5 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable react/destructuring-assignment */
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
@@ -8,28 +10,18 @@ import {
   UnorderedList,
   ListItem,
 } from '@chakra-ui/react';
+import { connect } from 'react-redux';
 import axios from 'axios';
 import groupOnBooks from '../../assets/images/grouponbooks.jpeg';
 import { apiURL } from '../../utils/constants';
+import { Example } from '../../actions';
 
-function LandingPage() {
+function LandingPage({ dispatch }) {
   const [users, setUsers] = useState([]);
 
-  // we won't be making API calls directly in components in the future,
-  // instead we will be doing so in the redux action creators
-  // but we'll just do this for now to demo the three tier architecture
   useEffect(() => {
-    axios
-      .get(`${apiURL}/users`)
-      .then(res => {
-        setUsers([...users, ...res.data]);
-      })
-      .catch(err => console.error(err));
+    dispatch(Example.exampleAction('daniel2'));
   }, []);
-
-  useEffect(() => {
-    console.log("Updated 'users' state: \n", users);
-  }, [users]);
 
   return (
     <Box textAlign="center" fontSize="xl">
@@ -54,4 +46,6 @@ function LandingPage() {
   );
 }
 
-export default LandingPage;
+export default connect(state => ({
+  user: state.Example.name,
+}))(LandingPage);
