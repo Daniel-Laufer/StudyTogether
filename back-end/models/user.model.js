@@ -11,6 +11,9 @@ const userSchema = new Schema({
     type: String,
     required: [true, 'lastName not provided'],
   },
+  alias: {
+    type: String,
+  },
   email: {
     type: String,
     unique: [true, 'email already exists in database.'],
@@ -39,7 +42,6 @@ const userSchema = new Schema({
   },
   created: {
     type: Date,
-    required: false,
     default: Date.now,
   },
 });
