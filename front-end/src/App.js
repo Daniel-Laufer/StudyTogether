@@ -9,6 +9,7 @@ import { ChakraProvider, theme } from '@chakra-ui/react';
 
 import rootReducer from './reducers/root';
 import LandingPage from './modules/LandingPage/index';
+import Login from './modules/Login';
 
 const store = createStore(
   rootReducer,
@@ -22,7 +23,7 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<LandingPage />} />
-            <Route path="/heyo" element={<div>heyo</div>} />
+            <Route path="/login" element={<Login />} />
           </Routes>
         </BrowserRouter>
       </ChakraProvider>
