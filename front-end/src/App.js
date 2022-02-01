@@ -10,6 +10,7 @@ import { ChakraProvider, theme } from '@chakra-ui/react';
 import rootReducer from './reducers/root';
 import LandingPage from './modules/LandingPage/index';
 import Login from './modules/Login';
+import Register from './modules/Register';
 
 const store = createStore(
   rootReducer,
@@ -24,6 +25,7 @@ function App() {
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
           </Routes>
         </BrowserRouter>
       </ChakraProvider>
