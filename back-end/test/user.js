@@ -19,4 +19,8 @@ describe('App', function () {
       done();
     }).timeout(5000);
   });
+
+  /* register user test -TBA */
+
+  /* login user test - TBA */
 });
