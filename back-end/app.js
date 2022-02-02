@@ -8,6 +8,7 @@ var cors = require('cors');
 require('dotenv').config();
 
 var usersRouter = require('./routes/users');
+var forgotRouter = require('./routes/forgot');
 
 var app = express();
 
@@ -21,6 +22,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/users', usersRouter);
+app.use('/forgot', forgotRouter)
 
 
 // Connect to MongoDB Atlas cluster
