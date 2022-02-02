@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+/* eslint-disable no-unused-vars */
+import React, { useEffect, useState } from 'react';
 import {
   Heading,
   Input,
@@ -12,20 +13,32 @@ import {
   Alert,
   AlertIcon,
   CloseButton,
+  Select,
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import logoblack from '../../assets/images/logoblack.png';
 import { Auth } from '../../actions';
 import * as colors from '../../utils/colors';
+import { userRoles } from '../../utils/constants';
 
 function Register({ authState, dispatch }) {
   const [registrationDetails, setRegistrationDetails] = useState({
     email: '',
     password: '',
+    confirmPassword: '',
+    role: '',
+    userName: '',
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState({ email: false, password: false });
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errors, setErrors] = useState({
+    email: false,
+    password: false,
+    confirmPassword: false,
+    role: false,
+    userName: '',
+  });
   const [forceHideAlert, setForceHideAlert] = useState(false);
 
   const handleEmailChange = event => {
@@ -42,6 +55,33 @@ function Register({ authState, dispatch }) {
       password: event.target.value,
     });
   };
+  const handleConfirmPasswordChange = event => {
+    setRegistrationDetails({
+      ...registrationDetails,
+      confirmPassword: event.target.value,
+    });
+    if (
+      event.target.value === registrationDetails.password ||
+      event.target.value === ''
+    )
+      setErrors({ ...errors, confirmPassword: false });
+    else setErrors({ ...errors, confirmPassword: true });
+  };
+
+  const handleRoleChange = event => {
+    setErrors({ ...errors, password: false });
+    setRegistrationDetails({
+      ...registrationDetails,
+      role: event.target.value,
+    });
+  };
+  const handleUserNameChange = event => {
+    setErrors({ ...errors, userName: false });
+    setRegistrationDetails({
+      ...registrationDetails,
+      userName: event.target.value,
+    });
+  };
 
   // function taken from https://stackoverflow.com/questions/46155/whats-the-best-way-to-validate-an-email-address-in-javascript
   const validateEmail = email =>
@@ -52,19 +92,37 @@ function Register({ authState, dispatch }) {
       );
 
   const handleSubmit = () => {
-    const { email, password } = registrationDetails;
+    const { email, password, role, confirmPassword, userName } =
+      registrationDetails;
     const isEmailInvalid = !validateEmail(email);
     const isPasswordInvalid = password.length < 6;
-    if (isEmailInvalid || isPasswordInvalid)
+    const userNameInvalid = userName.length === 0;
+    const passwordConfirmDoesntMatch = password !== confirmPassword;
+    const roleNotSelected = role === '';
+
+    if (
+      isEmailInvalid ||
+      isPasswordInvalid ||
+      userNameInvalid ||
+      roleNotSelected ||
+      passwordConfirmDoesntMatch
+    )
       return setErrors({
         ...errors,
         email: isEmailInvalid,
         password: isPasswordInvalid,
+        confirmPassword: passwordConfirmDoesntMatch,
+        role: roleNotSelected,
+        userName: userNameInvalid,
       });
 
     setForceHideAlert(false);
-    return dispatch(Auth.login(registrationDetails));
+    return dispatch(Auth.register(registrationDetails));
   };
+
+  // useEffect(() => {
+  //   console.log(registrationDetails);
+  // }, [registrationDetails]);
 
   return (
     <Container style={{ marginTop: '2rem' }}>
@@ -106,6 +164,47 @@ function Register({ authState, dispatch }) {
               </Button>
             </InputRightElement>
           </InputGroup>
+          <InputGroup size="md">
+            <Input
+              isInvalid={errors.confirmPassword}
+              pr="4.5rem"
+              type={showConfirmPassword ? 'text' : 'password'}
+              placeholder="Confirm Password"
+              onChange={handleConfirmPasswordChange}
+              value={registrationDetails.confirmPassword}
+            />
+            <InputRightElement width="4.5rem">
+              <Button
+                h="1.75rem"
+                size="sm"
+                _hover={{
+                  boxShadow: `0 0 1px 2px ${colors.green.dark}, 0 1px 1px rgba(0, 0, 0, .15)`,
+                }}
+                _focus={{
+                  boxShadow: `0 0 1px 2px ${colors.green.dark}, 0 1px 1px rgba(0, 0, 0, .15)`,
+                }}
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              >
+                {showConfirmPassword ? 'Hide' : 'Show'}
+              </Button>
+            </InputRightElement>
+          </InputGroup>
+          <Input
+            errorBorderColor="crimson"
+            isInvalid={errors.userName}
+            placeholder="Username"
+            onChange={handleUserNameChange}
+            value={registrationDetails.userName}
+          />
+          <Select
+            isInvalid={errors.role}
+            placeholder="What type of user are you?"
+            onChange={handleRoleChange}
+          >
+            {userRoles.map((key, index) => (
+              <option value={key}>{key}</option>
+            ))}
+          </Select>
           <div
             style={{
               display: 'flex',
