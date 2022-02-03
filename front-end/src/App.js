@@ -8,6 +8,7 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 
 import rootReducer from './reducers/root';
 import LandingPage from './modules/LandingPage/index';
+import Groups from './modules/Groups/index';
 
 const store = createStore(
   rootReducer,
@@ -21,6 +22,14 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/heyo" element={<div>heyo</div>} />
+          <Route
+            path="/group"
+            element={
+              <div>
+                <Groups></Groups>
+              </div>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </Provider>
