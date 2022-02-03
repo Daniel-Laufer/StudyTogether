@@ -1,4 +1,5 @@
 import React from 'react';
+import { Box } from '@chakra-ui/react';
 import Group from '../../components/group';
 import Cat from '../../assets/images/cat.jpeg';
 
@@ -35,7 +36,7 @@ const groups = [
 
 function index() {
   return (
-    <div column={2} spacingX="40px" spacingY="20px">
+    <Box textAlign={['left', 'center', 'left']} spacingY="20px">
       {groups.map(g => (
         <Group
           heading={g.heading}
@@ -46,7 +47,7 @@ function index() {
           link="cat"
         />
       ))}
-    </div>
+    </Box>
   );
 }
 
