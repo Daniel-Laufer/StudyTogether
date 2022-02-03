@@ -41,7 +41,7 @@ router.post(
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       email: req.body.email,
-      alias: req.body.alias ?? null,
+      username: req.body.username ?? null,
       role: req.body.role,
       verified: false,
       password: bcrypt.hashSync(req.body.password, saltRounds),
