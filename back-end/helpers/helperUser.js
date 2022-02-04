@@ -37,6 +37,7 @@ module.exports = {
           if (err) {
             req.user = undefined;
             console.log(err);
+            next();
           }
 
           User.findOne({
