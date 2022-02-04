@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Heading,
   Input,
@@ -15,6 +15,7 @@ import {
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import logoblack from '../../assets/images/logoblack.png';
 import { Auth } from '../../actions';
 import * as colors from '../../utils/colors';
@@ -23,10 +24,13 @@ function Login({ authState, dispatch }) {
   const [loginDetails, setLoginDetails] = useState({
     email: '',
     password: '',
+    rememberUser: false,
   });
+
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({ email: false, password: false });
   const [forceHideAlert, setForceHideAlert] = useState(false);
+  const navigate = useNavigate();
 
   const handleEmailChange = event => {
     setErrors({ ...errors, email: false });
@@ -59,6 +63,10 @@ function Login({ authState, dispatch }) {
     setForceHideAlert(false);
     return dispatch(Auth.login(loginDetails));
   };
+
+  useEffect(() => {
+    if (authState.authToken !== '') navigate('/');
+  }, [authState.authToken]);
 
   return (
     <Container style={{ marginTop: '2rem' }}>
@@ -108,14 +116,23 @@ function Login({ authState, dispatch }) {
               gap: '20px',
             }}
           >
-            <Checkbox colorScheme="gray">Remember Me</Checkbox>
+            <Checkbox
+              colorScheme="gray"
+              onChange={() =>
+                setLoginDetails({
+                  ...loginDetails,
+                  rememberUser: !loginDetails.rememberUser,
+                })
+              }
+              isChecked={loginDetails.rememberUser}
+            >
+              Remember Me
+            </Checkbox>
             <Button
               onClick={handleSubmit}
               colorScheme="green"
               bg={colors.green.dark}
               style={{ alignSelf: 'flex-start' }}
-              // isLoading
-              // spinner={<BeatLoader size={8} color="white" />}
               _hover={{ bg: colors.green.medium }}
               borderColor={colors.green.dark}
               _active={{
@@ -133,7 +150,7 @@ function Login({ authState, dispatch }) {
             {!forceHideAlert && authState.error && (
               <Alert status="error">
                 <AlertIcon />
-                There was an error logging in.
+                There was an error logging in ({authState.error}).
                 <CloseButton
                   position="absolute"
                   right="8px"
@@ -153,6 +170,7 @@ Login.propTypes = {
   authState: PropTypes.shape({
     loading: PropTypes.bool,
     error: PropTypes.string,
+    authToken: PropTypes.string,
   }).isRequired,
   dispatch: PropTypes.func.isRequired,
 };

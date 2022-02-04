@@ -17,6 +17,7 @@ import {
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import logoblack from '../../assets/images/logoblack.png';
 import { Auth } from '../../actions';
 import * as colors from '../../utils/colors';
@@ -29,6 +30,9 @@ function Register({ authState, dispatch }) {
     confirmPassword: '',
     role: '',
     userName: '',
+    rememberUser: false,
+    firstName: '',
+    lastName: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -38,14 +42,31 @@ function Register({ authState, dispatch }) {
     confirmPassword: false,
     role: false,
     userName: '',
+    firstName: '',
+    lastName: '',
   });
   const [forceHideAlert, setForceHideAlert] = useState(false);
+  const navigate = useNavigate();
 
   const handleEmailChange = event => {
     setErrors({ ...errors, email: false });
     setRegistrationDetails({
       ...registrationDetails,
       email: event.target.value,
+    });
+  };
+  const handleFirstNameChange = event => {
+    setErrors({ ...errors, firstName: false });
+    setRegistrationDetails({
+      ...registrationDetails,
+      firstName: event.target.value,
+    });
+  };
+  const handleLastNameChange = event => {
+    setErrors({ ...errors, lastName: false });
+    setRegistrationDetails({
+      ...registrationDetails,
+      lastName: event.target.value,
     });
   };
   const handlePasswordChange = event => {
@@ -69,7 +90,7 @@ function Register({ authState, dispatch }) {
   };
 
   const handleRoleChange = event => {
-    setErrors({ ...errors, password: false });
+    setErrors({ ...errors, role: false });
     setRegistrationDetails({
       ...registrationDetails,
       role: event.target.value,
@@ -92,20 +113,31 @@ function Register({ authState, dispatch }) {
       );
 
   const handleSubmit = () => {
-    const { email, password, role, confirmPassword, userName } =
-      registrationDetails;
+    const {
+      email,
+      password,
+      role,
+      confirmPassword,
+      userName,
+      firstName,
+      lastName,
+    } = registrationDetails;
     const isEmailInvalid = !validateEmail(email);
     const isPasswordInvalid = password.length < 6;
-    const userNameInvalid = userName.length === 0;
+    const userNameInvalid = userName.length <= 3;
     const passwordConfirmDoesntMatch = password !== confirmPassword;
     const roleNotSelected = role === '';
+    const firstNameInvalid = firstName.length === 0;
+    const lastNameInvalid = lastName.length === 0;
 
     if (
       isEmailInvalid ||
       isPasswordInvalid ||
       userNameInvalid ||
       roleNotSelected ||
-      passwordConfirmDoesntMatch
+      passwordConfirmDoesntMatch ||
+      firstNameInvalid ||
+      lastNameInvalid
     )
       return setErrors({
         ...errors,
@@ -114,15 +146,17 @@ function Register({ authState, dispatch }) {
         confirmPassword: passwordConfirmDoesntMatch,
         role: roleNotSelected,
         userName: userNameInvalid,
+        firstName: firstNameInvalid,
+        lastName: lastNameInvalid,
       });
 
     setForceHideAlert(false);
     return dispatch(Auth.register(registrationDetails));
   };
 
-  // useEffect(() => {
-  //   console.log(registrationDetails);
-  // }, [registrationDetails]);
+  useEffect(() => {
+    if (authState.authToken !== '') navigate('/');
+  }, [authState.authToken]);
 
   return (
     <Container style={{ marginTop: '2rem' }}>
@@ -131,8 +165,10 @@ function Register({ authState, dispatch }) {
         <Heading as="h2" size="2xl">
           Register
         </Heading>
+
         <VStack spacing="20px" align="stretch">
           <Input
+            autoComplete="off"
             errorBorderColor="crimson"
             isInvalid={errors.email}
             placeholder="email"
@@ -141,6 +177,7 @@ function Register({ authState, dispatch }) {
           />
           <InputGroup size="md">
             <Input
+              autoComplete="off"
               isInvalid={errors.password}
               pr="4.5rem"
               type={showPassword ? 'text' : 'password'}
@@ -191,6 +228,20 @@ function Register({ authState, dispatch }) {
           </InputGroup>
           <Input
             errorBorderColor="crimson"
+            isInvalid={errors.firstName}
+            placeholder="First Name"
+            onChange={handleFirstNameChange}
+            value={registrationDetails.firstName}
+          />
+          <Input
+            errorBorderColor="crimson"
+            isInvalid={errors.lastName}
+            placeholder="Last Name"
+            onChange={handleLastNameChange}
+            value={registrationDetails.lastName}
+          />
+          <Input
+            errorBorderColor="crimson"
             isInvalid={errors.userName}
             placeholder="Username"
             onChange={handleUserNameChange}
@@ -238,7 +289,8 @@ function Register({ authState, dispatch }) {
             {!forceHideAlert && authState.error && (
               <Alert status="error">
                 <AlertIcon />
-                There was an error logging in.
+                There was an error during the registration process (
+                {authState.error}).
                 <CloseButton
                   position="absolute"
                   right="8px"
@@ -258,6 +310,7 @@ Register.propTypes = {
   authState: PropTypes.shape({
     loading: PropTypes.bool,
     error: PropTypes.string,
+    authToken: PropTypes.string,
   }).isRequired,
   dispatch: PropTypes.func.isRequired,
 };
