@@ -6,7 +6,7 @@ module.exports = {
     var token = jwt.sign(
       { id: user._id, date: Date.now },
       process.env.JWT_SECRET,
-      { expiresIn: 86400 } // token expires every 24 hours - Will be decreased to 60 min
+      { expiresIn: 3600 } // token expires every 60 mins
     );
 
     /* Send the token back to client + some user info */
