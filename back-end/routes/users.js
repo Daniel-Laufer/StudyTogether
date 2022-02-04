@@ -3,8 +3,8 @@ var router = express.Router();
 var bcrypt = require('bcrypt');
 var helperUser = require('../helpers/helperUser');
 var User = require('../models/user.model');
-
 const { body, validationResult } = require('express-validator');
+
 /* get all users - To be removed */
 router.get('/', function (req, res) {
   User.find()
