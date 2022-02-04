@@ -15,7 +15,7 @@ describe('User Tests', function () {
     User.deleteMany({}).catch(err => console.log(err));
   });
 
-  /* Test token validation */
+  /* Test: token validation */
   describe('Ensure users are not accessable unless valid JWT token is provided', function () {
     it('verifies status is 403 Forbidden', function (done) {
       chai
@@ -28,7 +28,7 @@ describe('User Tests', function () {
     });
   });
 
-  /* register user test */
+  /* Test: register user */
   describe('/users/register', function () {
     it('check registaration is functional', function (done) {
       chai
@@ -56,5 +56,28 @@ describe('User Tests', function () {
     }).timeout(5000);
   });
 
-  /* login user test - TBA */
+  /* Test: User login*/
+  describe('/users/login', function () {
+    it('check registaration is functional', function (done) {
+      chai
+        .request(app)
+        .post('/users/login')
+        .set('Content-Type', 'application/json')
+        .send({
+          email: 'test.user@mail.utoronto.ca',
+          password: '123456789',
+        })
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          expect(res.body).to.be.a('object');
+          expect(res.body.user).to.be.a('object');
+
+          expect(res.body).to.have.property('token');
+          expect(res.body.user).to.have.property('email');
+
+          expect(res.body.user.email).to.be.equal('test.user@mail.utoronto.ca');
+          done();
+        });
+    }).timeout(5000);
+  });
 });
