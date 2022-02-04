@@ -1,4 +1,5 @@
 var jwt = require('jsonwebtoken');
+var User = require('../models/user.model');
 
 module.exports = {
   respondJWT(user, res, successMessage) {
@@ -22,7 +23,7 @@ module.exports = {
     });
   },
 
-  /* */
+  /* To determine if token was verified, we check req.user is not null in the endpoint*/
   verifyToken(req, res, next) {
     if (
       req.headers &&
@@ -31,12 +32,15 @@ module.exports = {
     ) {
       jwt.verify(
         req.headers.authorization.split(' ')[1],
-        process.env.API_SECRET,
+        process.env.JWT_SECRET,
         function (err, decode) {
-          if (err) req.user = undefined;
+          if (err) {
+            req.user = undefined;
+            console.log(err);
+          }
 
           User.findOne({
-            _id: decode.id,
+            _id: decode.id, //this is the id we originally encoded with our JWT_SECRET
           }).exec((err, user) => {
             if (err) {
               res.status(500).send({

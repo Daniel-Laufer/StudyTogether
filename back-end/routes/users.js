@@ -6,7 +6,11 @@ var User = require('../models/user.model');
 const { body, validationResult } = require('express-validator');
 
 /* get all users - To be removed */
-router.get('/', function (req, res) {
+router.get('/', helperUser.verifyToken, function (req, res) {
+  if (!req.user) {
+    res.status(403).send({ message: 'Invalid JWT token' });
+    return;
+  }
   User.find()
     .then(user => res.status(200).json(user))
     .catch(err => res.status(400).json('Error: ' + err));
