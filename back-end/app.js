@@ -11,6 +11,11 @@ var usersRouter = require('./routes/users');
 
 var app = express();
 
+// swagger docs config
+var swaggerUI = require('swagger-ui-express');
+const swaggerDoc = require('./swagger.json');
+app.use('/api/docs', swaggerUI.serve, swaggerUI.setup(swaggerDoc));
+
 // MiddleWare
 app.use(cors());
 app.use(logger('dev'));
