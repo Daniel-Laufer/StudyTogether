@@ -12,7 +12,7 @@ const userSchema = new Schema(
       type: String,
       required: [true, 'lastName not provided'],
     },
-    alias: {
+    userName: {
       type: String,
     },
     email: {

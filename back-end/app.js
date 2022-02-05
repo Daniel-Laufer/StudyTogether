@@ -1,14 +1,16 @@
-var createError = require("http-errors");
-var express = require("express");
-var path = require("path");
-var cookieParser = require("cookie-parser");
-var logger = require("morgan");
-var mongoose = require("mongoose");
-var cors = require("cors");
-require("dotenv").config();
+var createError = require('http-errors');
+var express = require('express');
+var path = require('path');
+var cookieParser = require('cookie-parser');
+var logger = require('morgan');
+var mongoose = require('mongoose');
+var cors = require('cors');
+require('dotenv').config();
 
-var usersRouter = require("./routes/users");
+var usersRouter = require('./routes/users');
 var forgotRouter = require("./routes/forgot");
+var studygroupsRouter = require('./routes/studygroups');
+
 
 var app = express();
 
@@ -25,11 +27,20 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/users", usersRouter);
+
 app.use("/forgot", forgotRouter);
 
+app.use('/users', usersRouter);
+app.use('/studygroups', studygroupsRouter);
+
+
 // Connect to MongoDB Atlas cluster
-const uri = process.env.ATLAS_URI;
+const uri =
+  process.env.NODE_ENV === 'test'
+    ? process.env.ATLAS_URI_TEST //production
+    : process.env.ATLAS_URI; //development & testing
+
+console.log('--> Logging - DB URI IS:', uri, '<--');
 mongoose.connect(uri);
 
 const connection = mongoose.connection;
