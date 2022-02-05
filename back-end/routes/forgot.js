@@ -1,16 +1,19 @@
-var express = require("express");
-var crypto = require("crypto");
-var bcrypt = require("bcrypt");
-var nodemailer = require("nodemailer");
+var express = require('express');
+var crypto = require('crypto');
+var bcrypt = require('bcrypt');
+var nodemailer = require('nodemailer');
 
 var router = express.Router();
-let user = require("../models/user.model");
-let Token = require("../models/token.model");
-const { body, validationResult } = require("express-validator");
-const resetURL = "http://localhost:3000/forgot"; //to be replaced with the proper frontend page
+let user = require('../models/user.model');
+let Token = require('../models/token.model');
+const { body, validationResult } = require('express-validator');
+const resetURL = 'http://localhost:3000/forgot'; //to be replaced with the proper frontend page
 
-router.post("/forgot", body("email").notEmpty(), async function (req, res) {
+let password = process.env.password;
+
+router.post('/', body('email').notEmpty(), async function (req, res) {
   const errors = validationResult(req);
+  console.log('here');
   if (!errors.isEmpty()) {
     res.status(400).json({ errors: errors.array() });
     return;
@@ -18,7 +21,7 @@ router.post("/forgot", body("email").notEmpty(), async function (req, res) {
   const { email } = req.body;
   let person = await user.findOne({ email: `${email}` });
   if (!person) {
-    res.send("Email not in system");
+    res.send('Email not in system');
     return;
   }
 
@@ -26,9 +29,9 @@ router.post("/forgot", body("email").notEmpty(), async function (req, res) {
   await Token.findOneAndDelete({ userId: person._id });
   var saltRounds = 8;
   var salt = await bcrypt.genSalt(saltRounds);
-  let resetToken = crypto.randomBytes(32).toString("hex");
+  let resetToken = crypto.randomBytes(32).toString('hex');
   const hash = await bcrypt.hash(resetToken, salt);
-  console.log("compare" + bcrypt.compareSync(resetToken, hash));
+  console.log('compare' + bcrypt.compareSync(resetToken, hash));
   console.log(resetToken);
   await new Token({
     email: email,
@@ -40,30 +43,30 @@ router.post("/forgot", body("email").notEmpty(), async function (req, res) {
 
   //email code taken from https://nodemailer.com/about/
   let transporter = nodemailer.createTransport({
-    service: "gmail",
+    service: 'gmail',
     auth: {
-      user: "studtogtest@gmail.com",
-      pass: "studtogtest#2",
+      user: 'studtogtest@gmail.com',
+      pass: password,
     },
     secure: true,
   });
   let msg = await transporter.sendMail({
-    from: "studtogtest@gmail.com", // sender address
+    from: 'studtogtest@gmail.com', // sender address
     to: `${email}`, // list of receivers
-    subject: "Password Reset Request",
+    subject: 'Password Reset Request',
     text: `Click this link to reset your password: ${link}`,
   });
   await transporter.sendMail(msg);
 
-  res.send("email sent\nperson: " + person + "\nlink: " + link);
+  res.send('email sent\nemail: ' + email + '\nlink: ' + link);
 });
 
 //this router.post was taken from https://blog.logrocket.com/implementing-a-secure-password-reset-in-node-js/
 router.post(
-  "/resetpass",
-  body("email").notEmpty(),
-  body("password").notEmpty().isLength({ min: 6 }),
-  body("token").notEmpty(),
+  '/reset',
+  body('email').notEmpty(),
+  body('password').notEmpty().isLength({ min: 6 }),
+  body('token').notEmpty(),
 
   async function (req, res) {
     const errors = validationResult(req);
@@ -75,8 +78,8 @@ router.post(
     console.log(req.body.password);
     let passwordResetToken = await Token.findOne({ email: `${email}` });
     if (!passwordResetToken || passwordResetToken.length == 0) {
-      res.send("Invalid or expired password reset token");
-      console.log("here");
+      res.status(401).send('No token was sent for validation');
+      console.log('123');
       return;
     }
 
@@ -85,7 +88,7 @@ router.post(
       passwordResetToken.token
     );
     if (!isValid) {
-      res.send("Invalid or expired password reset token");
+      res.status(403).send('Invalid token');
       return;
     }
 
@@ -98,13 +101,13 @@ router.post(
         if (err) {
           console.log(err);
         } else {
-          console.log("Updated docs: ", docs);
+          console.log('Updated docs: ', docs);
         }
       }
     );
 
     await passwordResetToken.deleteOne();
-    res.send("Password updated");
+    res.send('Password updated');
   }
 );
 
