@@ -13,6 +13,7 @@ import Login from './modules/Login';
 import Register from './modules/Register';
 import ForgotPassword from './modules/ForgotPassword';
 import EmailSent from './modules/EmailSent';
+import ResetPassword from './modules/ResetPassword';
 
 const store = createStore(
   rootReducer,
@@ -30,6 +31,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/email-sent" element={<EmailSent />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
           </Routes>
         </BrowserRouter>
       </ChakraProvider>
