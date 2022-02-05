@@ -1,9 +1,37 @@
-import { Container, Image, VStack, Heading } from '@chakra-ui/react';
-import React from 'react';
+import {
+  Container,
+  Image,
+  VStack,
+  Heading,
+  Input,
+  Button,
+  Text,
+} from '@chakra-ui/react';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import logoblack from '../../assets/images/logoblack.png';
 import * as colors from '../../utils/colors';
 
-function index() {
+function ForgotPassword() {
+  const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
+
+  // function taken from https://stackoverflow.com/questions/46155/whats-the-best-way-to-validate-an-email-address-in-javascript
+  const validateEmail = e =>
+    String(e)
+      .toLowerCase()
+      .match(
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      );
+
+  const handleEmailChange = e => {
+    setEmail(e.target.value);
+    return setError(!validateEmail(email));
+  };
+
+  // the API request need to be handled here
+  const handleSubmit = () => {};
+
   return (
     <Container style={{ marginTop: '2rem' }}>
       <Image src={logoblack} alt="StudyTogether" />
@@ -12,42 +40,44 @@ function index() {
           Recover your account!
         </Heading>
         <VStack spacing="20px">
-          Please enter your email and we'll send you a link to get back into
-          your account.
+          <Text>
+            Please enter your email and we will send you a link to get back into
+            your account.
+          </Text>
         </VStack>
         <VStack spacing="20px" align="stretch">
           <Input
             errorBorderColor="crimson"
-            isInvalid={errors.email}
+            isInvalid={error}
             placeholder="email"
             onChange={handleEmailChange}
-            value={loginDetails.email}
+            value={email}
           />
         </VStack>
-        <Button
-          onClick={handleSubmit}
-          colorScheme="green"
-          bg={colors.green.dark}
-          style={{ alignSelf: 'flex-start' }}
-          // isLoading
-          // spinner={<BeatLoader size={8} color="white" />}
-          _hover={{ bg: colors.green.medium }}
-          borderColor={colors.green.dark}
-          _active={{
-            bg: colors.green.light,
-            transform: 'scale(0.98)',
-            borderColor: colors.green.dark,
-          }}
-          _focus={{
-            boxShadow: `0 0 1px 2px ${colors.green.dark}, 0 1px 1px rgba(0, 0, 0, .15)`,
-          }}
-          isLoading={authState.loading || false}
-        >
-          Send me a
-        </Button>
+        <Link to="/email-sent">
+          <Button
+            onClick={handleSubmit}
+            colorScheme="green"
+            bg={colors.green.dark}
+            style={{ alignSelf: 'flex-start' }}
+            _hover={{ bg: colors.green.medium }}
+            borderColor={colors.green.dark}
+            _active={{
+              bg: colors.green.light,
+              transform: 'scale(0.98)',
+              borderColor: colors.green.dark,
+            }}
+            _focus={{
+              boxShadow: `0 0 1px 2px ${colors.green.dark}, 0 1px 1px rgba(0, 0, 0, .15)`,
+            }}
+            isDisabled={email === '' || error}
+          >
+            Send me a link
+          </Button>
+        </Link>
       </VStack>
     </Container>
   );
 }
 
-export default index;
+export default ForgotPassword;

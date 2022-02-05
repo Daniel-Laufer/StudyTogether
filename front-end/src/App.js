@@ -11,6 +11,8 @@ import rootReducer from './reducers/root';
 import LandingPage from './modules/LandingPage/index';
 import Login from './modules/Login';
 import Register from './modules/Register';
+import ForgotPassword from './modules/ForgotPassword';
+import EmailSent from './modules/EmailSent';
 
 const store = createStore(
   rootReducer,
@@ -26,6 +28,8 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/email-sent" element={<EmailSent />} />
           </Routes>
         </BrowserRouter>
       </ChakraProvider>

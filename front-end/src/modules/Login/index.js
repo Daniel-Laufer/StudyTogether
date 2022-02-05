@@ -12,8 +12,10 @@ import {
   Alert,
   AlertIcon,
   CloseButton,
+  Text,
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import logoblack from '../../assets/images/logoblack.png';
 import { Auth } from '../../actions';
@@ -108,6 +110,11 @@ function Login({ authState, dispatch }) {
               gap: '20px',
             }}
           >
+            <Link to="/forgot-password">
+              <Text color="blue" as="u">
+                Forgot password
+              </Text>
+            </Link>
             <Checkbox colorScheme="gray">Remember Me</Checkbox>
             <Button
               onClick={handleSubmit}
