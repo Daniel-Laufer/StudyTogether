@@ -3,7 +3,6 @@ import {
   Heading,
   Input,
   VStack,
-  Image,
   Container,
   Checkbox,
   Button,
@@ -16,9 +15,9 @@ import {
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import logoblack from '../../assets/images/logoblack.png';
 import { Auth } from '../../actions';
 import * as colors from '../../utils/colors';
+import GreenButton from '../../components/GreenButton';
 
 function Login({ authState, dispatch }) {
   const [loginDetails, setLoginDetails] = useState({
@@ -70,7 +69,6 @@ function Login({ authState, dispatch }) {
 
   return (
     <Container style={{ marginTop: '2rem' }}>
-      <Image src={logoblack} alt="StudyTogether" />
       <VStack style={{ marginTop: '1rem' }} spacing="20px" align="stretch">
         <Heading as="h2" size="2xl">
           Login
@@ -128,25 +126,14 @@ function Login({ authState, dispatch }) {
             >
               Remember Me
             </Checkbox>
-            <Button
-              onClick={handleSubmit}
-              colorScheme="green"
-              bg={colors.green.dark}
+            <GreenButton
               style={{ alignSelf: 'flex-start' }}
-              _hover={{ bg: colors.green.medium }}
-              borderColor={colors.green.dark}
-              _active={{
-                bg: colors.green.light,
-                transform: 'scale(0.98)',
-                borderColor: colors.green.dark,
-              }}
-              _focus={{
-                boxShadow: `0 0 1px 2px ${colors.green.dark}, 0 1px 1px rgba(0, 0, 0, .15)`,
-              }}
               isLoading={authState.loading || false}
+              onClick={handleSubmit}
             >
               Login
-            </Button>
+            </GreenButton>
+
             {!forceHideAlert && authState.error && (
               <Alert status="error">
                 <AlertIcon />

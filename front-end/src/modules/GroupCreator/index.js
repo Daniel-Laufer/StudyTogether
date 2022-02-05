@@ -4,6 +4,7 @@ import {
   Heading,
   Input,
   VStack,
+  Image,
   Container,
   Checkbox,
   Button,
@@ -17,12 +18,12 @@ import {
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import logoblack from '../../assets/images/logoblack.png';
 import { Auth } from '../../actions';
 import * as colors from '../../utils/colors';
 import { userRoles } from '../../utils/constants';
-import GreenButton from '../../components/GreenButton';
 
-function Register({ authState, dispatch }) {
+function GroupCreator({ authState, dispatch }) {
   const [registrationDetails, setRegistrationDetails] = useState({
     email: '',
     password: '',
@@ -159,6 +160,7 @@ function Register({ authState, dispatch }) {
 
   return (
     <Container style={{ marginTop: '2rem' }}>
+      <Image src={logoblack} alt="StudyTogether" />
       <VStack style={{ marginTop: '1rem' }} spacing="20px" align="stretch">
         <Heading as="h2" size="2xl">
           Register
@@ -263,13 +265,27 @@ function Register({ authState, dispatch }) {
             }}
           >
             <Checkbox colorScheme="gray">Remember Me</Checkbox>
-            <GreenButton
-              style={{ alignSelf: 'flex-start' }}
-              isLoading={authState.loading || false}
+            <Button
               onClick={handleSubmit}
+              colorScheme="green"
+              bg={colors.green.dark}
+              style={{ alignSelf: 'flex-start' }}
+              // isLoading
+              // spinner={<BeatLoader size={8} color="white" />}
+              _hover={{ bg: colors.green.medium }}
+              borderColor={colors.green.dark}
+              _active={{
+                bg: colors.green.light,
+                transform: 'scale(0.98)',
+                borderColor: colors.green.dark,
+              }}
+              _focus={{
+                boxShadow: `0 0 1px 2px ${colors.green.dark}, 0 1px 1px rgba(0, 0, 0, .15)`,
+              }}
+              isLoading={authState.loading || false}
             >
               Register
-            </GreenButton>
+            </Button>
             {!forceHideAlert && authState.error && (
               <Alert status="error">
                 <AlertIcon />
@@ -290,7 +306,7 @@ function Register({ authState, dispatch }) {
   );
 }
 
-Register.propTypes = {
+GroupCreator.propTypes = {
   authState: PropTypes.shape({
     loading: PropTypes.bool,
     error: PropTypes.string,
@@ -299,8 +315,8 @@ Register.propTypes = {
   dispatch: PropTypes.func.isRequired,
 };
 
-Register.defaultProps = {};
+GroupCreator.defaultProps = {};
 
 export default connect(state => ({
   authState: state.Auth,
-}))(Register);
+}))(GroupCreator);
