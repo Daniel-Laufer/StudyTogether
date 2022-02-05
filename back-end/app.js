@@ -22,7 +22,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/users', usersRouter);
 
 // Connect to MongoDB Atlas cluster
-const uri = process.env.ATLAS_URI;
+const uri =
+  process.env.NODE_ENV === 'test'
+    ? process.env.ATLAS_URI_TEST //production
+    : process.env.ATLAS_URI; //development & testing
+
+console.log('--> Logging - DB URI IS:', uri, '<--');
 mongoose.connect(uri);
 
 const connection = mongoose.connection;

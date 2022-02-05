@@ -1,15 +1,17 @@
 var express = require('express');
 var router = express.Router();
 var bcrypt = require('bcrypt');
-var jwt = require('jsonwebtoken');
-let User = require('../models/user.model');
-const user = require('../models/user.model');
-
+var helperUser = require('../helpers/helperUser');
+var User = require('../models/user.model');
 const { body, validationResult } = require('express-validator');
+
 /* get all users - To be removed */
-router.get('/', function (req, res) {
-  user
-    .find()
+router.get('/', helperUser.verifyToken, function (req, res) {
+  if (!req.user) {
+    res.status(403).send({ message: 'Invalid JWT token' });
+    return;
+  }
+  User.find()
     .then(user => res.status(200).json(user))
     .catch(err => res.status(400).json('Error: ' + err));
 });
@@ -36,22 +38,24 @@ router.post(
       return;
     }
 
-    /* begin - registration logic  */
+    /* begin - register logic  */
     var saltRounds = 8;
 
-    var user = new User({
+    var newUser = new User({
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       email: req.body.email,
-      alias: req.body.alias ?? null,
+      username: req.body.username ?? null,
       role: req.body.role,
       verified: false,
       password: bcrypt.hashSync(req.body.password, saltRounds),
     });
 
-    user
+    newUser
       .save()
-      .then(() => res.status(200).json('User registered successfully!'))
+      .then(user =>
+        helperUser.respondJWT(user, res, 'User registered successfully!')
+      )
       .catch(err => res.status(400).json('Error: ' + err));
   }
 );
@@ -68,7 +72,7 @@ router.post(
       return;
     }
 
-    //1.Check user exists
+    //1.Check if user exists
     User.findOne({ email: req.body.email }).exec((err, user) => {
       if (err) {
         res.status(500).send({ message: error });
@@ -87,25 +91,8 @@ router.post(
         return;
       }
 
-      /* 3. Create a token by signing the user id with the private key. */
-      var token = jwt.sign(
-        { id: user._id, date: Date.now },
-        process.env.JWT_SECRET,
-        { expiresIn: 86400 } // token expires every 24 hours - Will be decreased to 60 min
-      );
-
-      /* 4. Send the token back to client + some user info */
-      res.status(200).json({
-        user: {
-          //user info
-          id: user._id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-        },
-        message: 'login was successfull',
-        token: token,
-      });
+      /* 3. Send JWT back to client*/
+      helperUser.respondJWT(user, res, 'login was successfull');
     });
   }
 );
