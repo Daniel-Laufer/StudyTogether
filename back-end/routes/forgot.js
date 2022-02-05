@@ -7,7 +7,7 @@ var router = express.Router();
 let user = require("../models/user.model");
 let Token = require("../models/token.model");
 const { body, validationResult } = require("express-validator");
-const clientURL = "http://localhost:3000";
+const resetURL = "http://localhost:3000/forgot"; //to be replaced with the proper frontend page
 
 router.post("/forgot", body("email").notEmpty(), async function (req, res) {
   const errors = validationResult(req);
@@ -35,7 +35,7 @@ router.post("/forgot", body("email").notEmpty(), async function (req, res) {
     token: hash,
     createdAt: Date.now(),
   }).save();
-  const link = `${clientURL}/forgot/reset?token=${resetToken}&email=${email}`;
+  const link = `${resetURL}?token=${resetToken}&email=${email}`;
   // end of code taken from
 
   //email code taken from https://nodemailer.com/about/
