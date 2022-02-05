@@ -17,24 +17,24 @@ function NavBar() {
 
   return (
     <Box bg="black" w="100%" h="50px">
-      <Flex h="100%" justify="space-between">
+      <Flex h="100%" justify="space-between" align="center">
         <Image
           onClick={() => navigate('/')}
-          style={{ cursor: 'pointer' }}
+          style={{ cursor: 'pointer', height: '40px', marginLeft: '1rem' }}
           src={greenLogo}
           alt="StudyTogether"
         />
         <Flex align="center" gap="1rem" style={{ marginLeft: '1rem' }}>
           <Text
             onClick={() => navigate('/dashboard')}
-            style={{ cursor: 'pointer' }}
+            style={{ cursor: 'pointer', fontWeight: 'bold' }}
             color={colors.white}
           >
             Dashboard
           </Text>
           <Text
             onClick={() => navigate('/groups/create')}
-            style={{ cursor: 'pointer' }}
+            style={{ cursor: 'pointer', fontWeight: 'bold' }}
             color={colors.white}
           >
             Create a group
