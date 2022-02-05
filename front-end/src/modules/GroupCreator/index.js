@@ -4,12 +4,7 @@ import {
   Heading,
   Input,
   VStack,
-  Image,
-  Container,
-  Checkbox,
-  Button,
-  InputGroup,
-  InputRightElement,
+  Box,
   Alert,
   AlertIcon,
   CloseButton,
@@ -18,10 +13,11 @@ import {
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import logoblack from '../../assets/images/logoblack.png';
 import { Auth } from '../../actions';
 import * as colors from '../../utils/colors';
 import { userRoles } from '../../utils/constants';
+import GoogleMap from '../../components/Map';
+import GreenButton from '../../components/GreenButton';
 
 function GroupCreator({ authState, dispatch }) {
   const [registrationDetails, setRegistrationDetails] = useState({
@@ -159,150 +155,86 @@ function GroupCreator({ authState, dispatch }) {
   }, [authState.authToken]);
 
   return (
-    <Container style={{ marginTop: '2rem' }}>
-      <Image src={logoblack} alt="StudyTogether" />
-      <VStack style={{ marginTop: '1rem' }} spacing="20px" align="stretch">
-        <Heading as="h2" size="2xl">
-          Register
-        </Heading>
+    <div style={{ height: '49vh' }}>
+      <Box style={{ marginTop: '2rem', padding: '0 2rem' }}>
+        <VStack style={{ marginTop: '1rem' }} spacing="20px" align="stretch">
+          <Heading as="h2" size="2xl">
+            Create a Group
+          </Heading>
 
-        <VStack spacing="20px" align="stretch">
-          <Input
-            autoComplete="off"
-            errorBorderColor="crimson"
-            isInvalid={errors.email}
-            placeholder="email"
-            onChange={handleEmailChange}
-            value={registrationDetails.email}
-          />
-          <InputGroup size="md">
+          <VStack spacing="20px" align="stretch">
             <Input
               autoComplete="off"
-              isInvalid={errors.password}
-              pr="4.5rem"
-              type={showPassword ? 'text' : 'password'}
-              placeholder="Enter password"
-              onChange={handlePasswordChange}
-              value={registrationDetails.password}
+              errorBorderColor="crimson"
+              isInvalid={errors.email}
+              placeholder="Group Name"
+              onChange={handleEmailChange}
+              value={registrationDetails.email}
             />
-            <InputRightElement width="4.5rem">
-              <Button
-                h="1.75rem"
-                size="sm"
-                _hover={{
-                  boxShadow: `0 0 1px 2px ${colors.green.dark}, 0 1px 1px rgba(0, 0, 0, .15)`,
-                }}
-                _focus={{
-                  boxShadow: `0 0 1px 2px ${colors.green.dark}, 0 1px 1px rgba(0, 0, 0, .15)`,
-                }}
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? 'Hide' : 'Show'}
-              </Button>
-            </InputRightElement>
-          </InputGroup>
-          <InputGroup size="md">
-            <Input
-              isInvalid={errors.confirmPassword}
-              pr="4.5rem"
-              type={showConfirmPassword ? 'text' : 'password'}
-              placeholder="Confirm Password"
-              onChange={handleConfirmPasswordChange}
-              value={registrationDetails.confirmPassword}
-            />
-            <InputRightElement width="4.5rem">
-              <Button
-                h="1.75rem"
-                size="sm"
-                _hover={{
-                  boxShadow: `0 0 1px 2px ${colors.green.dark}, 0 1px 1px rgba(0, 0, 0, .15)`,
-                }}
-                _focus={{
-                  boxShadow: `0 0 1px 2px ${colors.green.dark}, 0 1px 1px rgba(0, 0, 0, .15)`,
-                }}
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              >
-                {showConfirmPassword ? 'Hide' : 'Show'}
-              </Button>
-            </InputRightElement>
-          </InputGroup>
-          <Input
-            errorBorderColor="crimson"
-            isInvalid={errors.firstName}
-            placeholder="First Name"
-            onChange={handleFirstNameChange}
-            value={registrationDetails.firstName}
-          />
-          <Input
-            errorBorderColor="crimson"
-            isInvalid={errors.lastName}
-            placeholder="Last Name"
-            onChange={handleLastNameChange}
-            value={registrationDetails.lastName}
-          />
-          <Input
-            errorBorderColor="crimson"
-            isInvalid={errors.userName}
-            placeholder="Username"
-            onChange={handleUserNameChange}
-            value={registrationDetails.userName}
-          />
-          <Select
-            isInvalid={errors.role}
-            placeholder="What type of user are you?"
-            onChange={handleRoleChange}
-          >
-            {userRoles.map((key, index) => (
-              <option value={key}>{key}</option>
-            ))}
-          </Select>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'flex-start',
-              gap: '20px',
-            }}
-          >
-            <Checkbox colorScheme="gray">Remember Me</Checkbox>
-            <Button
-              onClick={handleSubmit}
-              colorScheme="green"
-              bg={colors.green.dark}
-              style={{ alignSelf: 'flex-start' }}
-              // isLoading
-              // spinner={<BeatLoader size={8} color="white" />}
-              _hover={{ bg: colors.green.medium }}
-              borderColor={colors.green.dark}
-              _active={{
-                bg: colors.green.light,
-                transform: 'scale(0.98)',
-                borderColor: colors.green.dark,
-              }}
-              _focus={{
-                boxShadow: `0 0 1px 2px ${colors.green.dark}, 0 1px 1px rgba(0, 0, 0, .15)`,
-              }}
-              isLoading={authState.loading || false}
+
+            <Select
+              isInvalid={errors.role}
+              placeholder="What is the purpose of this group?"
+              onChange={handleRoleChange}
             >
-              Register
-            </Button>
-            {!forceHideAlert && authState.error && (
-              <Alert status="error">
-                <AlertIcon />
-                There was an error during the registration process (
-                {authState.error}).
-                <CloseButton
-                  position="absolute"
-                  right="8px"
-                  top="8px"
-                  onClick={() => setForceHideAlert(true)}
-                />
-              </Alert>
-            )}
-          </div>
+              {userRoles.map((key, index) => (
+                <option value={key}>{key}</option>
+              ))}
+            </Select>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'flex-start',
+                gap: '20px',
+              }}
+            >
+              <GreenButton
+                onClick={handleSubmit}
+                colorScheme="green"
+                bg={colors.green.dark}
+                style={{ alignSelf: 'flex-start' }}
+                // isLoading
+                // spinner={<BeatLoader size={8} color="white" />}
+                _hover={{ bg: colors.green.medium }}
+                borderColor={colors.green.dark}
+                _active={{
+                  bg: colors.green.light,
+                  transform: 'scale(0.98)',
+                  borderColor: colors.green.dark,
+                }}
+                _focus={{
+                  boxShadow: `0 0 1px 2px ${colors.green.dark}, 0 1px 1px rgba(0, 0, 0, .15)`,
+                }}
+                isLoading={authState.loading || false}
+              >
+                Register
+              </GreenButton>
+              {!forceHideAlert && authState.error && (
+                <Alert status="error">
+                  <AlertIcon />
+                  There was an error during the registration process (
+                  {authState.error}).
+                  <CloseButton
+                    position="absolute"
+                    right="8px"
+                    top="8px"
+                    onClick={() => setForceHideAlert(true)}
+                  />
+                </Alert>
+              )}
+            </div>
+          </VStack>
         </VStack>
-      </VStack>
-    </Container>
+      </Box>
+      <Box
+        style={{
+          marginTop: '2rem',
+        }}
+      >
+        <GoogleMap style={{ width: 'calc(100% - 4rem)', height: '100%' }} />
+      </Box>
+    </div>
   );
 }
 
