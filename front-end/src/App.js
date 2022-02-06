@@ -11,6 +11,8 @@ import rootReducer from './reducers/root';
 import LandingPage from './modules/LandingPage/index';
 import Login from './modules/Login';
 import Register from './modules/Register';
+import GroupCreator from './modules/GroupCreator';
+import NavBar from './components/NavBar';
 
 const store = createStore(
   rootReducer,
@@ -22,10 +24,13 @@ function App() {
     <Provider store={store}>
       <ChakraProvider theme={theme}>
         <BrowserRouter>
+          <NavBar />
           <Routes>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/dashboard" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/groups/create" element={<GroupCreator />} />
           </Routes>
         </BrowserRouter>
       </ChakraProvider>
