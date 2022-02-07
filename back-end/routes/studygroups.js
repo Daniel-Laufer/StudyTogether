@@ -6,6 +6,7 @@ const { body, validationResult } = require('express-validator');
 
 /* get all study groups*/
 router.get('/', helperUser.verifyToken, (req, res) => {
+  // checking if user is authenticated
   if (!req.user) {
     res.status(403).send({ message: 'Invalid JWT token' });
     return;
@@ -16,7 +17,8 @@ router.get('/', helperUser.verifyToken, (req, res) => {
 });
 
 /* get an individual study group by ID*/
-router.get('/:id', function (req, res) {
+router.get('/:id', helperUser.verifyToken, (req, res) => {
+  // checking if user is authenticated
   if (!req.user) {
     res.status(403).send({ message: 'Invalid JWT token' });
     return;
@@ -30,17 +32,21 @@ router.get('/:id', function (req, res) {
 /* catching a post request with url ./create */
 router.post(
   '/create',
+  helperUser.verifyToken,
   /* Parameter Validation */
   body('title').notEmpty(),
   body('time').notEmpty(),
   body('phone').notEmpty(),
   body('imageUrl').notEmpty(),
   body('maxAttendees').notEmpty(),
-  body('hostFirstName').notEmpty(),
-  body('hostLastName').notEmpty(),
-  body('description').notEmpty(),
   body('tags').notEmpty(),
   (req, res) => {
+    // checking if user is authenticated
+    if (!req.user) {
+      res.status(403).send({ message: 'Invalid JWT token' });
+      return;
+    }
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       res.status(400).json({ errors: errors.array() });
@@ -55,8 +61,7 @@ router.post(
       imageUrl: req.body.imageUrl,
       curAttendees: req.body.curAttendees,
       maxAttendees: req.body.maxAttendees,
-      hostFirstName: req.body.hostFirstName,
-      hostLastName: req.body.hostLastName,
+      hostId: req.user.id,
       description: req.body.description,
       tags: req.body.tags,
     });
@@ -69,10 +74,20 @@ router.post(
 );
 
 /* editing a study group by id */
-router.patch('/edit/:id', (req, res) => {
+router.patch('/edit/:id', helperUser.verifyToken, (req, res) => {
+  // check whether the user is authenticated as the host of this study group
+  if (!req.user) {
+    res.status(403).send({ message: 'Invalid JWT token' });
+    return;
+  }
+
   const groupId = req.params.id;
   StudygroupModel.findById(groupId)
     .then(studygroup => {
+      if (studygroup.hostId != req.user.id) {
+        res.status(403).send({ message: 'Not study group creator' });
+        return;
+      }
       Object.assign(studygroup, req.body);
       studygroup.save();
       res.status(200).json('Study group edited successfully!');
@@ -81,10 +96,20 @@ router.patch('/edit/:id', (req, res) => {
 });
 
 /* deleting a study group by id */
-router.delete('/delete/:id', (req, res) => {
+router.delete('/delete/:id', helperUser.verifyToken, (req, res) => {
+  // check whether the user is authenticated as the host of this study group
+  if (!req.user) {
+    res.status(403).send({ message: 'Invalid JWT token' });
+    return;
+  }
+
   const groupId = req.params.id;
   StudygroupModel.findById(groupId)
     .then(studygroup => {
+      if (studygroup.hostId != req.user.id) {
+        res.status(403).send({ message: 'Not study group creator' });
+        return;
+      }
       studygroup.delete();
       res.status(200).json('Study group deleted successfully!');
     })
