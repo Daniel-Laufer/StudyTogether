@@ -8,7 +8,7 @@ const studygroupSchema = new Schema(
     time: { type: Date, required: true },
     phone: { type: String, required: true },
     imageUrl: { type: String, required: true },
-    curAttendees: { type: Number, min: 0, required: true },
+    curAttendees: { type: Number, min: 0, default: 0, required: true },
     maxAttendees: { type: Number, min: 2, required: true },
     hostFirstName: { type: String, required: true },
     hostLastName: { type: String, required: true },
