@@ -8,7 +8,7 @@ const { body, validationResult } = require('express-validator');
 router.get('/', helperUser.verifyToken, (req, res) => {
   // checking if user is authenticated
   if (!req.user) {
-    res.status(403).send({ message: 'Invalid JWT token' });
+    res.status(401).send({ message: 'Invalid JWT token' });
     return;
   }
   StudygroupModel.find()
@@ -20,7 +20,7 @@ router.get('/', helperUser.verifyToken, (req, res) => {
 router.get('/:id', helperUser.verifyToken, (req, res) => {
   // checking if user is authenticated
   if (!req.user) {
-    res.status(403).send({ message: 'Invalid JWT token' });
+    res.status(401).send({ message: 'Invalid JWT token' });
     return;
   }
   const groupId = req.params.id;
@@ -43,7 +43,7 @@ router.post(
   (req, res) => {
     // checking if user is authenticated
     if (!req.user) {
-      res.status(403).send({ message: 'Invalid JWT token' });
+      res.status(401).send({ message: 'Invalid JWT token' });
       return;
     }
 
@@ -77,7 +77,7 @@ router.post(
 router.patch('/edit/:id', helperUser.verifyToken, (req, res) => {
   // check whether the user is authenticated as the host of this study group
   if (!req.user) {
-    res.status(403).send({ message: 'Invalid JWT token' });
+    res.status(401).send({ message: 'Invalid JWT token' });
     return;
   }
 
@@ -99,7 +99,7 @@ router.patch('/edit/:id', helperUser.verifyToken, (req, res) => {
 router.delete('/delete/:id', helperUser.verifyToken, (req, res) => {
   // check whether the user is authenticated as the host of this study group
   if (!req.user) {
-    res.status(403).send({ message: 'Invalid JWT token' });
+    res.status(401).send({ message: 'Invalid JWT token' });
     return;
   }
 

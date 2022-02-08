@@ -1,144 +1,523 @@
 {
-    "swagger": "2.0",
-    "info": {
-      "description": "The official documentation of StudyTogether",
-      "version": "1.0.5",
-      "title": "StudyTogether's Offical API Documentation"
+  "swagger": "2.0",
+  "info": {
+    "description": "The official documentation of StudyTogether",
+    "version": "1.0.5",
+    "title": "StudyTogether's Offical API Documentation"
+  },
+  "tags": [
+    {
+      "name": "auth",
+      "description": "Stuff about auth"
     },
-    "tags": [
-      {
-        "name": "auth",
-        "description": "Stuff about auth"
-      },
-      {
-        "name": "study groups",
-        "description": "stuff about study groups"
-      }
-    ],
-    "paths": {
-      "/users/login": {
-        "post": {
-          "tags": [
-            "user"
-          ],
-          "summary": "Logs in user",
-          "description": "",
-          "parameters": [
-            {
-              "name": "username",
-              "in": "body",
-              "description": "The user name for login",
-              "required": true,
-              "type": "string"
-            },
-            {
-              "name": "password",
-              "in": "body",
-              "description": "The password for the login",
-              "required": true,
-              "type": "string"
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "success",
-              "headers": {
-                "token": {
-                  "type": "string",
-                  "description": "auth token for this user"
-                }
-              }
-            },
-            "400": {
-              "description": "Invalid username or password"
-            },
-            "500": {
-              "description": "Internal server error"
-            }
-          }
-        }
-      },
-      "/user/register": {
-        "post": {
-          "tags": [
-            "user"
-          ],
-          "summary": "Logs in user",
-          "description": "",
-          "parameters": [
-            {
-              "name": "username",
-              "in": "body",
-              "description": "The user name for login",
-              "required": true,
-              "type": "string"
-            },
-            {
-              "name": "password",
-              "in": "body",
-              "description": "The password for the login",
-              "required": true,
-              "type": "string"
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "successful operation",
-              "headers": {
-                "token": {
-                  "type": "string",
-                  "description": "auth token for this user"
-                }
-              }
-            },
-            "400": {
-              "description": "Invalid username/password supplied"
-            },
-            "500": {
-              "description": "Internal server error"
-            }
-          }
-        }
-      }
-    },
-    "definitions": {
-      "StudyGroup": {
-        "type": "object",
-        "required": [
-            "name",
-            "tag"
+    {
+      "name": "study groups",
+      "description": "stuff about study groups"
+    }
+  ],
+  "paths": {
+    "/users/login": {
+      "post": {
+        "tags": [
+          "user"
         ],
-        "properties": {
-          "name": {
-            "type": "string",
-            "example": "heyo"
+        "summary": "Logs in user",
+        "description": "",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "body",
+            "description": "The user name for login",
+            "required": true,
+            "type": "string"
           },
-          "tag": {
-            "type": "string",
-            "example":  "heyo"
+          {
+            "name": "password",
+            "in": "body",
+            "description": "The password for the login",
+            "required": true,
+            "type": "string"
           }
-          
-        },
-        "xml": {
-          "name": "StudyGroup"
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "headers": {
+              "token": {
+                "type": "string",
+                "description": "auth token for this user"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid username or password"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
         }
-      },
-      
-      "user": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "format": "int64"
+      }
+    },
+    "/user/register": {
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Logs in user",
+        "description": "",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "body",
+            "description": "The user name for login",
+            "required": true,
+            "type": "string"
           },
-          "email": {
-            "type": "string",
-            "format": "int64"
+          {
+            "name": "password",
+            "in": "body",
+            "description": "The password for the login",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "token": {
+                "type": "string",
+                "description": "auth token for this user"
+              }
+            }
           },
-        "xml": {
-          "name": "user"
+          "400": {
+            "description": "Invalid username/password supplied"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+
+
+    "/studygroups": {
+      "get": {
+        "tags": [
+          "study groups"
+        ],
+        "summary": "Returns all the study groups in the database",
+        "description": "",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "format is 'JWT ' followed by the token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "token": {
+                "type": "json",
+                "description": "object containing information about all study groups"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated user"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+
+    "/studygroups/{id}": {
+      "get": {
+        "tags": [
+          "study groups"
+        ],
+        "summary": "Find study group by id",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of study group to return",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "format is 'JWT ' followed by the token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "token": {
+                "type": "json",
+                "description": "object containing information about a specific study group"
+              }
+            }
+          },
+          "400": {
+            "description": "study group with the given id was not found in database"
+          },
+          "401": {
+            "description": "Unauthenticated user"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/studygroups/create": {
+      "post": {
+        "tags": [
+          "study groups"
+        ],
+        "summary": "Create a study group",
+        "description": "The user must be authenticated since their user id will be used as the study group's host id",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "format is 'JWT ' followed by the token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "title",
+            "in": "body",
+            "description": "Title of study group",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "time",
+            "in": "body",
+            "description": "The time when the study group meeting takes place",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "phone",
+            "in": "body",
+            "description": "The phone number associated with the study group",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "imgUrl",
+            "in": "body",
+            "description": "The study group's image",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "curAttendees",
+            "in": "body",
+            "description": "The current number of attendees of the study group",
+            "default": 0,
+            "minimum": 0,
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "maxAttendees",
+            "in": "body",
+            "description": "The maximum number of attendees of the study group",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "hostId",
+            "in": "body",
+            "description": "The id of the study group host",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "description",
+            "in": "body",
+            "description": "The study group description",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "tags",
+            "in": "body",
+            "description": "The study group's tags",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "token": {
+                "type": "json",
+                "description": "object containing information about a specific study group"
+              }
+            }
+          },
+          "400": {
+            "description": "study group with the given id was not found in database"
+          },
+          "401": {
+            "description": "Unauthenticated user"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/studygroups/edit/{id}": {
+      "patch": {
+        "tags": [
+          "study groups"
+        ],
+        "summary": "Edit a study group",
+        "description": "A user can only edit study groups they have created",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "format is 'JWT ' followed by the token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of study group to edit",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "title",
+            "in": "body",
+            "description": "Title of study group",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "time",
+            "in": "body",
+            "description": "The time when the study group meeting takes place",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "phone",
+            "in": "body",
+            "description": "The phone number associated with the study group",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "imgUrl",
+            "in": "body",
+            "description": "The study group's image",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "curAttendees",
+            "in": "body",
+            "description": "The current number of attendees of the study group",
+            "default": 0,
+            "minimum": 0,
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "maxAttendees",
+            "in": "body",
+            "description": "The maximum number of attendees of the study group",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "hostId",
+            "in": "body",
+            "description": "The id of the study group host",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "description",
+            "in": "body",
+            "description": "The study group description",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "tags",
+            "in": "body",
+            "description": "The study group's tags",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "token": {
+                "type": "json",
+                "description": "object containing information about a specific study group"
+              }
+            }
+          },
+          "400": {
+            "description": "study group with the given id was not found in database"
+          },
+          "401": {
+            "description": "Unauthenticated user"
+          },
+          "403": {
+            "description": "User is authenticated and does not have rights to edit the study group"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/studygroups/delete/{id}": {
+      "delete": {
+        "tags": [
+          "study groups"
+        ],
+        "summary": "Delete a study group",
+        "description": "A user can only delete study groups they have created",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "format is 'JWT ' followed by the token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of study group to delete",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "token": {
+                "type": "json",
+                "description": "object containing information about a specific study group"
+              }
+            }
+          },
+          "400": {
+            "description": "study group with the given id was not found in database"
+          },
+          "401": {
+            "description": "Unauthenticated user"
+          },
+          "403": {
+            "description": "User is authenticated and does not have rights to delete the study group"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
         }
       }
     }
+
+  },
+  "definitions": {
+    "StudyGroup": {
+      "type": "object",
+      "required": [
+          "name",
+          "tag"
+      ],
+      "properties": {
+        "title": {
+          "type": "string",
+          "example": "CSC209 midterm study session"
+        },
+        "time": {
+          "type": "date",
+          "example":  "2022-11-07T17:04:15.000+00:00"
+        },
+        "phone": {
+          "type": "string",
+          "example":  "281-874-2103"
+        },
+        "imageUrl": {
+          "type": "string",
+          "example":  "/assets/ewffejvndqj30.jpg"
+        },
+        "curAttendees": {
+          "type": "int",
+          "example":  "0"
+        },
+        "maxAttendees": {
+          "type": "int",
+          "example":  "5"
+        },
+        "hostFirstName": {
+          "type": "string",
+          "example":  "Tobey"
+        },
+        "hostLastName": {
+          "type": "string",
+          "example":  "Maguire"
+        },
+        "description": {
+          "type": "string",
+          "example":  "CSC209 Midterm preparation"
+        },
+        "tags": {
+          "type": "[string]",
+          "example":  "['Free', 'UTM']"
+        }
+      },
+      "xml": {
+        "name": "StudyGroup"
+      }
+    },
+    
+    "user": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "format": "int64"
+        },
+        "email": {
+          "type": "string",
+          "format": "int64"
+        },
+      "xml": {
+        "name": "user"
+      }
     }
   }
+  }
+}
