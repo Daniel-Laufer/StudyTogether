@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box } from '@chakra-ui/react';
-// import Group from '../../components/Group';
+import Group from '../../components/Group';
 import Cat from '../../assets/images/cat.jpeg';
 import SecondGroup from '../../components/SecondGroup';
 
@@ -40,7 +40,7 @@ const groups = [
 function index() {
   return (
     <Box textAlign={['left', 'left', 'left']} spacingY="20px">
-      {/* {groups.map(g => (
+      {groups.map(g => (
         <Group
           heading={g.heading}
           restrict={g.restrict}
@@ -49,7 +49,7 @@ function index() {
           img={g.imgSrc}
           link="cat"
         />
-      ))} */}
+      ))}
       {groups.map(g => (
         <SecondGroup
           title={g.heading}
