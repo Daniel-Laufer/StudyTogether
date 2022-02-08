@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box } from '@chakra-ui/react';
-import Group from '../../components/Group';
+import Group from '../../components/group';
 import Cat from '../../assets/images/cat.jpeg';
 import SecondGroup from '../../components/SecondGroup';
 
