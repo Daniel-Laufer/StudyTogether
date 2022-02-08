@@ -10,20 +10,22 @@ const defaultMapStyles = {
 };
 
 // eslint-disable-next-line react/prop-types
-function MapContainer({ google, initialCenter, zoom, style }) {
+function MapContainer({ google, initialCenter, zoom, style, parentOnClick }) {
   const [mapState, setMapState] = useState({
     showingInfoWindow: false,
     activeMarker: {},
     selectedPlace: {},
   });
 
-  const onMarkerClick = (props, marker, e) =>
+  const onMarkerClick = (props, marker, e) => {
     setMapState({
       ...mapState,
       selectedPlace: props,
       activeMarker: marker,
       showingInfoWindow: true,
     });
+    console.log(props);
+  };
 
   const onClose = props => {
     if (mapState.showingInfoWindow) {
@@ -41,6 +43,9 @@ function MapContainer({ google, initialCenter, zoom, style }) {
       zoom={zoom}
       style={{ ...defaultMapStyles, ...style }}
       initialCenter={initialCenter}
+      onClick={ev => {
+        console.log(ev);
+      }}
     >
       <Marker onClick={onMarkerClick} name="Heyo" />
       <InfoWindow
@@ -61,6 +66,7 @@ MapContainer.propTypes = {
     lng: PropTypes.number,
   }),
   zoom: PropTypes.number,
+  parentOnClick: PropTypes.isRequired,
 };
 MapContainer.defaultProps = {
   initialCenter: {
