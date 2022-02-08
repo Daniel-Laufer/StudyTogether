@@ -9,6 +9,7 @@ import { ChakraProvider, theme } from '@chakra-ui/react';
 
 import rootReducer from './reducers/root';
 import LandingPage from './modules/LandingPage/index';
+import Groups from './modules/Groups/index';
 import Login from './modules/Login';
 import Register from './modules/Register';
 import GroupCreator from './modules/GroupCreator';
@@ -30,6 +31,7 @@ function App() {
             <Route path="/dashboard" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/groups" element={<Groups />} />
             <Route path="/groups/create" element={<GroupCreator />} />
           </Routes>
         </BrowserRouter>
