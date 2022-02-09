@@ -206,11 +206,18 @@
             "type": "string"
           },
           {
-            "name": "time",
+            "name": "startDateTime",
             "in": "body",
-            "description": "The time when the study group meeting takes place",
+            "description": "The time when the study group meeting starts",
             "required": true,
-            "type": "string"
+            "type": "date"
+          },
+          {
+            "name": "endDateTime",
+            "in": "body",
+            "description": "The time when the study group meeting ends",
+            "required": true,
+            "type": "date"
           },
           {
             "name": "phone",
@@ -234,6 +241,13 @@
             "minimum": 0,
             "required": false,
             "type": "integer"
+          },
+          {
+            "name": "location",
+            "in": "body",
+            "description": "The coordinates (longitude and latitude) of the meeting",
+            "required": true,
+            "type": "{long: x, lat: y}"
           },
           {
             "name": "maxAttendees",
@@ -261,7 +275,7 @@
             "in": "body",
             "description": "The study group's tags",
             "required": true,
-            "type": "string"
+            "type": "[string]"
           }
         ],
         "responses": {
@@ -316,11 +330,18 @@
             "type": "string"
           },
           {
-            "name": "time",
+            "name": "startDateTime",
             "in": "body",
-            "description": "The time when the study group meeting takes place",
+            "description": "The time when the study group meeting starts",
             "required": true,
-            "type": "string"
+            "type": "date"
+          },
+          {
+            "name": "endDateTime",
+            "in": "body",
+            "description": "The time when the study group meeting ends",
+            "required": true,
+            "type": "date"
           },
           {
             "name": "phone",
@@ -344,6 +365,13 @@
             "minimum": 0,
             "required": false,
             "type": "integer"
+          },
+          {
+            "name": "location",
+            "in": "body",
+            "description": "The coordinates (longitude and latitude) of the meeting",
+            "required": true,
+            "type": "{long: x, lat: y}"
           },
           {
             "name": "maxAttendees",
@@ -371,7 +399,7 @@
             "in": "body",
             "description": "The study group's tags",
             "required": true,
-            "type": "string"
+            "type": "[string]"
           }
         ],
         "responses": {
@@ -461,9 +489,13 @@
           "type": "string",
           "example": "CSC209 midterm study session"
         },
-        "time": {
+        "startDateTime": {
           "type": "date",
           "example":  "2022-11-07T17:04:15.000+00:00"
+        },
+        "endDateTime": {
+          "type": "date",
+          "example":  "2022-11-07T17:07:15.000+00:00"
         },
         "phone": {
           "type": "string",
@@ -476,6 +508,10 @@
         "curAttendees": {
           "type": "int",
           "example":  "0"
+        },
+        "location": {
+          "type": "array",
+          "example":  "['Free', 'UTM']"
         },
         "maxAttendees": {
           "type": "int",
