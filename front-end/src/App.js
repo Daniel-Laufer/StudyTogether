@@ -12,6 +12,9 @@ import LandingPage from './modules/LandingPage/index';
 import Groups from './modules/Groups/index';
 import Login from './modules/Login';
 import Register from './modules/Register';
+import ForgotPassword from './modules/ForgotPassword';
+import EmailSent from './modules/EmailSent';
+import ResetPassword from './modules/ResetPassword';
 import GroupCreator from './modules/GroupCreator';
 import NavBar from './components/NavBar';
 
@@ -31,6 +34,9 @@ function App() {
             <Route path="/dashboard" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/email-sent" element={<EmailSent />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/groups" element={<Groups />} />
             <Route path="/groups/create" element={<GroupCreator />} />
           </Routes>

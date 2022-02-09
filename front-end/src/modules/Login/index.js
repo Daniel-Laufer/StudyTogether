@@ -11,10 +11,13 @@ import {
   Alert,
   AlertIcon,
   CloseButton,
+  Text,
+  Flex,
+  Spacer,
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
+import { Link, useNavigate } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 import { Auth } from '../../actions';
 import * as colors from '../../utils/colors';
 import GreenButton from '../../components/GreenButton';
@@ -114,18 +117,26 @@ function Login({ authState, dispatch }) {
               gap: '20px',
             }}
           >
-            <Checkbox
-              colorScheme="gray"
-              onChange={() =>
-                setLoginDetails({
-                  ...loginDetails,
-                  rememberUser: !loginDetails.rememberUser,
-                })
-              }
-              isChecked={loginDetails.rememberUser}
-            >
-              Remember Me
-            </Checkbox>
+            <Flex>
+              <Checkbox
+                colorScheme="gray"
+                onChange={() =>
+                  setLoginDetails({
+                    ...loginDetails,
+                    rememberUser: !loginDetails.rememberUser,
+                  })
+                }
+                isChecked={loginDetails.rememberUser}
+              >
+                Remember Me
+              </Checkbox>
+              <Spacer />
+              <Link to="/forgot-password">
+                <Text color="blue" as="u">
+                  Forgot password
+                </Text>
+              </Link>
+            </Flex>
             <GreenButton
               style={{ alignSelf: 'flex-start' }}
               isLoading={authState.loading || false}
