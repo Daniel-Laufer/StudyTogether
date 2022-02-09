@@ -59,21 +59,60 @@
     "/user/register": {
       "post": {
         "tags": ["user"],
-        "summary": "Logs in user",
+        "summary": "register a new user",
         "description": "",
         "parameters": [
           {
-            "name": "username",
+            "name": "firstName",
             "in": "body",
-            "description": "The user name for login",
             "required": true,
+            "type": "string"
+          },
+          {
+            "name": "lastName",
+            "in": "body",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "email",
+            "in": "body",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "userName",
+            "in": "body",
+            "description": "The user name for registration",
+            "required": false,
             "type": "string"
           },
           {
             "name": "password",
             "in": "body",
-            "description": "The password for the login",
+            "description": "The password for the registration",
             "required": true,
+            "type": "string"
+          },
+          {
+            "name": "role",
+            "in": "body",
+            "description": "An Enum to indicate the user's role. Student by default",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "verified",
+            "in": "body",
+            "description": "Indicates whether the user has verified their email",
+            "required": true,
+            "type": "boolean"
+          },
+          {
+            "name": "created",
+            "in": "body",
+            "description": "The user name for registration",
+            "required": false,
             "type": "string"
           }
         ],
@@ -187,16 +226,29 @@
     "user": {
       "type": "object",
       "properties": {
-        "name": {
-          "type": "string",
-          "format": "int64"
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "userName": {
+          "type": "string"
         },
         "email": {
-          "type": "string",
-          "format": "int64"
+          "type": "string"
         },
-        "xml": {
-          "name": "user"
+        "password": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "verified": {
+          "type": "boolean"
+        },
+        "created": {
+          "type": "date"
         }
       }
     }
