@@ -35,11 +35,13 @@ router.post(
   helperUser.verifyToken,
   /* Parameter Validation */
   body('title').notEmpty(),
-  body('time').notEmpty(),
+  body('startDateTime').notEmpty(),
+  body('endDateTime').notEmpty(),
   body('phone').notEmpty(),
   body('imageUrl').notEmpty(),
+  body('location').exists().bail().isObject().bail().notEmpty(),
   body('maxAttendees').notEmpty(),
-  body('tags').notEmpty(),
+  body('tags').exists().bail().isArray().bail().notEmpty(),
   (req, res) => {
     // checking if user is authenticated
     if (!req.user) {
@@ -56,10 +58,12 @@ router.post(
     /* study group creation logic  */
     let studygroup = new StudygroupModel({
       title: req.body.title,
-      time: req.body.time,
+      startDateTime: req.body.startDateTime,
+      endDateTime: req.body.endDateTime,
       phone: req.body.phone,
       imageUrl: req.body.imageUrl,
       curAttendees: req.body.curAttendees,
+      location: req.body.location,
       maxAttendees: req.body.maxAttendees,
       hostId: req.user.id,
       description: req.body.description,
