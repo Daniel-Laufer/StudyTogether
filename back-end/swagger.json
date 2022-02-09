@@ -116,9 +116,6 @@
           },
           "400": {
             "description": "Invalid email"
-          },
-          "500": {
-            "description": "Internal server error"
           }
         }
       }
