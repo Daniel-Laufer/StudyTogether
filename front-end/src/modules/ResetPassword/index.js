@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   Container,
   Image,
@@ -21,9 +21,23 @@ function ResetPassword() {
   const [errors, setErrors] = useState({
     isSame: false,
     isFirstPassword: false,
+    noTyping: true,
   });
   const [showFirstPassword, setShowFirstPassword] = useState(false);
   const [showSecondPassword, setShowSecondPassword] = useState(false);
+
+  const isMounted = useRef(false);
+
+  useEffect(() => {
+    if (isMounted.current) {
+      setErrors({
+        ...errors,
+        isFirstPassword: firstPassword.length < 6,
+        isSame: secondPassword !== firstPassword,
+        noTyping: false,
+      });
+    } else isMounted.current = true;
+  }, [firstPassword, secondPassword]);
 
   // Will handle API calls here
   const handleSubmit = () => {};
@@ -40,11 +54,6 @@ function ResetPassword() {
             placeholder="Enter password"
             onChange={e => {
               setFirstPassword(e.target.value);
-              setErrors({
-                ...errors,
-                isFirstPassword: firstPassword.length < 6,
-                isSame: secondPassword !== firstPassword,
-              });
             }}
             value={firstPassword}
           />
@@ -134,7 +143,9 @@ function ResetPassword() {
           _focus={{
             boxShadow: `0 0 1px 2px ${colors.green.dark}, 0 1px 1px rgba(0, 0, 0, .15)`,
           }}
-          isDisabled={errors.isSame || errors.isFirstPassword}
+          isDisabled={
+            errors.isSame || errors.isFirstPassword || errors.noTyping
+          }
         >
           Change Password
         </Button>
