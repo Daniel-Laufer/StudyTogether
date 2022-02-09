@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Heading,
   Input,
   VStack,
-  Image,
   Container,
   Checkbox,
   Button,
@@ -13,22 +12,27 @@ import {
   AlertIcon,
   CloseButton,
   Text,
+  Flex,
+  Spacer,
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { connect } from 'react-redux';
-import logoblack from '../../assets/images/logoblack.png';
 import { Auth } from '../../actions';
 import * as colors from '../../utils/colors';
+import GreenButton from '../../components/GreenButton';
 
 function Login({ authState, dispatch }) {
   const [loginDetails, setLoginDetails] = useState({
     email: '',
     password: '',
+    rememberUser: false,
   });
+
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({ email: false, password: false });
   const [forceHideAlert, setForceHideAlert] = useState(false);
+  const navigate = useNavigate();
 
   const handleEmailChange = event => {
     setErrors({ ...errors, email: false });
@@ -62,9 +66,12 @@ function Login({ authState, dispatch }) {
     return dispatch(Auth.login(loginDetails));
   };
 
+  useEffect(() => {
+    if (authState.authToken !== '') navigate('/');
+  }, [authState.authToken]);
+
   return (
     <Container style={{ marginTop: '2rem' }}>
-      <Image src={logoblack} alt="StudyTogether" />
       <VStack style={{ marginTop: '1rem' }} spacing="20px" align="stretch">
         <Heading as="h2" size="2xl">
           Login
@@ -110,37 +117,38 @@ function Login({ authState, dispatch }) {
               gap: '20px',
             }}
           >
-            <Link to="/forgot-password">
-              <Text color="blue" as="u">
-                Forgot password
-              </Text>
-            </Link>
-            <Checkbox colorScheme="gray">Remember Me</Checkbox>
-            <Button
-              onClick={handleSubmit}
-              colorScheme="green"
-              bg={colors.green.dark}
+            <Flex>
+              <Checkbox
+                colorScheme="gray"
+                onChange={() =>
+                  setLoginDetails({
+                    ...loginDetails,
+                    rememberUser: !loginDetails.rememberUser,
+                  })
+                }
+                isChecked={loginDetails.rememberUser}
+              >
+                Remember Me
+              </Checkbox>
+              <Spacer />
+              <Link to="/forgot-password">
+                <Text color="blue" as="u">
+                  Forgot password
+                </Text>
+              </Link>
+            </Flex>
+            <GreenButton
               style={{ alignSelf: 'flex-start' }}
-              // isLoading
-              // spinner={<BeatLoader size={8} color="white" />}
-              _hover={{ bg: colors.green.medium }}
-              borderColor={colors.green.dark}
-              _active={{
-                bg: colors.green.light,
-                transform: 'scale(0.98)',
-                borderColor: colors.green.dark,
-              }}
-              _focus={{
-                boxShadow: `0 0 1px 2px ${colors.green.dark}, 0 1px 1px rgba(0, 0, 0, .15)`,
-              }}
               isLoading={authState.loading || false}
+              onClick={handleSubmit}
             >
               Login
-            </Button>
+            </GreenButton>
+
             {!forceHideAlert && authState.error && (
               <Alert status="error">
                 <AlertIcon />
-                There was an error logging in.
+                There was an error logging in ({authState.error}).
                 <CloseButton
                   position="absolute"
                   right="8px"
@@ -160,6 +168,7 @@ Login.propTypes = {
   authState: PropTypes.shape({
     loading: PropTypes.bool,
     error: PropTypes.string,
+    authToken: PropTypes.string,
   }).isRequired,
   dispatch: PropTypes.func.isRequired,
 };

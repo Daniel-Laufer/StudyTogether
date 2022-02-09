@@ -14,6 +14,8 @@ import Register from './modules/Register';
 import ForgotPassword from './modules/ForgotPassword';
 import EmailSent from './modules/EmailSent';
 import ResetPassword from './modules/ResetPassword';
+import GroupCreator from './modules/GroupCreator';
+import NavBar from './components/NavBar';
 
 const store = createStore(
   rootReducer,
@@ -25,13 +27,16 @@ function App() {
     <Provider store={store}>
       <ChakraProvider theme={theme}>
         <BrowserRouter>
+          <NavBar />
           <Routes>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/dashboard" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/email-sent" element={<EmailSent />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/groups/create" element={<GroupCreator />} />
           </Routes>
         </BrowserRouter>
       </ChakraProvider>

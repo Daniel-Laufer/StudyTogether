@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable default-param-last */
 import { Auth } from '../actions';
 
@@ -5,6 +6,7 @@ const initialState = {
   loading: false,
   error: null,
   authToken: '',
+  userDetails: {},
 };
 
 export default (state = initialState, action) => {
@@ -42,6 +44,12 @@ export default (state = initialState, action) => {
         ...state,
         loading: false,
         error: action.error,
+      };
+    case Auth.SAVE_AUTH_DETAILS:
+      return {
+        ...state,
+        userDetails: { ...action.user },
+        authToken: action.token,
       };
 
     default:
