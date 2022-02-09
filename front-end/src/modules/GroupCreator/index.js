@@ -47,6 +47,8 @@ function GroupCreator({ authToken }) {
     maxAttendees: 2,
     description: '',
     tags: [{ id: 'asdfasdfasdf', text: 'CSC301' }],
+    locationLat: 43,
+    locationLng: 76,
   });
   const [errors, setErrors] = useState({
     title: false,
@@ -58,6 +60,7 @@ function GroupCreator({ authToken }) {
     maxAttendees: false,
     description: false,
     tags: false,
+    location: false,
   });
   const [forceHideAlert, setForceHideAlert] = useState(false);
 
@@ -103,8 +106,8 @@ function GroupCreator({ authToken }) {
       state.image.substring(state.image.lastIndexOf('.')) !== '.jpg';
     const tagsInvalid = state.tags.length === 0;
 
-    const descriptionInvalid = state.description.split(' ').length < 5;
-
+    const descriptionInvalid = state.description.length < 10;
+    setForceHideAlert(false);
     if (
       [
         groupTitleInvalid,
@@ -126,27 +129,30 @@ function GroupCreator({ authToken }) {
       const body = {
         title: state.title,
         time: state.startDate, // will remove this once back-end is updated.
-        startTime: state.startDate,
-        endTime: state.endDate,
+        startDateTime: state.startDate,
+        endDateTime: state.endDate,
         phone: state.phone,
         imageUrl: state.image,
         currAttendees: state.currAttendees,
         maxAttendees: state.maxAttendees,
         description: state.description,
+        location: {
+          lat: state.locationLat,
+          lng: state.locationLng,
+        },
         tags: state.tags.reduce((acc, curr) => {
           acc.push(curr.text);
           return acc;
         }, []),
       };
+
       const config = {
         headers: { Authorization: `JWT ${authToken}` },
       };
 
       axios
         .post(`${apiURL}/studygroups/create`, body, config)
-        .then(res => {
-          console.log(res);
-        })
+        .then(res => {})
         .catch(err => {
           console.log(err);
         });
@@ -183,6 +189,10 @@ function GroupCreator({ authToken }) {
   useEffect(() => {
     console.log(state);
   }, [state]);
+
+  const setLocation = (lat, lng) => {
+    setState({ ...state, locationLat: lat, locationLng: lng });
+  };
 
   return (
     <div style={{ height: '49vh' }}>
@@ -367,10 +377,11 @@ function GroupCreator({ authToken }) {
             >
               Create Group
             </GreenButton>
-            {!forceHideAlert && false && (
+            {!forceHideAlert && Object.values(errors).some(item => item) && (
               <Alert status="error">
                 <AlertIcon />
-                There was an error during the registration process ( ).
+                Some of the input fields are invalid, or you are not currently
+                logged in.
                 <CloseButton
                   position="absolute"
                   right="8px"
@@ -387,7 +398,11 @@ function GroupCreator({ authToken }) {
           marginTop: '2rem',
         }}
       >
-        <Map style={{ width: 'calc(100% - 4rem)', height: '100%' }} />
+        <Map
+          style={{ width: 'calc(100% - 4rem)', height: '100%' }}
+          restrictToOneMarker
+          getLngLatOfNewMarker={setLocation}
+        />
       </Box>
     </div>
   );
