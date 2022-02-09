@@ -23,19 +23,19 @@ import {
 import PropTypes from 'prop-types';
 import TimePicker from 'react-time-picker';
 import { connect } from 'react-redux';
+import axios from 'axios';
 import DatePicker from 'react-datepicker';
 import PhoneInput from 'react-phone-number-input/input';
-
+import { WithContext as ReactTags } from 'react-tag-input';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useNavigate } from 'react-router-dom';
 import { Auth } from '../../actions';
 import * as colors from '../../utils/colors';
 import { apiURL, userRoles } from '../../utils/constants';
-import GoogleMap from '../../components/Map';
+import Map from '../../components/Map';
 import GreenButton from '../../components/GreenButton';
-import axios from 'axios';
 
-function GroupCreator({ authState, dispatch }) {
+function GroupCreator({ authToken }) {
   const [state, setState] = useState({
     title: '',
     startDate: new Date(),
@@ -46,7 +46,7 @@ function GroupCreator({ authState, dispatch }) {
     currAttendees: 1,
     maxAttendees: 2,
     description: '',
-    tags: [],
+    tags: [{ id: 'asdfasdfasdf', text: 'CSC301' }],
   });
   const [errors, setErrors] = useState({
     title: false,
@@ -87,7 +87,7 @@ function GroupCreator({ authState, dispatch }) {
       default:
         console.log('Name does not exist.');
     }
-    setState({ ...state, newState });
+    setState({ ...state, ...newState });
   };
 
   // code taken from here https://stackoverflow.com/questions/4338267/validate-phone-number-with-javascript
@@ -101,6 +101,7 @@ function GroupCreator({ authState, dispatch }) {
     const phoneInvalid = !validatePhoneNumber(state.phone);
     const imageUrlInvalid =
       state.image.substring(state.image.lastIndexOf('.')) !== '.jpg';
+    const tagsInvalid = state.tags.length === 0;
 
     const descriptionInvalid = state.description.split(' ').length < 5;
 
@@ -110,6 +111,7 @@ function GroupCreator({ authState, dispatch }) {
         phoneInvalid,
         imageUrlInvalid,
         descriptionInvalid,
+        tagsInvalid,
       ].some(boolean => boolean)
     )
       setErrors({
@@ -118,27 +120,69 @@ function GroupCreator({ authState, dispatch }) {
         phone: phoneInvalid,
         image: imageUrlInvalid,
         description: descriptionInvalid,
+        tags: tagsInvalid,
       });
     else {
-      // axios.post(`${apiURL}/users/login`, {
-      //   title: state.title,
-      //   time: time.st,
-      //   phone: { type: String, required: true },
-      //   imageUrl: { type: String, required: true },
-      //   curAttendees: { type: Number, min: 0, default: 0, required: true },
-      //   maxAttendees: { type: Number, min: 2, required: true },
-      //   hostId: { type: mongoose.Types.ObjectId, required: true },
-      //   description: { type: String, required: true },
-      //   tags: { type: [String], required: true },
-      // });
+      const body = {
+        title: state.title,
+        time: state.startDate, // will remove this once back-end is updated.
+        startTime: state.startDate,
+        endTime: state.endDate,
+        phone: state.phone,
+        imageUrl: state.image,
+        currAttendees: state.currAttendees,
+        maxAttendees: state.maxAttendees,
+        description: state.description,
+        tags: state.tags.reduce((acc, curr) => {
+          acc.push(curr.text);
+          return acc;
+        }, []),
+      };
+      const config = {
+        headers: { Authorization: `JWT ${authToken}` },
+      };
+
+      axios
+        .post(`${apiURL}/studygroups/create`, body, config)
+        .then(res => {
+          console.log(res);
+        })
+        .catch(err => {
+          console.log(err);
+        });
     }
   };
 
+  const handleDelete = i => {
+    setState({
+      ...state,
+      tags: [...state.tags.filter((tag, index) => index !== i)],
+    });
+  };
+
+  const handleAddition = tag => {
+    setState({
+      ...state,
+      tags: [...state.tags, tag],
+    });
+  };
+
+  const handleDrag = (tag, currPos, newPos) => {
+    const newTags = state.tags.slice();
+
+    newTags.splice(currPos, 1);
+    newTags.splice(newPos, 0, tag);
+
+    // re-render
+    setState({
+      ...state,
+      tags: [...newTags],
+    });
+  };
+
   useEffect(() => {
-    console.log(validatePhoneNumber(state.phone));
     console.log(state);
-    console.log(errors);
-  }, [state, errors]);
+  }, [state]);
 
   return (
     <div style={{ height: '49vh' }}>
@@ -257,6 +301,7 @@ function GroupCreator({ authState, dispatch }) {
                 hourPlaceholder="09"
                 minutePlaceholder="00"
                 value=""
+                disableClock
               />
             </Flex>
             <Flex gap="1rem">
@@ -267,6 +312,7 @@ function GroupCreator({ authState, dispatch }) {
                 hourPlaceholder="11"
                 minutePlaceholder="00"
                 value="22:15:00"
+                disableClock
               />
             </Flex>
             <>
@@ -279,6 +325,18 @@ function GroupCreator({ authState, dispatch }) {
                 size="sm"
               />
             </>
+            <VStack align="left" style={{ width: '100%' }}>
+              <Text mb="8px">Group Tags</Text>
+              <ReactTags
+                tags={state.tags}
+                // delimiters={delimiters}
+                handleDelete={handleDelete}
+                handleAddition={handleAddition}
+                handleDrag={handleDrag}
+                inputFieldPosition="bottom"
+                autocomplete
+              />
+            </VStack>
           </VStack>
           <div
             style={{
@@ -305,15 +363,14 @@ function GroupCreator({ authState, dispatch }) {
               _focus={{
                 boxShadow: `0 0 1px 2px ${colors.green.dark}, 0 1px 1px rgba(0, 0, 0, .15)`,
               }}
-              isLoading={authState.loading || false}
+              // isLoading={authState.loading || false}
             >
               Create Group
             </GreenButton>
-            {!forceHideAlert && authState.error && (
+            {!forceHideAlert && false && (
               <Alert status="error">
                 <AlertIcon />
-                There was an error during the registration process (
-                {authState.error}).
+                There was an error during the registration process ( ).
                 <CloseButton
                   position="absolute"
                   right="8px"
@@ -325,28 +382,24 @@ function GroupCreator({ authState, dispatch }) {
           </div>
         </VStack>
       </Box>
-      {/* <Box
+      <Box
         style={{
           marginTop: '2rem',
         }}
       >
-        <GoogleMap style={{ width: 'calc(100% - 4rem)', height: '100%' }} />
-      </Box> */}
+        <Map style={{ width: 'calc(100% - 4rem)', height: '100%' }} />
+      </Box>
     </div>
   );
 }
 
 GroupCreator.propTypes = {
-  authState: PropTypes.shape({
-    loading: PropTypes.bool,
-    error: PropTypes.string,
-    authToken: PropTypes.string,
-  }).isRequired,
-  dispatch: PropTypes.func.isRequired,
+  authToken: PropTypes.string,
 };
 
-GroupCreator.defaultProps = {};
+GroupCreator.defaultProps = { authToken: '' };
 
 export default connect(state => ({
-  authState: state.Auth,
+  // eslint-disable-next-line no-undef
+  authToken: state.Auth.authToken || localStorage.getItem('authToken'),
 }))(GroupCreator);
