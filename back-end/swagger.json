@@ -1,144 +1,207 @@
 {
-    "swagger": "2.0",
-    "info": {
-      "description": "The official documentation of StudyTogether",
-      "version": "1.0.5",
-      "title": "StudyTogether's Offical API Documentation"
+  "swagger": "2.0",
+  "info": {
+    "description": "The official documentation of StudyTogether",
+    "version": "1.0.5",
+    "title": "StudyTogether's Offical API Documentation"
+  },
+  "tags": [
+    {
+      "name": "auth",
+      "description": "Stuff about auth"
     },
-    "tags": [
-      {
-        "name": "auth",
-        "description": "Stuff about auth"
-      },
-      {
-        "name": "study groups",
-        "description": "stuff about study groups"
-      }
-    ],
-    "paths": {
-      "/users/login": {
-        "post": {
-          "tags": [
-            "user"
-          ],
-          "summary": "Logs in user",
-          "description": "",
-          "parameters": [
-            {
-              "name": "username",
-              "in": "body",
-              "description": "The user name for login",
-              "required": true,
-              "type": "string"
-            },
-            {
-              "name": "password",
-              "in": "body",
-              "description": "The password for the login",
-              "required": true,
-              "type": "string"
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "success",
-              "headers": {
-                "token": {
-                  "type": "string",
-                  "description": "auth token for this user"
-                }
-              }
-            },
-            "400": {
-              "description": "Invalid username or password"
-            },
-            "500": {
-              "description": "Internal server error"
-            }
+    {
+      "name": "study groups",
+      "description": "stuff about study groups"
+    }
+  ],
+  "paths": {
+    "/users/login": {
+      "post": {
+        "tags": ["user"],
+        "summary": "Logs in user",
+        "description": "",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "body",
+            "description": "The user name for login",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "password",
+            "in": "body",
+            "description": "The password for the login",
+            "required": true,
+            "type": "string"
           }
-        }
-      },
-      "/user/register": {
-        "post": {
-          "tags": [
-            "user"
-          ],
-          "summary": "Logs in user",
-          "description": "",
-          "parameters": [
-            {
-              "name": "username",
-              "in": "body",
-              "description": "The user name for login",
-              "required": true,
-              "type": "string"
-            },
-            {
-              "name": "password",
-              "in": "body",
-              "description": "The password for the login",
-              "required": true,
-              "type": "string"
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "successful operation",
-              "headers": {
-                "token": {
-                  "type": "string",
-                  "description": "auth token for this user"
-                }
-              }
-            },
-            "400": {
-              "description": "Invalid username/password supplied"
-            },
-            "500": {
-              "description": "Internal server error"
-            }
-          }
-        }
-      }
-    },
-    "definitions": {
-      "StudyGroup": {
-        "type": "object",
-        "required": [
-            "name",
-            "tag"
         ],
-        "properties": {
-          "name": {
-            "type": "string",
-            "example": "heyo"
+        "responses": {
+          "200": {
+            "description": "success",
+            "headers": {
+              "token": {
+                "type": "string",
+                "description": "auth token for this user"
+              }
+            }
           },
-          "tag": {
-            "type": "string",
-            "example":  "heyo"
+          "400": {
+            "description": "Invalid username or password"
+          },
+          "500": {
+            "description": "Internal server error"
           }
-          
+        }
+      }
+    },
+    "/user/register": {
+      "post": {
+        "tags": ["user"],
+        "summary": "Logs in user",
+        "description": "",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "body",
+            "description": "The user name for login",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "password",
+            "in": "body",
+            "description": "The password for the login",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "token": {
+                "type": "string",
+                "description": "auth token for this user"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid username/password supplied"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/forgot": {
+      "post": {
+        "tags": ["user"],
+        "summary": "Sends recovery email to user's email",
+        "description": "",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "body",
+            "description": "The email address for the locked out user",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Email sent"
+          },
+          "400": {
+            "description": "Invalid email"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/forgot/reset": {
+      "post": {
+        "tags": ["user"],
+        "summary": "Resets forgotten password to a user",
+        "description": "",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "body",
+            "description": "The email address for the locked out user",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "password",
+            "in": "body",
+            "description": "The new password for the locked out user",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "token",
+            "in": "body",
+            "description": "The verification token emailed to the locked out user",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Email sent"
+          },
+          "400": {
+            "description": "Invalid email or password or token"
+          },
+          "401": {
+            "description": "No verification token was sent"
+          },
+          "403": {
+            "description": "Invalid verification token"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "StudyGroup": {
+      "type": "object",
+      "required": ["name", "tag"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "heyo"
         },
-        "xml": {
-          "name": "StudyGroup"
+        "tag": {
+          "type": "string",
+          "example": "heyo"
         }
       },
-      
-      "user": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "format": "int64"
-          },
-          "email": {
-            "type": "string",
-            "format": "int64"
-          },
+      "xml": {
+        "name": "StudyGroup"
+      }
+    },
+
+    "user": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "format": "int64"
+        },
+        "email": {
+          "type": "string",
+          "format": "int64"
+        },
         "xml": {
           "name": "user"
         }
       }
     }
-    }
   }
+}
