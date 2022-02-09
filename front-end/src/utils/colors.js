@@ -8,7 +8,7 @@ export const black = '#131316';
 
 export const white = '#FFFFFF';
 
-export const gray = {
+export const grey = {
   light: '#DEDEE3',
   medium: '#9797A1',
   dark: '#595962',

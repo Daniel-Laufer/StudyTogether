@@ -79,7 +79,6 @@ router.post(
     let passwordResetToken = await Token.findOne({ email: `${email}` });
     if (!passwordResetToken || passwordResetToken.length == 0) {
       res.status(401).send('No token was sent for validation');
-      console.log('123');
       return;
     }
 

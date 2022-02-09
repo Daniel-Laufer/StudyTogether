@@ -9,6 +9,7 @@ import { ChakraProvider, theme } from '@chakra-ui/react';
 
 import rootReducer from './reducers/root';
 import LandingPage from './modules/LandingPage/index';
+import Groups from './modules/Groups/index';
 import Login from './modules/Login';
 import Register from './modules/Register';
 import ForgotPassword from './modules/ForgotPassword';
@@ -36,6 +37,7 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/email-sent" element={<EmailSent />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/groups" element={<Groups />} />
             <Route path="/groups/create" element={<GroupCreator />} />
           </Routes>
         </BrowserRouter>
