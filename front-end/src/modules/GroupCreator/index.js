@@ -98,6 +98,7 @@ function GroupCreator({ authToken }) {
     const regexEx = /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/im;
     return !!String(phone).toLowerCase().match(regexEx);
   };
+  const navigate = useNavigate();
 
   const handleSubmit = () => {
     const groupTitleInvalid = state.title.length < 4;
@@ -152,7 +153,9 @@ function GroupCreator({ authToken }) {
 
       axios
         .post(`${apiURL}/studygroups/create`, body, config)
-        .then(res => {})
+        .then(res => {
+          navigate('/');
+        })
         .catch(err => {
           console.log(err);
         });
