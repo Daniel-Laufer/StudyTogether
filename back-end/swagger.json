@@ -7,20 +7,19 @@
   },
   "tags": [
     {
-      "name": "auth",
-      "description": "Stuff about auth"
+      "name": "user",
+      "description": "Everything user related"
     },
     {
       "name": "study groups",
-      "description": "stuff about study groups"
+      "description": "Everything study group related"
     }
   ],
   "paths": {
     "/users/login": {
       "post": {
         "tags": ["user"],
-        "summary": "Logs in user",
-        "description": "",
+        "summary": "Logs in exising user",
         "parameters": [
           {
             "name": "username",
@@ -52,6 +51,12 @@
           },
           "500": {
             "description": "Internal server error"
+          },
+          "404":{
+            "description": "User was not found in records"
+          },
+          "401":{
+            "description": "Password was invalid"
           }
         }
       }
@@ -60,7 +65,6 @@
       "post": {
         "tags": ["user"],
         "summary": "register a new user",
-        "description": "",
         "parameters": [
           {
             "name": "firstName",
@@ -97,21 +101,21 @@
           {
             "name": "role",
             "in": "body",
-            "description": "An Enum to indicate the user's role. Student by default",
+            "description": "An Enum to indicate the user's role. 'Student' by default",
             "required": true,
-            "type": "string"
+            "type":"string"
           },
           {
             "name": "verified",
-            "in": "body",
-            "description": "Indicates whether the user has verified their email",
+            "in":"body",
+            "description": "Boolean that indicates whether the user has verified their email",
             "required": true,
-            "type": "boolean"
+            "type":"string"
           },
           {
             "name": "created",
             "in": "body",
-            "description": "The user name for registration",
+            "description": "Exact date of when user account was created",
             "required": false,
             "type": "string"
           }
@@ -127,7 +131,7 @@
             }
           },
           "400": {
-            "description": "Invalid username/password supplied"
+            "description": "Invalid parameter(s) supplied"
           },
           "500": {
             "description": "Internal server error"
@@ -631,28 +635,36 @@
       "type": "object",
       "properties": {
         "firstName": {
-          "type": "string"
+          "type": "string",
+          "example": "Tobey"
         },
         "lastName": {
-          "type": "string"
+          "type": "string",
+          "example": "Maguire"
         },
         "userName": {
-          "type": "string"
+          "type": "string",
+          "example" :"SpiderMan"
         },
         "email": {
-          "type": "string"
+          "type": "string",
+          "example":"Tobey.Maguire@mail.utoronto.ca"
         },
         "password": {
-          "type": "string"
+          "type": "string",
+          "example": "ddf2834DFG$^^%xjfhggf#$%^"
         },
         "role": {
-          "type": "string"
+          "type": "string",
+          "example":"Student"
         },
         "verified": {
-          "type": "boolean"
+          "type": "boolean",
+          "example":false
         },
         "created": {
-          "type": "date"
+          "type": "date",
+          "example":"2022-11-07T17:04:15.000+00:00"
         }
       }
     }
