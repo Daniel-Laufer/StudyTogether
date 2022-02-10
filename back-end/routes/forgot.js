@@ -7,7 +7,7 @@ var router = express.Router();
 let user = require('../models/user.model');
 let Token = require('../models/token.model');
 const { body, validationResult } = require('express-validator');
-const resetURL = 'http://localhost:3000/forgot'; //to be replaced with the proper frontend page
+const resetURL = 'http://localhost:3000/reset-password'; //to be replaced with the proper frontend page
 
 let password = process.env.password;
 

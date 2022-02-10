@@ -8,13 +8,16 @@ import {
   Text,
 } from '@chakra-ui/react';
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { apiURL } from '../../utils/constants';
 import logoblack from '../../assets/images/logoblack.png';
 import * as colors from '../../utils/colors';
 
 function ForgotPassword() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   // function taken from https://stackoverflow.com/questions/46155/whats-the-best-way-to-validate-an-email-address-in-javascript
   const validateEmail = e =>
@@ -30,7 +33,17 @@ function ForgotPassword() {
   };
 
   // the API request need to be handled here
-  const handleSubmit = () => {};
+  const handleSubmit = () => {
+    const body = { email };
+    axios
+      .post(`${apiURL}/forgot`, body)
+      .then(() => {
+        navigate('/email-sent');
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
 
   return (
     <Container style={{ marginTop: '2rem' }}>
