@@ -39,6 +39,13 @@ function NavBar() {
           >
             Create a group
           </Text>
+          <Text
+            onClick={() => navigate('/groups')}
+            style={{ cursor: 'pointer', fontWeight: 'bold' }}
+            color={colors.white}
+          >
+            Groups
+          </Text>
         </Flex>
         <Flex
           align="center"

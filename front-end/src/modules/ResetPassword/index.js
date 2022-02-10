@@ -12,10 +12,22 @@ import {
   Text,
   Box,
 } from '@chakra-ui/react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import logoblack from '../../assets/images/logoblack.png';
 import * as colors from '../../utils/colors';
+import { apiURL } from '../../utils/constants';
+
+function useQuery() {
+  const { search } = useLocation();
+  return React.useMemo(() => new URLSearchParams(search), [search]);
+}
 
 function ResetPassword() {
+  const query = useQuery();
+  const email = query.get('email');
+  const token = query.get('token');
+
   const [firstPassword, setFirstPassword] = useState('');
   const [secondPassword, setSecondPassword] = useState('');
   const [errors, setErrors] = useState({
@@ -27,6 +39,7 @@ function ResetPassword() {
   const [showSecondPassword, setShowSecondPassword] = useState(false);
 
   const isMounted = useRef(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (isMounted.current) {
@@ -40,7 +53,16 @@ function ResetPassword() {
   }, [firstPassword, secondPassword]);
 
   // Will handle API calls here
-  const handleSubmit = () => {};
+  const handleSubmit = () => {
+    const body = { email, password: firstPassword, token };
+    axios
+      .post(`${apiURL}/forgot/reset`, body)
+      .then(res => {
+        console.log(res.data);
+        navigate('/login');
+      })
+      .catch(err => console.log(err));
+  };
 
   return (
     <Container style={{ marginTop: '2rem' }}>
