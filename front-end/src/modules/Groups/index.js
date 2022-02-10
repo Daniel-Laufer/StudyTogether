@@ -44,7 +44,9 @@ function Groups({ authToken }) {
         <SecondGroup
           title={g.title}
           restrict="UofT students"
-          availability="$0"
+          availability={`${g.maxAttendees - g.curAttendees} / ${
+            g.maxAttendees
+          }`}
           imgAlt="Study group image"
           img={g.imageUrl}
           when={g.time}
