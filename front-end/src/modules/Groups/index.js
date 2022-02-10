@@ -1,66 +1,58 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box } from '@chakra-ui/react';
+import { connect } from 'react-redux';
+import axios from 'axios';
+import PropTypes from 'prop-types';
 import Group from '../../components/Group';
-import Cat from '../../assets/images/cat.jpeg';
 import SecondGroup from '../../components/SecondGroup';
+import { apiURL } from '../../utils/constants';
 
-const groups = [
-  {
-    heading: 'CSC108 Study Group',
-    restrict: 'UofT Students Only ',
-    price: 'Free',
-    imgAlt: 'cat',
-    imgSrc: Cat,
-    size: 'lg',
-  },
-  {
-    heading: 'CSC309 Study Group',
-    restrict: 'UofT Students Only ',
-    price: 'Free',
-    imgAlt: 'cat',
-    imgSrc: Cat,
-  },
-  {
-    heading: 'CSC148 Study Group',
-    restrict: 'UofT Students Only ',
-    price: 'Free',
-    imgAlt: 'cat',
-    imgSrc: Cat,
-  },
-  {
-    heading: 'CSC209 Study Group',
-    restrict: 'UofT Students Only ',
-    price: 'Free',
-    imgAlt: 'cat',
-    imgSrc: Cat,
-    desc: 'dhue gyf geufh uirgey bfui rbfgy sfbyrgfsn gygrhuis dghfuihr frfhurgdn fvfhruighdk frhgr frhugndlkf rehgdrn fv',
-  },
-];
+function Groups({ authToken }) {
+  const [groups, setGroups] = useState([]);
 
-function index() {
+  const makeAPICall = () => {
+    const config = {
+      headers: { Authorization: `JWT ${authToken}` },
+    };
+    console.log(config);
+    axios
+      .get(`${apiURL}/studygroups`, config)
+      .then(res => {
+        console.log(res.data);
+        setGroups(res.data);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    makeAPICall();
+  }, []);
+
   return (
     <Box textAlign={['left', 'left', 'left']} spacingY="20px">
       {groups.map(g => (
         <Group
-          heading={g.heading}
+          heading={g.title}
           restrict={g.restrict}
           price={g.price}
-          imgAlt={g.imgAlt}
-          img={g.imgSrc}
-          link="cat"
+          imgAlt="Study group image"
+          img={g.imageUrl}
+          link={g._id}
         />
       ))}
       {groups.map(g => (
         <SecondGroup
-          title={g.heading}
-          restrict={g.restrict}
-          availability={g.price}
-          imgAlt={g.imgAlt}
-          img={g.imgSrc}
-          when={g.price}
-          host={g.price}
-          desc={g.desc}
-          link="cat"
+          title={g.title}
+          restrict="UofT students"
+          availability="$0"
+          imgAlt="Study group image"
+          img={g.imageUrl}
+          when={g.time}
+          host={g.hostFirstName + g.hostLastName}
+          desc={g.description}
+          link={`${g._id}`}
           size="md"
         />
       ))}
@@ -68,4 +60,12 @@ function index() {
   );
 }
 
-export default index;
+Groups.propTypes = {
+  authToken: PropTypes.string,
+};
+
+Groups.defaultProps = { authToken: '' };
+
+export default connect(state => ({
+  authToken: state.Auth.authToken || localStorage.getItem('authToken'),
+}))(Groups);
