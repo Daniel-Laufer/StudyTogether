@@ -14,11 +14,9 @@ function Groups({ authToken }) {
     const config = {
       headers: { Authorization: `JWT ${authToken}` },
     };
-    console.log(config);
     axios
       .get(`${apiURL}/studygroups`, config)
       .then(res => {
-        console.log(res.data);
         setGroups(res.data);
       })
       .catch(err => {
