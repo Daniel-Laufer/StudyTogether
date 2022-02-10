@@ -8,7 +8,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { apiURL } from '../../utils/constants';
 import logoblack from '../../assets/images/logoblack.png';
@@ -29,7 +29,7 @@ function ForgotPassword() {
 
   const handleEmailChange = e => {
     setEmail(e.target.value);
-    return setError(!validateEmail(email));
+    return setError(!validateEmail(e.target.value));
   };
 
   // the API request need to be handled here
@@ -67,27 +67,25 @@ function ForgotPassword() {
             value={email}
           />
         </VStack>
-        <Link to="/email-sent">
-          <Button
-            onClick={handleSubmit}
-            colorScheme="green"
-            bg={colors.green.dark}
-            style={{ alignSelf: 'flex-start' }}
-            _hover={{ bg: colors.green.medium }}
-            borderColor={colors.green.dark}
-            _active={{
-              bg: colors.green.light,
-              transform: 'scale(0.98)',
-              borderColor: colors.green.dark,
-            }}
-            _focus={{
-              boxShadow: `0 0 1px 2px ${colors.green.dark}, 0 1px 1px rgba(0, 0, 0, .15)`,
-            }}
-            isDisabled={email === '' || error}
-          >
-            Send me a link
-          </Button>
-        </Link>
+        <Button
+          onClick={handleSubmit}
+          colorScheme="green"
+          bg={colors.green.dark}
+          style={{ alignSelf: 'flex-start' }}
+          _hover={{ bg: colors.green.medium }}
+          borderColor={colors.green.dark}
+          _active={{
+            bg: colors.green.light,
+            transform: 'scale(0.98)',
+            borderColor: colors.green.dark,
+          }}
+          _focus={{
+            boxShadow: `0 0 1px 2px ${colors.green.dark}, 0 1px 1px rgba(0, 0, 0, .15)`,
+          }}
+          isDisabled={email === '' || error}
+        >
+          Send me a link
+        </Button>
       </VStack>
     </Container>
   );
