@@ -13,6 +13,10 @@
     {
       "name": "study groups",
       "description": "Everything study group related"
+    },
+    {
+      "name": "Password Recovery",
+      "description": "Everything Password Recovery related"
     }
   ],
   "paths": {
@@ -22,27 +26,22 @@
         "summary": "Logs in exising user",
         "parameters": [
           {
-            "name": "username",
+            "name": "credentials",
             "in": "body",
             "description": "The user name for login",
             "required": true,
-            "type": "string"
-          },
-          {
-            "name": "password",
-            "in": "body",
-            "description": "The password for the login",
-            "required": true,
-            "type": "string"
+            "schema":{
+              "$ref": "#/definitions/credentials"
+            }
           }
-        ],
+        ],  
         "responses": {
           "200": {
             "description": "success",
             "headers": {
               "token": {
                 "type": "string",
-                "description": "auth token for this user"
+                "description": "JWT token for the user"
               }
             }
           },
@@ -67,57 +66,13 @@
         "summary": "register a new user",
         "parameters": [
           {
-            "name": "firstName",
+            "name": "user",
             "in": "body",
+            "description":"User that we want to register",
             "required": true,
-            "type": "string"
-          },
-          {
-            "name": "lastName",
-            "in": "body",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "email",
-            "in": "body",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "userName",
-            "in": "body",
-            "description": "The user name for registration",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "password",
-            "in": "body",
-            "description": "The password for the registration",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "role",
-            "in": "body",
-            "description": "An Enum to indicate the user's role. 'Student' by default",
-            "required": true,
-            "type":"string"
-          },
-          {
-            "name": "verified",
-            "in":"body",
-            "description": "Boolean that indicates whether the user has verified their email",
-            "required": true,
-            "type":"string"
-          },
-          {
-            "name": "created",
-            "in": "body",
-            "description": "Exact date of when user account was created",
-            "required": false,
-            "type": "string"
+            "schema":{
+              "$ref": "#/definitions/user"
+            }
           }
         ],
         "responses": {
@@ -126,7 +81,7 @@
             "headers": {
               "token": {
                 "type": "string",
-                "description": "auth token for this user"
+                "description": "JWT token for the user"
               }
             }
           },
@@ -141,7 +96,7 @@
     },
     "/forgot": {
       "post": {
-        "tags": ["user"],
+        "tags": ["Password Recovery"],
         "summary": "Sends recovery email to user's email",
         "description": "",
         "parameters": [
@@ -165,7 +120,7 @@
     },
     "/forgot/reset": {
       "post": {
-        "tags": ["user"],
+        "tags": ["Password Recovery"],
         "summary": "Resets forgotten password to a user",
         "description": "",
         "parameters": [
@@ -636,11 +591,13 @@
       "properties": {
         "firstName": {
           "type": "string",
-          "example": "Tobey"
+          "example": "Tobey",
+          "required": true
         },
         "lastName": {
           "type": "string",
-          "example": "Maguire"
+          "example": "Maguire",
+          "required": true
         },
         "userName": {
           "type": "string",
@@ -648,23 +605,67 @@
         },
         "email": {
           "type": "string",
-          "example":"Tobey.Maguire@mail.utoronto.ca"
+          "example":"Tobey.Maguire@mail.utoronto.ca",
+          "required": true
         },
         "password": {
           "type": "string",
-          "example": "ddf2834DFG$^^%xjfhggf#$%^"
+          "example": "ddf2834DFG$^^%xjfhggf#$%^",
+          "required": true
         },
         "role": {
           "type": "string",
-          "example":"Student"
+          "example":"Student",
+          "required": true
         },
         "verified": {
           "type": "boolean",
-          "example":false
+          "example":false,
+          "required": true,
+          "defualt": false
         },
         "created": {
           "type": "date",
-          "example":"2022-11-07T17:04:15.000+00:00"
+          "example":"2022-11-07T17:04:15.000+00:00",
+          "required": true
+        }
+      }
+    },
+    "credentials": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "example":"Tobey.Maguire@mail.utoronto.ca",
+          "required": true
+        },
+        "password": {
+          "type": "string",
+          "example": "ddf2834DFG$^^%xjfhggf#$%^",
+          "required": true
+        }
+      }
+    },
+    "token": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "example":"Tobey.Maguire@mail.utoronto.ca",
+          "required": true
+
+        },
+        "token": {
+          "type": "string",
+          "example": "ddf2834DFG$^^%xjfhggf#$%^",
+          "required": true
+
+        },
+        "createdAt": {
+          "type": "date",
+          "required": true,
+          "example":"2022-11-07T17:04:15.000+00:00",
+          "expires": "TTL index"
         }
       }
     }
