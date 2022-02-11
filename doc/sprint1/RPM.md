@@ -17,14 +17,11 @@ Users can personalize their profiles and make new connections through the app.
 Video/voice/text chatting service on the platform
 
 ## Participants
-Dan Laufer
-Mohamed Issa
-John Lewczuk
-Maor Gornic
-Milind Vishnoi
+- Dan Laufer
+- Mohamed Issa
+- John Lewczuk
+- Maor Gornic
+- Milind Vishnoi
 
 
 
-
-
-This document has to indicate clearly the release goal, the scope of the project (at least in terms of epics/key features) and the participants.
