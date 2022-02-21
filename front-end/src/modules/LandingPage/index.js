@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /* eslint-disable react/prop-types */
 /* eslint-disable react/destructuring-assignment */
 /* eslint-disable react/no-array-index-key */
@@ -32,7 +33,7 @@ function LandingPage({ dispatch }) {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    dispatch(Example.exampleAction('daniel2'));
+    window.scrollTo(0, 0);
   }, []);
 
   // source: https://github.com/Daniel-Laufer/portfolio_website/blob/main/src/components/sections/intro.js
@@ -47,11 +48,11 @@ function LandingPage({ dispatch }) {
 
   return (
     <>
-      <Fade left cascade duration={1000}>
+      <Fade left cascade duration={500}>
         <SectionOneContainer id="landing-page-section-1">
           <Box>
             <Text fontSize="6xl" fontWeight={700}>
-              Study Together
+              StudyTogether
             </Text>
             <Text fontSize="4xl" color={colors.green.dark} fontWeight={700}>
               studying with others has never been so easy!
@@ -121,6 +122,7 @@ const SectionOneContainer = styled.section`
 
   @media (max-width: 1240px) {
     flex-wrap: wrap;
+    height: auto;
   }
 `;
 
@@ -137,6 +139,7 @@ const SectionTwoContainer = styled.section`
 
   @media (max-width: 1240px) {
     flex-wrap: wrap;
+    height: auto;
   }
 `;
 const CustomFooter = styled.section`

@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import {
@@ -50,6 +51,7 @@ function GroupCreator({ authToken }) {
     locationLat: 43,
     locationLng: 76,
   });
+
   const [errors, setErrors] = useState({
     title: false,
     password: false,
@@ -63,6 +65,10 @@ function GroupCreator({ authToken }) {
     location: false,
   });
   const [forceHideAlert, setForceHideAlert] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const handleChange = event => {
     const { value, name } = event.target;
@@ -189,17 +195,13 @@ function GroupCreator({ authToken }) {
     });
   };
 
-  useEffect(() => {
-    console.log(state);
-  }, [state]);
-
   const setLocation = (lat, lng) => {
     setState({ ...state, locationLat: lat, locationLng: lng });
   };
 
   return (
     <div style={{ height: '49vh' }}>
-      <Box style={{ marginTop: '2rem', padding: '0 2rem' }}>
+      <Box style={{ marginTop: '2rem', width: '60%', margin: 'auto' }}>
         <VStack style={{ marginTop: '1rem' }} spacing="20px" align="stretch">
           <Heading as="h2" size="2xl">
             Create a Group
@@ -398,14 +400,11 @@ function GroupCreator({ authToken }) {
       </Box>
       <Box
         style={{
-          marginTop: '2rem',
+          margin: 'auto',
+          marginTop: '4rem',
         }}
       >
-        <Map
-          style={{ width: 'calc(100% - 4rem)', height: '100%' }}
-          restrictToOneMarker
-          getLngLatOfNewMarker={setLocation}
-        />
+        <Map restrictToOneMarker getLngLatOfNewMarker={setLocation} />
       </Box>
     </div>
   );
