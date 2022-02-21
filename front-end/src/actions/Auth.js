@@ -10,6 +10,7 @@ export const REGISTRATION_REQUEST = 'REGISTRATION_REQUEST';
 export const REGISTRATION_SUCCESS = 'REGISTRATION_SUCCESS';
 export const REGISTRATION_ERROR = 'REGISTRATION_ERROR';
 export const SAVE_AUTH_DETAILS = 'SAVE_AUTH_DETAILS';
+export const LOGOUT = 'LOGOUT';
 
 export function login(userDetails) {
   return dispatch => {
@@ -38,6 +39,13 @@ export function login(userDetails) {
       });
   };
 }
+
+export function logout() {
+  // eslint-disable-next-line no-undef
+  localStorage.removeItem('authToken');
+  return { type: LOGOUT };
+}
+
 export function register(userDetails) {
   return dispatch => {
     dispatch({ type: LOGIN_REQUEST });

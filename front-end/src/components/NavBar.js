@@ -4,16 +4,17 @@ import { Image, Box, Flex, Button, Text } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { logout } from '../actions/Auth';
 import greenLogo from '../assets/images/smalllogogreen.png';
 import GreenButton from './GreenButton';
 import * as colors from '../utils/colors';
 
-function NavBar() {
+function NavBar({ authToken, dispatch }) {
   const navigate = useNavigate();
 
-  //   useEffect(() => {
-  //     if (authState.authToken !== '') navigate('/');
-  //   }, [authState.authToken]);
+  useEffect(() => {
+    console.log(authToken);
+  }, [authToken]);
 
   return (
     <Box bg="black" w="100%" h="50px">
@@ -47,15 +48,24 @@ function NavBar() {
             Groups
           </Text>
         </Flex>
+
         <Flex
           align="center"
           gap="1rem"
           style={{ marginLeft: 'auto', marginRight: '1rem' }}
         >
-          <GreenButton onClick={() => navigate('/login')}>Login</GreenButton>
-          <GreenButton onClick={() => navigate('/register')}>
-            Register
-          </GreenButton>
+          {authToken !== null ? (
+            <GreenButton onClick={() => dispatch(logout())}>Logout</GreenButton>
+          ) : (
+            <>
+              <GreenButton onClick={() => navigate('/login')}>
+                Login
+              </GreenButton>
+              <GreenButton onClick={() => navigate('/register')}>
+                Register
+              </GreenButton>
+            </>
+          )}
         </Flex>
       </Flex>
     </Box>
@@ -66,13 +76,15 @@ NavBar.propTypes = {
   authState: PropTypes.shape({
     loading: PropTypes.bool,
     error: PropTypes.string,
-    authToken: PropTypes.string,
   }).isRequired,
-  //   dispatch: PropTypes.func.isRequired,
+  authToken: PropTypes.string.isRequired,
+  dispatch: PropTypes.func.isRequired,
 };
 
 NavBar.defaultProps = {};
 
 export default connect(state => ({
   authState: state.Auth,
+  // eslint-disable-next-line no-undef
+  authToken: state.Auth.authToken || localStorage.getItem('authToken'),
 }))(NavBar);

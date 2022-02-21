@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import React, { useEffect, useState } from 'react';
 import { Box } from '@chakra-ui/react';
 import { connect } from 'react-redux';
