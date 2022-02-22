@@ -43,7 +43,7 @@ const userSchema = new Schema(
     },
     created: {
       type: Date,
-      default: Date.now,
+      default: Date.now(),
     },
   },
   { collection: 'users' }

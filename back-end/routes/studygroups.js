@@ -127,38 +127,58 @@ router.delete('/delete/:id', helperUser.verifyToken, (req, res) => {
 });
 
 /* Canceling a room marks it as inactive then deletes it after a grace period. The grace period allows the host to undo deleting a room. */
-router.patch('/cancel/:id', helperUser.verifyToken, (req, res) => {
-  // check whether the user is authenticated as the host of this study group
+router.put('/cancel/:id', helperUser.verifyToken, async (req, res) => {
+  // checking if user is authenticated
   if (!req.user) {
     res.status(401).send({ message: 'Invalid JWT token' });
     return;
   }
-
   const groupId = req.params.id;
-  StudygroupModel.findById(groupId)
-    .then(studygroup => {
-      if (studygroup.hostId != req.user.id) {
-        res.status(403).send({ message: 'Permission denied' });
-        return;
-      }
+  var studygroup = await StudygroupModel.findById(groupId).catch(err => {
+    res.status(400).json('Error: ' + err);
+    return;
+  });
 
-      /* TODO after we implement notification => Notify users (pub sub) */
-      //...
+  if (studygroup.hostId != req.user.id) {
+    res.status(403).send({ message: 'Not study group creator' });
+    return;
+  }
+  /* begin https://stackoverflow.com/questions/7687884/add-10-seconds-to-a-date */
+  var t = new Date();
+  t.setHours(t.getHours() + 1); // 1 hour grace peroid grace period
+  /* end */
+  var updatedStudygroup = await StudygroupModel.findByIdAndUpdate(groupId, {
+    canceledAt: t,
+  }).catch(err => {
+    res.status(400).json('Error: ' + err);
+    return;
+  });
 
-      Object.assign(studygroup, { ...req.body, canceled: true });
+  res.status(200).json(updatedStudygroup);
+});
 
-      /* TODO: create a grace token where a room deletes after a fixed time from cancelation unless undone (a different subtask)*/
-      studygroup
-        .update(
-          { id: req.user.id },
-          {
-            expireAt: 1000, //10 seconds
-          }
-        )
-        .then(res => res.status(200).json('Study group edited successfully!'))
-        .catch(err => res.status(400).json('Error: ' + err));
-    })
-    .catch(err => res.status(400).json('Error: ' + err));
+/* undo canceling in case the user decides otherwise */
+router.put('/reactivate/:id', helperUser.verifyToken, async (req, res) => {
+  // checking if user is authenticated
+  if (!req.user) {
+    res.status(401).send({ message: 'Invalid JWT token' });
+    return;
+  }
+  const groupId = req.params.id;
+  var studygroup = await StudygroupModel.findById(groupId).catch(err => {
+    res.status(400).json('Error: ' + err);
+    return;
+  });
+
+  if (studygroup.hostId != req.user.id) {
+    res.status(403).send({ message: 'Not study group creator' });
+    return;
+  }
+  var updatedStudygroup = await StudygroupModel.findByIdAndUpdate(groupId, {
+    $unset: { canceledAt: 1 },
+  }).catch(err => res.status(400).json('Error: ' + err));
+
+  res.status(200).json(updatedStudygroup);
 });
 
 module.exports = router;
