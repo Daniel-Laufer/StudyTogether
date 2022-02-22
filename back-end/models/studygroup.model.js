@@ -15,10 +15,23 @@ const studygroupSchema = new Schema(
     hostId: { type: mongoose.Types.ObjectId, required: true },
     description: { type: String, required: true },
     tags: { type: [String], required: true },
+    lastModified: {
+      type: Date,
+      required: true,
+      default: Date.now,
+    },
+    canceled: {
+      type: Boolean,
+      default: false,
+    },
+    delayed: {
+      type: Boolean,
+      default: false, //This is set to true when the startDatetime is increased
+    },
   },
   { collection: 'studygroups' }
 );
-
+studygroupSchema.index({ expireAt: 1 }, { expireAfterSeconds: 0 });
 const studygroup = mongoose.model('studygroup', studygroupSchema);
 
 module.exports = studygroup;

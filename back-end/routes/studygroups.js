@@ -78,7 +78,7 @@ router.post(
 );
 
 /* editing a study group by id */
-router.patch('/edit/:id', helperUser.verifyToken, (req, res) => {
+router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
   // check whether the user is authenticated as the host of this study group
   if (!req.user) {
     res.status(401).send({ message: 'Invalid JWT token' });
@@ -92,9 +92,15 @@ router.patch('/edit/:id', helperUser.verifyToken, (req, res) => {
         res.status(403).send({ message: 'Not study group creator' });
         return;
       }
-      Object.assign(studygroup, req.body);
-      studygroup.save();
-      res.status(200).json('Study group edited successfully!');
+
+      var isDelayed =
+        (req.body.startDateTime ?? studygroup.startDateTime) >
+        studygroup.startDateTime;
+      Object.assign(studygroup, { ...req.body, ...{ delayed: isDelayed } });
+      studygroup
+        .save()
+        .then(res => res.status(200).json('Study group edited successfully!'))
+        .catch(err => res.status(400).json('Error: ' + err));
     })
     .catch(err => res.status(400).json('Error: Invalid study group id'));
 });
@@ -118,6 +124,41 @@ router.delete('/delete/:id', helperUser.verifyToken, (req, res) => {
       res.status(200).json('Study group deleted successfully!');
     })
     .catch(err => res.status(400).json('Error: Invalid study group id'));
+});
+
+/* Canceling a room marks it as inactive then deletes it after a grace period. The grace period allows the host to undo deleting a room. */
+router.patch('/cancel/:id', helperUser.verifyToken, (req, res) => {
+  // check whether the user is authenticated as the host of this study group
+  if (!req.user) {
+    res.status(401).send({ message: 'Invalid JWT token' });
+    return;
+  }
+
+  const groupId = req.params.id;
+  StudygroupModel.findById(groupId)
+    .then(studygroup => {
+      if (studygroup.hostId != req.user.id) {
+        res.status(403).send({ message: 'Permission denied' });
+        return;
+      }
+
+      /* TODO after we implement notification => Notify users (pub sub) */
+      //...
+
+      Object.assign(studygroup, { ...req.body, canceled: true });
+
+      /* TODO: create a grace token where a room deletes after a fixed time from cancelation unless undone (a different subtask)*/
+      studygroup
+        .update(
+          { id: req.user.id },
+          {
+            expireAt: 1000, //10 seconds
+          }
+        )
+        .then(res => res.status(200).json('Study group edited successfully!'))
+        .catch(err => res.status(400).json('Error: ' + err));
+    })
+    .catch(err => res.status(400).json('Error: ' + err));
 });
 
 module.exports = router;
