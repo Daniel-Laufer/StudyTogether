@@ -5,15 +5,47 @@ var helperUser = require('../helpers/helperUser');
 var User = require('../models/user.model');
 const { body, validationResult } = require('express-validator');
 
-/* get all users - To be removed */
-router.get('/', helperUser.verifyToken, function (req, res) {
+/* Get user profile info */
+router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
   if (!req.user) {
     res.status(403).send({ message: 'Invalid JWT token' });
     return;
   }
-  User.find()
-    .then(user => res.status(200).json(user))
-    .catch(err => res.status(400).json('Error: ' + err));
+  /* BEGIN - Check if the user is authorized to update this information*/
+  var usr = await User.findById(req.user.id).catch(err =>
+    res.status(400).json('Error: ' + err)
+  );
+  if (usr.id !== req.user.id) {
+    res.status(401).send({ message: 'Permission Denied!' });
+    return;
+  }
+
+  res.status(200).json(usr);
+});
+
+/* Update user profile info */
+router.put('/profile/:id', helperUser.verifyToken, async (req, res) => {
+  if (!req.user) {
+    res.status(403).send({ message: 'Invalid JWT token' });
+    return;
+  }
+  /* BEGIN - Check if the user is authorized to update this information*/
+  var usr = await User.findById(req.user.id).catch(err =>
+    res.status(400).json('Error: ' + err)
+  );
+  if (usr.id !== req.user.id) {
+    res.status(401).send({ message: 'Permission Denied!' });
+    return;
+  }
+
+  /* BEGIN - Update user profile */
+  var updatedUser = await User.findByIdAndUpdate(usr.id, req.body).catch(err =>
+    res.status(400).json('Error: ' + err)
+  );
+  res.status(200).json({
+    message: 'User profile updates successfully!',
+    updatedUser: updatedUser,
+  });
 });
 
 //Authentication and Authorization referenced from https://www.topcoder.com/thrive/articles/authentication-and-authorization-in-express-js-api-using-jwt
