@@ -100,7 +100,6 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
       new Date(studygroup.startDateTime).getTime()) !=
     new Date(studygroup.startDateTime).getTime();
 
-  console.log(isRescheduled);
   if (isRescheduled)
     Object.assign(studygroup, {
       ...req.body,
@@ -109,7 +108,7 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
   else Object.assign(studygroup, req.body);
 
   await studygroup.save().catch(err => res.status(400).json('Error: ' + err));
-  res.status(200).json('Study group edited successfully!');
+  res.status(200).send('Study group edited successfully!');
 });
 
 /* (5) Deleting a study group by id */
@@ -147,7 +146,7 @@ router.put('/cancel/:id', helperUser.verifyToken, async (req, res) => {
   });
 
   if (studygroup.hostId != req.user.id) {
-    res.status(403).send({ message: 'Not study group creator' });
+    res.status(403).send('Permision denied');
     return;
   }
   /* begin https://stackoverflow.com/questions/7687884/add-10-seconds-to-a-date */
