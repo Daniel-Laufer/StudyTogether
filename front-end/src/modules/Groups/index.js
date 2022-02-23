@@ -1,18 +1,27 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-underscore-dangle */
 import React, { useEffect, useState } from 'react';
-import { Box } from '@chakra-ui/react';
+import { Box, Alert, AlertIcon } from '@chakra-ui/react';
 import { connect } from 'react-redux';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Group from '../../components/Group';
 import SecondGroup from '../../components/SecondGroup';
 import { apiURL } from '../../utils/constants';
+import { logout } from '../../actions/Auth';
 import CustomSpinner from '../../components/CustomSpinner';
 
-function SavedGroups({ authToken }) {
+function Groups({ authToken, dispatch }) {
+  const navigate = useNavigate();
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (authToken === null) {
+      setTimeout(() => navigate('/login'), 3000);
+    }
+  }, [authToken]);
 
   const makeAPICall = () => {
     const config = {
@@ -27,6 +36,10 @@ function SavedGroups({ authToken }) {
       })
       .catch(err => {
         setLoading(false);
+        if (err.response.status === 401) {
+          dispatch(logout());
+          navigate('/login');
+        }
         console.log(err);
       });
   };
@@ -34,6 +47,16 @@ function SavedGroups({ authToken }) {
   useEffect(() => {
     makeAPICall();
   }, []);
+
+  if (authToken === null) {
+    return (
+      <Alert status="warning">
+        <AlertIcon />
+        You need to be logged in to view study groups. Redirecting you to the
+        login page now...
+      </Alert>
+    );
+  }
 
   return !loading ? (
     <Box textAlign={['left', 'left', 'left']} spacingY="20px">
@@ -69,12 +92,13 @@ function SavedGroups({ authToken }) {
   );
 }
 
-SavedGroups.propTypes = {
+Groups.propTypes = {
   authToken: PropTypes.string,
+  dispatch: PropTypes.func.isRequired,
 };
 
-SavedGroups.defaultProps = { authToken: '' };
+Groups.defaultProps = { authToken: '' };
 
 export default connect(state => ({
   authToken: state.Auth.authToken || localStorage.getItem('authToken'),
-}))(SavedGroups);
+}))(Groups);
