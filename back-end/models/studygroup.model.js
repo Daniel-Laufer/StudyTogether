@@ -10,14 +10,25 @@ const studygroupSchema = new Schema(
     phone: { type: String, required: true },
     imageUrl: { type: String, required: true },
     curAttendees: { type: Number, min: 0, default: 0, required: true },
-    location: { type: { long: Number, lat: Number }, required: true },
+    location: { type: { lng: Number, lat: Number }, required: true },
     maxAttendees: { type: Number, min: 2, required: true },
     hostId: { type: mongoose.Types.ObjectId, required: true },
     description: { type: String, required: true },
     tags: { type: [String], required: true },
+
+    //Status
+    canceledAt: { type: Date, default: undefined, required: false }, //TLL index for deleting a group after canceling. Not meant to be parsed in the frontend.
+    canceled: { type: Boolean, default: false, required: false },
+    rescheduled: { type: Boolean, default: false, required: false },
+
+    //Accessabililty.
+    private: { type: Boolean, default: false, required: false },
+    paid: { type: Boolean, default: false, required: false },
   },
   { collection: 'studygroups' }
 );
+//indexes
+studygroupSchema.index({ canceledAt: 1 }, { expireAfterSeconds: 0 });
 
 const studygroup = mongoose.model('studygroup', studygroupSchema);
 
