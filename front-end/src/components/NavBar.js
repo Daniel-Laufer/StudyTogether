@@ -12,10 +12,6 @@ import * as colors from '../utils/colors';
 function NavBar({ authToken, dispatch }) {
   const navigate = useNavigate();
 
-  useEffect(() => {
-    console.log(authToken);
-  }, [authToken]);
-
   return (
     <Box bg="black" w="100%" h="50px">
       <Flex h="100%" justify="space-between" align="center">

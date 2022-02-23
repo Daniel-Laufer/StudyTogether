@@ -1,6 +1,5 @@
 import {
   Container,
-  Image,
   VStack,
   Heading,
   Input,
@@ -11,7 +10,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { apiURL } from '../../utils/constants';
-import logoblack from '../../assets/images/logoblack.png';
 import * as colors from '../../utils/colors';
 
 function ForgotPassword() {
@@ -47,7 +45,6 @@ function ForgotPassword() {
 
   return (
     <Container style={{ marginTop: '2rem' }}>
-      <Image src={logoblack} alt="StudyTogether" />
       <VStack style={{ marginTop: '1rem' }} spacing="20px" align="stretch">
         <Heading as="h2" size="2xl">
           Recover your account!
