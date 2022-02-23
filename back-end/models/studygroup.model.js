@@ -15,6 +15,7 @@ const studygroupSchema = new Schema(
     hostId: { type: mongoose.Types.ObjectId, required: true },
     description: { type: String, required: true },
     tags: { type: [String], required: true },
+    seriesId: { type: mongoose.Types.ObjectId, required: true },
   },
   { collection: 'studygroups' }
 );
