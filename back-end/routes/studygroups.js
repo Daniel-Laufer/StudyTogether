@@ -4,7 +4,7 @@ let StudygroupModel = require('../models/studygroup.model');
 var helperUser = require('../helpers/helperUser');
 const { body, validationResult } = require('express-validator');
 
-/* get all study groups*/
+/* (1) Get all study groups*/
 router.get('/', helperUser.verifyToken, (req, res) => {
   // checking if user is authenticated
   if (!req.user) {
@@ -16,7 +16,7 @@ router.get('/', helperUser.verifyToken, (req, res) => {
     .catch(err => res.status(400).json('Error: ' + err));
 });
 
-/* get an individual study group by ID*/
+/* (2) Get an individual study group by ID*/
 router.get('/:id', helperUser.verifyToken, (req, res) => {
   // checking if user is authenticated
   if (!req.user) {
@@ -29,7 +29,7 @@ router.get('/:id', helperUser.verifyToken, (req, res) => {
     .catch(err => res.status(400).json('Error: Invalid study group id'));
 });
 
-/* catching a post request with url ./create */
+/* (3) Catching a post request with url ./create */
 router.post(
   '/create',
   helperUser.verifyToken,
@@ -77,7 +77,7 @@ router.post(
   }
 );
 
-/* editing a study group by id */
+/* (4) Editing a study group by id */
 router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
   // check whether the user is authenticated as the host of this study group
   if (!req.user) {
@@ -98,7 +98,6 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
       new Date(studygroup.startDateTime).getTime()) >
     new Date(studygroup.startDateTime).getTime();
 
-  console.log(isDelayed);
   if (isDelayed)
     Object.assign(studygroup, { ...req.body, ...{ delayed: isDelayed } });
   else Object.assign(studygroup, req.body);
@@ -107,7 +106,7 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
   res.status(200).json('Study group edited successfully!');
 });
 
-/* deleting a study group by id */
+/* (5) Deleting a study group by id */
 router.delete('/delete/:id', helperUser.verifyToken, (req, res) => {
   // check whether the user is authenticated as the host of this study group
   if (!req.user) {
@@ -128,7 +127,7 @@ router.delete('/delete/:id', helperUser.verifyToken, (req, res) => {
     .catch(err => res.status(400).json('Error: Invalid study group id'));
 });
 
-/* Canceling a room marks it as inactive then deletes it after a grace period. The grace period allows the host to undo deleting a room. */
+/* (6) Canceling a room marks it as inactive then deletes it after a grace period. During the grace period, the host can undo deleting a room. */
 router.put('/cancel/:id', helperUser.verifyToken, async (req, res) => {
   // checking if user is authenticated
   if (!req.user) {
@@ -159,7 +158,7 @@ router.put('/cancel/:id', helperUser.verifyToken, async (req, res) => {
   res.status(200).json(updatedStudygroup);
 });
 
-/* undo canceling in case the user decides otherwise */
+/* (7) Undo canceling in case the user decides otherwise */
 router.put('/reactivate/:id', helperUser.verifyToken, async (req, res) => {
   // checking if user is authenticated
   if (!req.user) {
