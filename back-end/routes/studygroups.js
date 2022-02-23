@@ -86,23 +86,19 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
   }
 
   const groupId = req.params.id;
-  StudygroupModel.findById(groupId)
-    .then(studygroup => {
-      if (studygroup.hostId != req.user.id) {
-        res.status(403).send({ message: 'Not study group creator' });
-        return;
-      }
-
-      var isDelayed =
-        (req.body.startDateTime ?? studygroup.startDateTime) >
-        studygroup.startDateTime;
-      Object.assign(studygroup, { ...req.body, ...{ delayed: isDelayed } });
-      studygroup
-        .save()
-        .then(res => res.status(200).json('Study group edited successfully!'))
-        .catch(err => res.status(400).json('Error: ' + err));
-    })
-    .catch(err => res.status(400).json('Error: Invalid study group id'));
+  var studygroup = await StudygroupModel.findById(groupId).catch(err =>
+    res.status(400).json('Error: ' + err)
+  );
+  if (studygroup.hostId != req.user.id) {
+    res.status(403).send({ message: 'Permission denied!' });
+    return;
+  }
+  var isDelayed =
+    (req.body.startDateTime ?? studygroup.startDateTime) >
+    studygroup.startDateTime;
+  Object.assign(studygroup, { ...req.body, ...{ delayed: isDelayed } });
+  await studygroup.save().catch(err => res.status(400).json('Error: ' + err));
+  res.status(200).json('Study group edited successfully!');
 });
 
 /* deleting a study group by id */
