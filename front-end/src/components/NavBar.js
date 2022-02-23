@@ -1,16 +1,30 @@
+/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
-import { Image, Box, Flex, Button, Text } from '@chakra-ui/react';
+import {
+  Image,
+  Box,
+  Flex,
+  Button,
+  Text,
+  Menu,
+  MenuItem,
+  Portal,
+  MenuList,
+} from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../actions/Auth';
 import greenLogo from '../assets/images/smalllogogreen.png';
+import genericUser from '../assets/images/cat-pfp.jpeg';
 import GreenButton from './GreenButton';
 import * as colors from '../utils/colors';
 
 function NavBar({ authToken, dispatch }) {
   const navigate = useNavigate();
+  const [isUserProfileMenuOpen, setIsUserProfileMenuOpen] = useState(false);
 
   return (
     <Box bg="black" w="100%" h="50px">
@@ -23,35 +37,94 @@ function NavBar({ authToken, dispatch }) {
         />
         <Flex align="center" gap="1rem" style={{ marginLeft: '1rem' }}>
           <Text
-            onClick={() => navigate('/dashboard')}
-            style={{ cursor: 'pointer', fontWeight: 'bold' }}
-            color={colors.white}
+            onClick={authToken ? () => navigate('/dashboard') : null}
+            style={{
+              cursor: authToken ? 'pointer' : 'default',
+              fontWeight: 'bold',
+              color: authToken ? 'white' : 'gray',
+            }}
           >
             Dashboard
           </Text>
           <Text
-            onClick={() => navigate('/groups/create')}
-            style={{ cursor: 'pointer', fontWeight: 'bold' }}
-            color={colors.white}
+            onClick={authToken ? () => navigate('/groups/create') : null}
+            style={{
+              cursor: authToken ? 'pointer' : 'default',
+              fontWeight: 'bold',
+              color: authToken ? 'white' : 'gray',
+            }}
           >
             Create a group
           </Text>
           <Text
-            onClick={() => navigate('/groups')}
-            style={{ cursor: 'pointer', fontWeight: 'bold' }}
-            color={colors.white}
+            onClick={authToken ? () => navigate('/groups') : null}
+            style={{
+              cursor: authToken ? 'pointer' : 'default',
+              fontWeight: 'bold',
+              color: authToken ? 'white' : 'gray',
+            }}
           >
             Groups
+          </Text>
+          <Text
+            onClick={authToken ? () => navigate('/about') : null}
+            style={{
+              fontWeight: 'bold',
+              cursor: 'pointer',
+            }}
+            color={colors.white}
+          >
+            About
           </Text>
         </Flex>
 
         <Flex
           align="center"
           gap="1rem"
-          style={{ marginLeft: 'auto', marginRight: '1rem' }}
+          style={{
+            marginLeft: 'auto',
+            marginRight: '1rem',
+            position: 'relative',
+          }}
         >
           {authToken !== null ? (
-            <GreenButton onClick={() => dispatch(logout())}>Logout</GreenButton>
+            <>
+              <img
+                onClick={() => {
+                  setIsUserProfileMenuOpen(!isUserProfileMenuOpen);
+                }}
+                style={{
+                  display: 'block',
+                  height: '35px',
+                  width: '35px',
+                  borderRadius: '50%',
+                  cursor: 'pointer',
+                }}
+                src={genericUser}
+                alt="user profile"
+              />
+              <div
+                style={{
+                  position: 'absolute',
+                  right: '212px',
+                  top: '45px',
+                }}
+              >
+                <Menu isOpen={isUserProfileMenuOpen}>
+                  <MenuList>
+                    <MenuItem onClick={() => navigate('/account-info')}>
+                      View your profile
+                    </MenuItem>
+                    <MenuItem onClick={() => navigate('/saved-groups')}>
+                      Saved groups
+                    </MenuItem>
+                    <MenuItem onClick={() => dispatch(logout())}>
+                      Logout
+                    </MenuItem>
+                  </MenuList>
+                </Menu>
+              </div>
+            </>
           ) : (
             <>
               <GreenButton onClick={() => navigate('/login')}>
