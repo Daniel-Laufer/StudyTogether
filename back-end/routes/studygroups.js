@@ -93,13 +93,19 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
     res.status(403).send({ message: 'Permission denied!' });
     return;
   }
-  var isDelayed =
+
+  /* TODO: Notify users once postponed (after notification feature is added) */
+  var isRescheduled =
     (new Date(req.body.startDateTime).getTime() ??
-      new Date(studygroup.startDateTime).getTime()) >
+      new Date(studygroup.startDateTime).getTime()) !=
     new Date(studygroup.startDateTime).getTime();
 
-  if (isDelayed)
-    Object.assign(studygroup, { ...req.body, ...{ delayed: isDelayed } });
+  console.log(isRescheduled);
+  if (isRescheduled)
+    Object.assign(studygroup, {
+      ...req.body,
+      ...{ rescheduled: isRescheduled },
+    });
   else Object.assign(studygroup, req.body);
 
   await studygroup.save().catch(err => res.status(400).json('Error: ' + err));
@@ -146,7 +152,7 @@ router.put('/cancel/:id', helperUser.verifyToken, async (req, res) => {
   }
   /* begin https://stackoverflow.com/questions/7687884/add-10-seconds-to-a-date */
   var t = new Date();
-  t.setHours(t.getHours() + 1); // 1 hour grace peroid grace period
+  t.setHours(t.getHours() + 24); // 24 hour grace period
   /* end */
   var updatedStudygroup = await StudygroupModel.findByIdAndUpdate(groupId, {
     canceledAt: t,
