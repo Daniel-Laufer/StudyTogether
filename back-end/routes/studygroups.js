@@ -94,9 +94,15 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
     return;
   }
   var isDelayed =
-    (req.body.startDateTime ?? studygroup.startDateTime) >
-    studygroup.startDateTime;
-  Object.assign(studygroup, { ...req.body, ...{ delayed: isDelayed } });
+    (new Date(req.body.startDateTime).getTime() ??
+      new Date(studygroup.startDateTime).getTime()) >
+    new Date(studygroup.startDateTime).getTime();
+
+  console.log(isDelayed);
+  if (isDelayed)
+    Object.assign(studygroup, { ...req.body, ...{ delayed: isDelayed } });
+  else Object.assign(studygroup, req.body);
+
   await studygroup.save().catch(err => res.status(400).json('Error: ' + err));
   res.status(200).json('Study group edited successfully!');
 });
