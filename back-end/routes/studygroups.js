@@ -81,10 +81,7 @@ router.post(
     }
 
     // delete the following fake id line
-
     var id = mongoose.Types.ObjectId();
-
-    console.log('1' + seriesId);
     /* study group creation logic  */
     let start = new Date(req.body.startDateTime);
     let end = new Date(req.body.endDateTime);
@@ -126,65 +123,95 @@ router.post(
 );
 
 /* editing a study group by id */
-router.patch('/edit/:id', helperUser.verifyToken, (req, res) => {
+router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
   // check whether the user is authenticated as the host of this study group
-  /*if (!req.user) { uncomment
+  if (!req.user) {
     res.status(401).send({ message: 'Invalid JWT token' });
     return;
-  }*/
+  }
 
   const groupId = req.params.id;
   const editAll = req.body.editAll;
-  StudygroupModel.findById(groupId)
-    .then(studygroup => {
-      /*if (studygroup.hostId != req.user.id) { uncomment
-        res.status(403).send({ message: 'Not study group creator' });
-        return;
-      }*/
-      console.log(studygroup);
-      if (editAll) {
-        var seriesId = new mongoose.Types.ObjectId(studygroup.seriesId);
-        console.log(seriesId);
-        studyGroupSeriesModel
-          .findById(seriesId)
-          .then(series => {
-            console.log(series.studyGroups);
-            let numDays;
-            if (series.recurring == 'weekly') {
-              numDays = 7;
-            } else if (series.recurring == 'bi-weekly') {
-              numDays = 14;
-            }
-            let start = new Date(req.body.startDateTime);
-            console.log(start);
-            let end = new Date(req.body.startDateTime);
-            for (let i = 0; i < series.studyGroups.length; i++) {
-              StudygroupModel.findById(series.studyGroups[i])
-                .then(group => {
-                  console.log(i);
-                  console.log(group._id);
-                  var newStart = new Date(start);
-                  var newEnd = new Date(end);
-                  Object.assign(group, req.body);
-                  group.startDateTime = newStart;
-                  group.endDateTime = newEnd;
-                  group.save();
-                  start.setDate(start.getDate() + numDays);
-                  console.log(start);
-                  end.setDate(end.getDate() + numDays);
-                })
-                .catch(err => res.status(400).json('Error: ' + err));
-            }
-            res.status(200).json('Study group edited successfully!');
-          })
-          .catch(err => res.status(400).json('Error: ' + err));
+
+  const studyGroup = await StudygroupModel.findById(groupId).catch(err =>
+    res.status(400).json('Error: ' + err)
+  );
+  if (editAll) {
+    var seriesId = new mongoose.Types.ObjectId(studyGroup.seriesId);
+    const series = await studyGroupSeriesModel.findById(seriesId);
+    let numDays;
+    if (req.body.recurring == 'weekly') {
+      numDays = 7;
+    } else if (req.body.recurring == 'bi-weekly') {
+      numDays = 14;
+    }
+    let start = new Date(req.body.startDateTime);
+    let end = new Date(req.body.endDateTime);
+    var newStudyGroupsList = [];
+    var i = 0;
+    while (start <= new Date(req.body.finalDate)) {
+      let newStart = new Date(start);
+      let newEnd = new Date(end);
+      var session;
+      if (i < series.studyGroups.length) {
+        session = await StudygroupModel.findById(series.studyGroups[i]).catch(
+          err => res.status(400).json('Error: ' + err)
+        );
+        console.log(i);
+
+        Object.assign(session, req.body);
+        session.startDateTime = newStart;
+        session.endDateTime = newEnd;
+        session.save().catch(err => res.status(400).json('Error: ' + err));
       } else {
-        Object.assign(studygroup, req.body);
-        studygroup.save();
-        res.status(200).json('Study group edited successfully!');
+        //var id = mongoose.Types.ObjectId(req.body.hostId); jsut for back end only testing
+        session = new StudygroupModel({
+          title: req.body.title,
+          startDateTime: newStart,
+          endDateTime: newEnd,
+          phone: req.body.phone,
+          imageUrl: req.body.imageUrl,
+          curAttendees: req.body.curAttendees,
+          location: req.body.location,
+          maxAttendees: req.body.maxAttendees,
+          hostId: req.user.id,
+          //hostId: id, //just for back end only testing
+          description: req.body.description,
+          tags: req.body.tags,
+          seriesId: seriesId,
+        });
+        session.save().catch(err => res.status(400).json('Error: ' + err));
       }
-    })
-    .catch(err => res.status(400).json('Error: ' + err));
+
+      newStudyGroupsList.push(session._id);
+      console.log(newStudyGroupsList);
+      start.setDate(start.getDate() + numDays);
+      end.setDate(end.getDate() + numDays);
+      i++;
+    }
+    for (let i = 0; i < series.studyGroups.length; i++) {
+      if (
+        !newStudyGroupsList.find(
+          element => element.toString() == series.studyGroups[i].toString()
+        )
+      ) {
+        await StudygroupModel.findByIdAndDelete(series.studyGroups[i]).catch(
+          err => res.status(400).json('Error: ' + err)
+        );
+      }
+    }
+    series.recurring = req.body.recurring;
+    series.studyGroups = newStudyGroupsList;
+    series.save().catch(err => res.status(400).json('Error: ' + err));
+  } else {
+    Object.assign(studyGroup, req.body);
+    studyGroup.save().catch(err => res.status(400).json('Error: ' + err));
+  }
+  try {
+    res.status(200).json('Study group edited succesfully!');
+  } catch (err) {
+    console.log(err);
+  }
 });
 
 /* deleting a study group by id */
