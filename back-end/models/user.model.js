@@ -45,6 +45,11 @@ const userSchema = new Schema(
       type: Date,
       default: Date.now(),
     },
+    savedStudygroups: {
+      type: [mongoose.Types.ObjectId],
+      default: [],
+      required: false,
+    },
   },
   { collection: 'users' }
 );

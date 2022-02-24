@@ -4,6 +4,7 @@ var app = require('../app');
 var helperUser = require('../helpers/helperUser');
 var User = require('../models/user.model');
 var expect = chai.expect;
+let token;
 
 chai.use(chaiHttp);
 
@@ -58,7 +59,7 @@ describe('User Tests', function () {
 
   /* Test: User login*/
   describe('/users/login', function () {
-    it('check registaration is functional', function (done) {
+    it('check login is functional', function (done) {
       chai
         .request(app)
         .post('/users/login')
@@ -73,9 +74,46 @@ describe('User Tests', function () {
           expect(res.body.user).to.be.a('object');
 
           expect(res.body).to.have.property('token');
+          token = res.body.token;
           expect(res.body.user).to.have.property('email');
 
           expect(res.body.user.email).to.be.equal('test.user@mail.utoronto.ca');
+          done();
+        });
+    }).timeout(5000);
+  });
+
+  /* Test: User Bookmark Study group */
+  describe('/users/bookmark-group', function () {
+    it('check study group bookmarking is functional', function (done) {
+      chai
+        .request(app)
+        .post('/users/bookmark-group')
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `JWT ${token}`)
+        .send({
+          studygroupId: '62018d7ab6389a3ed07987db',
+        })
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          done();
+        });
+    }).timeout(5000);
+  });
+
+  /* Test: User Unbookmark Study group */
+  describe('/users/unbookmark-group', function () {
+    it('check study group bookmarking is functional', function (done) {
+      chai
+        .request(app)
+        .patch('/users/unbookmark-group')
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `JWT ${token}`)
+        .send({
+          studygroupId: '62018d7ab6389a3ed07987db',
+        })
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
           done();
         });
     }).timeout(5000);
