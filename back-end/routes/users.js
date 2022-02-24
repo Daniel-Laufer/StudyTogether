@@ -62,16 +62,17 @@ router.post(
 );
 
 router.post(
-  '/bookmark-group/:id',
+  '/bookmark-group/',
   helperUser.verifyToken,
   /* Parameter Validation */
+  body('studygroupId').exists().bail().notEmpty(),
   (req, res) => {
     if (!req.user) {
       res.status(401).send({ message: 'Invalid JWT token' });
       return;
     }
 
-    const groupId = req.params.id;
+    const groupId = req.body.studygroupId;
 
     // check that the studygroup exists
     StudygroupModel.findById(groupId)
@@ -98,8 +99,9 @@ router.post(
 );
 
 router.patch(
-  '/unbookmark-group/:id',
+  '/unbookmark-group/',
   helperUser.verifyToken,
+  body('studygroupId').exists().bail().notEmpty(),
   /* Parameter Validation */
   (req, res) => {
     if (!req.user) {
@@ -107,7 +109,7 @@ router.patch(
       return;
     }
 
-    const groupId = req.params.id;
+    const groupId = req.body.studygroupId;
 
     // check that the studygroup exists
     StudygroupModel.findById(groupId)
