@@ -5,38 +5,28 @@ var helperUser = require('../helpers/helperUser');
 var User = require('../models/user.model');
 const { body, validationResult } = require('express-validator');
 
-/* Get user profile info */
-router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
+/* Get non-sensitive user profile info */
+router.get('/profile', helperUser.verifyToken, async (req, res) => {
   if (!req.user) {
     res.status(403).send({ message: 'Invalid JWT token' });
     return;
   }
-  /* BEGIN - Check if the user is authorized to update this information*/
   var usr = await User.findById(req.user.id).catch(err =>
     res.status(400).json('Error: ' + err)
   );
-  if (usr.id !== req.user.id) {
-    res.status(401).send({ message: 'Permission Denied!' });
-    return;
-  }
 
   res.status(200).json(usr);
 });
 
-/* Update user profile info */
-router.put('/profile/:id', helperUser.verifyToken, async (req, res) => {
+/* Update non-sensitive user profile info */
+router.put('/profile', helperUser.verifyToken, async (req, res) => {
   if (!req.user) {
     res.status(403).send({ message: 'Invalid JWT token' });
     return;
   }
-  /* BEGIN - Check if the user is authorized to update this information*/
   var usr = await User.findById(req.user.id).catch(err =>
     res.status(400).json('Error: ' + err)
   );
-  if (usr.id !== req.user.id) {
-    res.status(401).send({ message: 'Permission Denied!' });
-    return;
-  }
 
   /* BEGIN - Update user profile */
   var updatedUser = await User.findByIdAndUpdate(usr.id, req.body).catch(err =>
