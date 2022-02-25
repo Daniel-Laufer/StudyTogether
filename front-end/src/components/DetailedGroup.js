@@ -39,7 +39,7 @@ function CustomText(fontSize, noOfLines, text) {
   );
 }
 
-function SecondGroup({
+function DetailedGroup({
   title,
   restrict,
   availability,
@@ -99,7 +99,7 @@ function SecondGroup({
   );
 }
 
-SecondGroup.propTypes = {
+DetailedGroup.propTypes = {
   title: PropTypes.string.isRequired,
   img: PropTypes.element.isRequired,
   imgAlt: PropTypes.string.isRequired,
@@ -112,6 +112,6 @@ SecondGroup.propTypes = {
   size: 'md' || 'lg',
 };
 
-SecondGroup.defaultProps = { size: 'md' };
+DetailedGroup.defaultProps = { size: 'md' };
 
-export default SecondGroup;
+export default DetailedGroup;

@@ -258,7 +258,7 @@ function GroupCreator({ authToken }) {
         </Alert>
       ) : (
         <>
-          <Box style={{ marginTop: '2rem', width: '60%', margin: 'auto' }}>
+          <Box style={{ width: '60%', margin: 'auto', marginTop: '2rem' }}>
             <VStack
               style={{ marginTop: '1rem' }}
               spacing="20px"
