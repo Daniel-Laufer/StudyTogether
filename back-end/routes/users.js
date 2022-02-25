@@ -130,6 +130,10 @@ router.post(
     }
 
     const groupId = req.body.studygroupId;
+    if (!groupId) {
+      res.status(400).send({ message: 'Missing studygroupId field' });
+      return;
+    }
 
     // check that the studygroup exists
     StudygroupModel.findById(groupId)

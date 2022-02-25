@@ -17,6 +17,7 @@ import EmailSent from './modules/EmailSent';
 import ResetPassword from './modules/ResetPassword';
 import GroupCreator from './modules/GroupCreator';
 import NavBar from './components/NavBar';
+import NotFoundPage from './modules/NotFoundPage';
 import AccountInfo from './modules/AccountInfo';
 
 const store = createStore(
@@ -32,15 +33,42 @@ function App() {
           <NavBar />
           <Routes>
             <Route path="/" element={<LandingPage />} />
-            <Route path="/dashboard" element={<LandingPage />} />
+            <Route
+              path="/dashboard"
+              element={
+                <Groups
+                  studyGroupsEndPoint="studygroups"
+                  headerContent="Study groups happening near you"
+                />
+              }
+            />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/email-sent" element={<EmailSent />} />
             <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/groups" element={<Groups />} />
+            <Route
+              path="/groups"
+              element={
+                <Groups
+                  studyGroupsEndPoint="studygroups"
+                  headerContent="Study groups happening near you"
+                />
+              }
+            />
             <Route path="/groups/create" element={<GroupCreator />} />
+            <Route
+              path="/saved-groups"
+              element={
+                <Groups
+                  studyGroupsEndPoint="studygroups/saved"
+                  headerContent="Your saved study groups"
+                  noGroupsFoundHeaderContent="You don't have any saved study groups."
+                />
+              }
+            />
             <Route path="/account-info" element={<AccountInfo />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </BrowserRouter>
       </ChakraProvider>
