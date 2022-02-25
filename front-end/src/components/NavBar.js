@@ -1,7 +1,8 @@
+/* eslint-disable no-undef */
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable no-unused-vars */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   Image,
   Box,
@@ -21,10 +22,16 @@ import greenLogo from '../assets/images/smalllogogreen.png';
 import genericUser from '../assets/images/cat-pfp.jpeg';
 import GreenButton from './GreenButton';
 import * as colors from '../utils/colors';
+import useOutsideAlerter from '../hooks/useOutsideAlerter';
 
 function NavBar({ authToken, dispatch }) {
   const navigate = useNavigate();
   const [isUserProfileMenuOpen, setIsUserProfileMenuOpen] = useState(false);
+
+  // source: https://stackoverflow.com/a/42234988
+  const navbarUserMenuRef = useRef(null);
+  useOutsideAlerter(navbarUserMenuRef, () => setIsUserProfileMenuOpen(false));
+  // end source
 
   return (
     <Box bg="black" w="100%" h="50px">
@@ -88,7 +95,7 @@ function NavBar({ authToken, dispatch }) {
           }}
         >
           {authToken !== null ? (
-            <>
+            <div ref={navbarUserMenuRef}>
               <img
                 onClick={() => {
                   setIsUserProfileMenuOpen(!isUserProfileMenuOpen);
@@ -124,7 +131,7 @@ function NavBar({ authToken, dispatch }) {
                   </MenuList>
                 </Menu>
               </div>
-            </>
+            </div>
           ) : (
             <>
               <GreenButton onClick={() => navigate('/login')}>

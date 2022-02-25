@@ -77,7 +77,7 @@ function SavedGroups({
 
   return !loading ? (
     <Box style={{ width: '60%', margin: 'auto', marginTop: '2rem' }}>
-      <Flex justify="space-between" wrap="wrap">
+      <Flex justify="space-between" wrap="wrap" gap="1rem">
         <Heading as="h2" size="2xl">
           {headerContent}
         </Heading>
