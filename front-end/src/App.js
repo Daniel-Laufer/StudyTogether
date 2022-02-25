@@ -18,6 +18,7 @@ import ResetPassword from './modules/ResetPassword';
 import GroupCreator from './modules/GroupCreator';
 import NavBar from './components/NavBar';
 import NotFoundPage from './modules/NotFoundPage';
+import AccountInfo from './modules/AccountInfo';
 
 const store = createStore(
   rootReducer,
@@ -66,6 +67,7 @@ function App() {
                 />
               }
             />
+            <Route path="/account-info" element={<AccountInfo />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </BrowserRouter>
