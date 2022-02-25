@@ -50,6 +50,11 @@ const userSchema = new Schema(
       default: [],
       required: false,
     },
+    registeredStudygroups: {
+      type: [mongoose.Types.ObjectId],
+      default: [],
+      required: false,
+    },
   },
   { collection: 'users' }
 );

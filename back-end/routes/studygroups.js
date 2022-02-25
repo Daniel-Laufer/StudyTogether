@@ -16,6 +16,28 @@ router.get('/', helperUser.verifyToken, (req, res) => {
     .catch(err => res.status(400).json('Error: ' + err));
 });
 
+/* (2) Get all studygroups the current logged in user is registered for */
+router.get('/registered', helperUser.verifyToken, async (req, res) => {
+  // checking if user is authenticated
+  if (!req.user) {
+    res.status(401).send({ message: 'Invalid JWT token' });
+    return;
+  }
+
+  var response = [];
+  var promises = [];
+  req.user.registeredStudygroups.forEach(groupId => {
+    promises.push(
+      StudygroupModel.findById(groupId.toString()).then(studygroup => {
+        response.push(studygroup);
+      })
+    );
+  });
+
+  /* based on https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all  */
+  Promise.all(promises).then(() => res.status(200).json(response));
+});
+
 /* (2) Get an individual study group by ID*/
 router.get('/:id', helperUser.verifyToken, (req, res) => {
   // checking if user is authenticated
@@ -207,6 +229,8 @@ router.post('/attend/:id', helperUser.verifyToken, (req, res) => {
 
       studygroup.attendees.push(req.user);
       studygroup.save();
+      req.user.registeredStudygroups.push(studygroup);
+      req.user.save();
       res.status(200).json(studygroup);
     })
     .catch(() => res.status(404).json('Error: Invalid study group id'));
@@ -233,6 +257,13 @@ router.patch('/leave/:id', helperUser.verifyToken, (req, res) => {
 
       studygroup.attendees.splice(userIndex, 1);
       studygroup.save();
+
+      var studygroupId = req.user.registeredStudygroups.indexOf(studygroup.id);
+      if (studygroupId != -1) {
+        req.user.registeredStudygroups.splice(studygroupId, 1);
+        req.user.save();
+      }
+
       res.status(200).json(studygroup);
     })
     .catch(() => res.status(404).json('Error: Invalid study group id'));
