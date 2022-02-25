@@ -49,6 +49,8 @@ function GroupCreator({ authToken }) {
     tags: [{ id: 'asdfasdfasdf', text: 'CSC301' }],
     locationLat: 43,
     locationLng: 76,
+    recurring: 'N/A',
+    finalDate: new Date(),
   });
   const [errors, setErrors] = useState({
     title: false,
@@ -61,6 +63,7 @@ function GroupCreator({ authToken }) {
     description: false,
     tags: false,
     location: false,
+    finalDate: false,
   });
   const [forceHideAlert, setForceHideAlert] = useState(false);
 
@@ -85,6 +88,9 @@ function GroupCreator({ authToken }) {
         newState[name] = value;
         break;
       case 'phone':
+        newState[name] = value;
+        break;
+      case 'recurring':
         newState[name] = value;
         break;
       default:
@@ -132,10 +138,12 @@ function GroupCreator({ authToken }) {
         time: state.startDate, // will remove this once back-end is updated.
         startDateTime: state.startDate,
         endDateTime: state.endDate,
+        finalDate: state.finalDate,
         phone: state.phone,
         imageUrl: state.image,
         currAttendees: state.currAttendees,
         maxAttendees: state.maxAttendees,
+        recurring: state.recurring,
         description: state.description,
         location: {
           lat: state.locationLat,
@@ -328,6 +336,31 @@ function GroupCreator({ authToken }) {
                 disableClock
               />
             </Flex>
+            <HStack>
+              <span style={{ marginRight: '1rem' }}>Recurring: </span>
+              <Select
+                className="custom-select"
+                name="recurring"
+                isInvalid={errors.role}
+                placeholder=""
+                onChange={handleChange}
+              >
+                <option value="N/A">N/A</option>
+                <option value="weekly">weekly</option>
+                <option value="bi-weekly">bi-weekly</option>
+              </Select>
+              <span style={{ width: '155px' }}>End date </span>
+              <DatePicker
+                name="finalDate"
+                style={{
+                  border: '1px solid black !important',
+                  width: 'auto',
+                }}
+                selected={state.finalDate}
+                onChange={finalDate => setState({ ...state, finalDate })}
+              />
+            </HStack>
+
             <>
               <Text mb="8px">Description</Text>
               <Textarea

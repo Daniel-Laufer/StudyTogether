@@ -77,6 +77,8 @@ describe('/studygroups/create', function () {
         hostId: '6203414954e004c7a45a944e',
         description: 'We will be going over BFS, DFS and much more!',
         tags: ['Free', 'UTM'],
+        recurring: 'N/A',
+        finalDate: '2022-11-07T17:04:15.000Z',
       })
       .end(function (err, res) {
         expect(res).to.have.status(200);
@@ -107,6 +109,8 @@ describe('/studygroups/edit/62018d54b6389a3ed07987d8', function () {
         hostId: '6203414954e004c7a45a944e',
         description: 'We will be going over BFS, DFS and much more!',
         tags: ['Paid', 'UTM'],
+        recurring: 'N/A',
+        finalDate: '2022-11-07T17:04:15.000Z',
       })
       .end(function (err, res) {
         expect(res).to.have.status(200);

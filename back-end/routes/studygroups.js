@@ -36,7 +36,7 @@ router.get('/:id', helperUser.verifyToken, (req, res) => {
 /* catching a post request with url ./create */
 router.post(
   '/create',
-  //helperUser.verifyToken,
+  helperUser.verifyToken,
   /* Parameter Validation */
   body('title').notEmpty(),
   body('startDateTime').notEmpty(),
@@ -59,11 +59,21 @@ router.post(
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       res.status(400).json({ errors: errors.array() });
+      console.log(errors);
       return;
     }
+
     let recurring = req.body.recurring;
     let numDays = 0;
     let finalDate = new Date(req.body.finalDate);
+    finalDate.setHours(23, 59, 59);
+    if (recurring == 'weekly') {
+      numDays = 7;
+    } else if (recurring == 'bi-weekly') {
+      numDays = 14;
+    } else {
+      finalDate = req.body.startDateTime;
+    }
     let newSeries;
     var seriesId;
     newSeries = new studyGroupSeriesModel({
@@ -74,14 +84,6 @@ router.post(
     seriesId = newSeries._id;
     console.log('made here3');
 
-    if (recurring == 'weekly') {
-      numDays = 7;
-    } else if (recurring == 'bi-weekly') {
-      numDays = 14;
-    }
-
-    // delete the following fake id line
-    var id = mongoose.Types.ObjectId();
     /* study group creation logic  */
     let start = new Date(req.body.startDateTime);
     let end = new Date(req.body.endDateTime);
@@ -99,8 +101,7 @@ router.post(
         curAttendees: req.body.curAttendees,
         location: req.body.location,
         maxAttendees: req.body.maxAttendees,
-        //hostId: req.user.id, //change this later just for testing rn
-        hostId: id,
+        hostId: req.user.id, //change this later just for testing rn
         description: req.body.description,
         tags: req.body.tags,
         seriesId: seriesId,
