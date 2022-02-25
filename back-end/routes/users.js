@@ -3,40 +3,70 @@ var router = express.Router();
 var bcrypt = require('bcrypt');
 var helperUser = require('../helpers/helperUser');
 var User = require('../models/user.model');
-const { body, validationResult } = require('express-validator');
+const { check, body, validationResult } = require('express-validator');
 
 /* Get non-sensitive user profile info */
-router.get('/profile', helperUser.verifyToken, async (req, res) => {
+router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
   if (!req.user) {
     res.status(403).send({ message: 'Invalid JWT token' });
     return;
   }
-  var usr = await User.findById(req.user.id).catch(err =>
-    res.status(400).json('Error: ' + err)
-  );
+  var usr = await User.findById(req.user.id).catch(err => {
+    res.status(400).json('Error: ' + err);
+    return;
+  });
 
-  res.status(200).json(usr);
+  //if user is checking their own profile
+  if (req.user.id === req.params.id) {
+    res.status(200).json(usr);
+  }
+  //if user is checking other profile
+  else {
+    res.status(200).json({
+      firstName: usr.firstName,
+      lastName: usr.lastName,
+      userName: usr.userName,
+      role: usr.role,
+      profileImage: usr.profileImage,
+      profileAboutMe: usr.profileAboutMe,
+      profileContactInfo: usr.profileContactInfo,
+      profileInterests: usr.profileInterests,
+      profileCourses: usr.profileCourses,
+    });
+  }
 });
 
 /* Update non-sensitive user profile info */
-router.put('/profile', helperUser.verifyToken, async (req, res) => {
-  if (!req.user) {
-    res.status(403).send({ message: 'Invalid JWT token' });
-    return;
-  }
-  var usr = await User.findById(req.user.id).catch(err =>
-    res.status(400).json('Error: ' + err)
-  );
+router.patch(
+  '/profile',
+  [
+    //middlewares
+    helperUser.verifyToken,
+    body(['password', 'email', 'verified', 'created']).not().exists(),
+  ],
+  async (req, res) => {
+    if (!req.user) {
+      res.status(403).send({ message: 'Invalid JWT token' });
+      return;
+    }
+    var usr = await User.findById(req.user.id).catch(err => {
+      res.status(400).json('Error: ' + err);
+      return;
+    });
 
-  /* BEGIN - Update user profile */
-  var updatedUser = await User.findByIdAndUpdate(usr.id, req.body).catch(err =>
-    res.status(400).json('Error: ' + err)
-  );
-  res.status(200).json({
-    message: 'User profile updates successfully!',
-    updatedUser: updatedUser,
-  });
-});
+    /* BEGIN - Update user profile */
+    var updatedUser = await User.findByIdAndUpdate(usr.id, req.body).catch(
+      err => {
+        res.status(400).json('Error: ' + err);
+        return;
+      }
+    );
+    res.status(200).json({
+      message: 'User profile updates successfully!',
+      updatedUser: updatedUser,
+    });
+  }
+);
 
 //Authentication and Authorization referenced from https://www.topcoder.com/thrive/articles/authentication-and-authorization-in-express-js-api-using-jwt
 
