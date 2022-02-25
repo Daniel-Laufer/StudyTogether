@@ -29,7 +29,7 @@ router.get('/saved', helperUser.verifyToken, async (req, res) => {
   req.user.savedStudygroups.forEach(groupId => {
     promises.push(
       StudygroupModel.findById(groupId.toString()).then(studygroup => {
-        response.push(studygroup);
+        if (studygroup) response.push(studygroup);
       })
     );
   });
