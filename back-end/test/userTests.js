@@ -54,7 +54,7 @@ describe('User Tests', function () {
           expect(res.body.user.email).to.be.equal('test.user@mail.utoronto.ca');
           done();
         });
-    }).timeout(5000);
+    });
   });
 
   /* Test: User login*/
@@ -80,7 +80,7 @@ describe('User Tests', function () {
           expect(res.body.user.email).to.be.equal('test.user@mail.utoronto.ca');
           done();
         });
-    }).timeout(5000);
+    });
   });
 
   /* Test: User Bookmark Study group */
@@ -98,7 +98,7 @@ describe('User Tests', function () {
           expect(res).to.have.status(200);
           done();
         });
-    }).timeout(5000);
+    });
   });
 
   /* Test: User Unbookmark Study group */
@@ -116,6 +116,6 @@ describe('User Tests', function () {
           expect(res).to.have.status(200);
           done();
         });
-    }).timeout(5000);
+    });
   });
 });

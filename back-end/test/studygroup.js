@@ -32,7 +32,7 @@ describe('Study Groups', function () {
           expect(res.body).to.have.property('token');
         });
       done();
-    }).timeout(5000);
+    });
   });
 });
 
@@ -52,7 +52,7 @@ describe('Study Group', function () {
           expect(res.body).to.have.property('token');
         });
       done();
-    }).timeout(5000);
+    });
   });
 });
 
@@ -83,7 +83,7 @@ describe('/studygroups/create', function () {
         expect(res.body).to.have.property('token');
         done();
       });
-  }).timeout(5000);
+  });
 });
 
 /* Test: editing a study group */
@@ -113,7 +113,7 @@ describe('/studygroups/edit/62018d54b6389a3ed07987d8', function () {
         expect(res.body).to.have.property('token');
         done();
       });
-  }).timeout(5000);
+  });
 });
 
 /* Test: deleting a study group */
@@ -127,5 +127,5 @@ describe('/studygroups/delete/62034457d73c46a32c0100e2', function () {
         expect(res.body).to.have.property('token');
         done();
       });
-  }).timeout(5000);
+  });
 });
