@@ -16,7 +16,6 @@ import { connect } from 'react-redux';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
-// import SecondGroup from '../../components/SecondGroup';
 import Group from '../../components/Group';
 import { apiURL } from '../../utils/constants';
 import { logout } from '../../actions/Auth';

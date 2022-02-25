@@ -19,7 +19,7 @@ import PropTypes from 'prop-types';
 import { WithContext as ReactTags } from 'react-tag-input';
 import Cat from '../../assets/images/cat.jpeg';
 import GreenButton from '../../components/GreenButton';
-import SecondGroup from '../../components/SecondGroup';
+import DetailedGroup from '../../components/DetailedGroup';
 import * as colors from '../../utils/colors';
 
 const groups = [
@@ -296,7 +296,7 @@ function AccountInfo({ authToken }) {
               Study groups you are part of.
             </Text>
             {groups.map(g => (
-              <SecondGroup
+              <DetailedGroup
                 heading={g.heading}
                 restrict={g.restrict}
                 price={g.price}
