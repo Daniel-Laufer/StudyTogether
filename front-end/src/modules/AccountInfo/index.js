@@ -12,7 +12,10 @@ import {
   ListItem,
   UnorderedList,
 } from '@chakra-ui/react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { connect } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import { WithContext as ReactTags } from 'react-tag-input';
 import Cat from '../../assets/images/cat.jpeg';
 import GreenButton from '../../components/GreenButton';
@@ -52,7 +55,13 @@ const groups = [
   },
 ];
 
-function AccountInfo() {
+function AccountInfo({ authToken }) {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (authToken === '') navigate('/');
+  }, [authToken]);
+
   const [userInfo, setUserInfo] = useState({
     name: 'Geralt Stanislav',
     desc: "I am a first year student at UTM who's majoring in CS, and trying to find like-minded people",
@@ -303,4 +312,13 @@ function AccountInfo() {
   );
 }
 
-export default AccountInfo;
+AccountInfo.propTypes = {
+  authToken: PropTypes.string,
+};
+
+AccountInfo.defaultProps = { authToken: '' };
+
+export default connect(state => ({
+  // eslint-disable-next-line no-undef
+  authToken: state.Auth.authToken || localStorage.getItem('authToken'),
+}))(AccountInfo);
