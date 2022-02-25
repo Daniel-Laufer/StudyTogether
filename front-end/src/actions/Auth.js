@@ -23,8 +23,14 @@ export function login(userDetails) {
       .then(res => {
         dispatch({ type: REGISTRATION_SUCCESS });
         dispatch({ type: SAVE_AUTH_DETAILS, ...res.data });
-        if (userDetails.rememberUser)
+        if (userDetails.rememberUser) {
+          window.localStorage.setItem(
+            'userDetails',
+            JSON.stringify(res.data.user)
+          );
           window.localStorage.setItem('authToken', res.data.token);
+          // window.localStorage.setItem('userDetails', res.data.token);
+        }
       })
       .catch(err => {
         let errMessage = err.toString();
@@ -43,6 +49,7 @@ export function login(userDetails) {
 export function logout() {
   // eslint-disable-next-line no-undef
   localStorage.removeItem('authToken');
+  localStorage.removeItem('userDetails');
   return { type: LOGOUT };
 }
 

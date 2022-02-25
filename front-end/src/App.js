@@ -62,6 +62,7 @@ function App() {
                 <Groups
                   studyGroupsEndPoint="studygroups/saved"
                   headerContent="Your saved study groups"
+                  noGroupsFoundHeaderContent="You don't have any saved study groups."
                 />
               }
             />

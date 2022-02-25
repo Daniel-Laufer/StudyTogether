@@ -10,6 +10,7 @@ import {
   FormControl,
   FormLabel,
   Switch,
+  Text,
 } from '@chakra-ui/react';
 import { connect } from 'react-redux';
 import axios from 'axios';
@@ -27,6 +28,7 @@ function SavedGroups({
   dispatch,
   studyGroupsEndPoint,
   headerContent,
+  noGroupsFoundText,
 }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -104,38 +106,42 @@ function SavedGroups({
           justifyContent: '',
         }}
       >
-        {groups.map(g =>
-          !viewDetailedGroupCards ? (
-            <Group
-              title={g.title}
-              restrict="UofT students"
-              availability={`${g.maxAttendees - g.curAttendees} / ${
-                g.maxAttendees
-              }`}
-              imgAlt="Study group image"
-              img={g.imageUrl}
-              when={g.time}
-              host={g.hostFirstName + g.hostLastName}
-              desc={g.description}
-              link={`${g._id}`}
-              size="md"
-            />
-          ) : (
-            <DetailedGroup
-              title={g.title}
-              restrict="UofT students"
-              availability={`${g.maxAttendees - g.curAttendees} / ${
-                g.maxAttendees
-              }`}
-              imgAlt="Study group image"
-              img={g.imageUrl}
-              when={g.time}
-              host={g.hostFirstName + g.hostLastName}
-              desc={g.description}
-              link={`${g._id}`}
-              size="md"
-            />
+        {groups.length > 0 ? (
+          groups.map(g =>
+            !viewDetailedGroupCards ? (
+              <Group
+                title={g.title}
+                restrict="UofT students"
+                availability={`${g.maxAttendees - g.curAttendees} / ${
+                  g.maxAttendees
+                }`}
+                imgAlt="Study group image"
+                img={g.imageUrl}
+                when={g.time}
+                host={g.hostFirstName + g.hostLastName}
+                desc={g.description}
+                link={`${g._id}`}
+                size="md"
+              />
+            ) : (
+              <DetailedGroup
+                title={g.title}
+                restrict="UofT students"
+                availability={`${g.maxAttendees - g.curAttendees} / ${
+                  g.maxAttendees
+                }`}
+                imgAlt="Study group image"
+                img={g.imageUrl}
+                when={g.time}
+                host={g.hostFirstName + g.hostLastName}
+                desc={g.description}
+                link={`${g._id}`}
+                size="md"
+              />
+            )
           )
+        ) : (
+          <Text> {noGroupsFoundText} </Text>
         )}
       </Flex>
     </Box>
@@ -149,12 +155,14 @@ SavedGroups.propTypes = {
   dispatch: PropTypes.func.isRequired,
   studyGroupsEndPoint: PropTypes.string,
   headerContent: PropTypes.string,
+  noGroupsFoundText: PropTypes.string,
 };
 
 SavedGroups.defaultProps = {
   authToken: '',
   studyGroupsEndPoint: 'studygroups',
   headerContent: 'Study groups happening near you',
+  noGroupsFoundText: 'No study groups found.',
 };
 
 export default connect(state => ({
