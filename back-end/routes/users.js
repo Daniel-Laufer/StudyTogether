@@ -16,11 +16,11 @@ router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
     return;
   });
 
-  //if user is checking their own profile
+  //if user is checking their own profile -> provide all info (TODO: remove password hash)
   if (req.user.id === req.params.id) {
     res.status(200).json(usr);
   }
-  //if user is checking other profile
+  //if user is checking other profile -> provide public info
   else {
     res.status(200).json({
       firstName: usr.firstName,
@@ -45,6 +45,11 @@ router.patch(
     body(['password', 'email', 'verified', 'created']).not().exists(),
   ],
   async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(400).json({ errors: errors.array() });
+      return;
+    }
     if (!req.user) {
       res.status(403).send({ message: 'Invalid JWT token' });
       return;
