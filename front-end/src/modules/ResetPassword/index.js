@@ -57,10 +57,8 @@ function ResetPassword() {
     const body = { email, password: firstPassword, token };
     axios
       .post(`${apiURL}/forgot/reset`, body)
-      .then(res => {
-        console.log(res.data);
-        navigate('/login');
-      })
+      // eslint-disable-next-line no-unused-vars
+      .then(res => navigate('/login'))
       .catch(err => console.log(err));
   };
 
