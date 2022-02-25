@@ -40,7 +40,6 @@ function SavedGroups({ authToken, dispatch }) {
           dispatch(logout());
           navigate('/login');
         }
-        console.log(err);
       });
   };
 

@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
@@ -43,12 +43,17 @@ const userSchema = new Schema(
     },
     created: {
       type: Date,
-      default: Date.now,
+      default: Date.now(),
+    },
+    savedStudygroups: {
+      type: [mongoose.Types.ObjectId],
+      default: [],
+      required: false,
     },
   },
   { collection: 'users' }
 );
 
-const user = mongoose.model("user", userSchema);
+const user = mongoose.model('user', userSchema);
 
 module.exports = user;

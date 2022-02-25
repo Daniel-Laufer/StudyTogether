@@ -55,13 +55,7 @@ function ResetPassword() {
   // Will handle API calls here
   const handleSubmit = () => {
     const body = { email, password: firstPassword, token };
-    axios
-      .post(`${apiURL}/forgot/reset`, body)
-      .then(res => {
-        console.log(res.data);
-        navigate('/login');
-      })
-      .catch(err => console.log(err));
+    axios.post(`${apiURL}/forgot/reset`, body).then(navigate('/login'));
   };
 
   return (

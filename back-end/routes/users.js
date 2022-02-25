@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var bcrypt = require('bcrypt');
 var helperUser = require('../helpers/helperUser');
+let StudygroupModel = require('../models/studygroup.model');
 var User = require('../models/user.model');
 const { body, validationResult } = require('express-validator');
 
@@ -57,6 +58,77 @@ router.post(
         helperUser.respondJWT(user, res, 'User registered successfully!')
       )
       .catch(err => res.status(400).json('Error: ' + err));
+  }
+);
+
+router.post(
+  '/bookmark-group/',
+  helperUser.verifyToken,
+  /* Parameter Validation */
+  body('studygroupId').exists().bail().notEmpty(),
+  (req, res) => {
+    if (!req.user) {
+      res.status(401).send({ message: 'Invalid JWT token' });
+      return;
+    }
+
+    const groupId = req.body.studygroupId;
+
+    // check that the studygroup exists
+    StudygroupModel.findById(groupId)
+      .then(() => {
+        // check whether user already has this study group bookmarked
+        const user = req.user;
+        if (!Array.isArray(user.savedStudygroups)) {
+          user.savedStudygroups = [groupId];
+        }
+
+        if (user.savedStudygroups.includes(groupId)) {
+          res.status(400).send({ message: 'Study group already bookmarked' });
+          return;
+        }
+
+        user.savedStudygroups.push(groupId);
+        user.save();
+        res
+          .status(200)
+          .send({ message: 'Study group bookmarked successfully!' });
+      })
+      .catch(err => res.status(404).send({ Error: 'Invalid study group id' }));
+  }
+);
+
+router.patch(
+  '/unbookmark-group/',
+  helperUser.verifyToken,
+  body('studygroupId').exists().bail().notEmpty(),
+  /* Parameter Validation */
+  (req, res) => {
+    if (!req.user) {
+      res.status(401).send({ message: 'Invalid JWT token' });
+      return;
+    }
+
+    const groupId = req.body.studygroupId;
+
+    // check that the studygroup exists
+    StudygroupModel.findById(groupId)
+      .then(() => {
+        // check whether user really has bookmarked this study group
+        const user = req.user;
+        var groupIndex = user.savedStudygroups.indexOf(groupId);
+        if (groupIndex == -1) {
+          res.status(400).send({ message: 'Study group is not bookmarked' });
+          return;
+        }
+
+        user.savedStudygroups.splice(groupIndex, 1);
+        user.save();
+        res
+          .status(200)
+          .send({ message: 'Study group unbookmarked successfully!' });
+      })
+      .catch(() => res.status(404).send({ Error: 'Invalid study group id' }));
   }
 );
 

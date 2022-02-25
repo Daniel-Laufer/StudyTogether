@@ -1,5 +1,4 @@
 /* eslint-disable no-undef */
-/* eslint-disable no-underscore-dangle */
 import React, { useEffect, useState } from 'react';
 import { Box, Alert, AlertIcon } from '@chakra-ui/react';
 import { connect } from 'react-redux';
@@ -40,7 +39,6 @@ function Groups({ authToken, dispatch }) {
           dispatch(logout());
           navigate('/login');
         }
-        console.log(err);
       });
   };
 
