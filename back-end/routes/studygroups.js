@@ -26,7 +26,7 @@ router.get('/:id', helperUser.verifyToken, (req, res) => {
   const groupId = req.params.id;
   StudygroupModel.findById(groupId)
     .then(studygroup => res.status(200).json(studygroup))
-    .catch(err => res.status(400).json('Error: Invalid study group id'));
+    .catch(() => res.status(404).json('Error: Invalid study group id'));
 });
 
 /* (3) Catching a post request with url ./create */
@@ -129,7 +129,7 @@ router.delete('/delete/:id', helperUser.verifyToken, (req, res) => {
       studygroup.delete();
       res.status(200).json('Study group deleted successfully!');
     })
-    .catch(err => res.status(400).json('Error: Invalid study group id'));
+    .catch(() => res.status(404).json('Error: Invalid study group id'));
 });
 
 /* (6) Canceling a room marks it as inactive then deletes it after a grace period. During the grace period, the host can undo deleting a room. */
@@ -185,6 +185,57 @@ router.put('/reactivate/:id', helperUser.verifyToken, async (req, res) => {
   }).catch(err => res.status(400).json('Error: ' + err));
 
   res.status(200).json(updatedStudygroup);
+});
+
+/* (8) Attend a study group given an id */
+router.post('/attend/:id', helperUser.verifyToken, (req, res) => {
+  // checking if user is authenticated
+  if (!req.user) {
+    res.status(401).send({ message: 'Invalid JWT token' });
+    return;
+  }
+
+  const groupId = req.params.id;
+  StudygroupModel.findById(groupId)
+    .then(studygroup => {
+      if (studygroup.attendees.includes(req.user.id)) {
+        res
+          .status(400)
+          .send({ message: 'User already attends this study group' });
+        return;
+      }
+
+      studygroup.attendees.push(req.user);
+      studygroup.save();
+      res.status(200).json(studygroup);
+    })
+    .catch(() => res.status(404).json('Error: Invalid study group id'));
+});
+
+/* (9) Leave a study group given an id */
+router.patch('/leave/:id', helperUser.verifyToken, (req, res) => {
+  // checking if user is authenticated
+  if (!req.user) {
+    res.status(401).send({ message: 'Invalid JWT token' });
+    return;
+  }
+
+  const groupId = req.params.id;
+  StudygroupModel.findById(groupId)
+    .then(studygroup => {
+      var userIndex = studygroup.attendees.indexOf(req.user.id);
+      if (userIndex == -1) {
+        res
+          .status(400)
+          .send({ message: 'User does not attend this study group' });
+        return;
+      }
+
+      studygroup.attendees.splice(userIndex, 1);
+      studygroup.save();
+      res.status(200).json(studygroup);
+    })
+    .catch(() => res.status(404).json('Error: Invalid study group id'));
 });
 
 module.exports = router;
