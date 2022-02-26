@@ -4,18 +4,11 @@ var app = require('../app');
 var helperUser = require('../helpers/helperUser');
 var User = require('../models/user.model');
 var expect = chai.expect;
-let token;
+var token;
 
 chai.use(chaiHttp);
 
 describe('User Tests', function () {
-  /* hooks */
-  after(function () {
-    // runs once after the last test in this block
-    console.log('--Cleaning up users collection--');
-    User.deleteMany({}).catch(err => console.log(err));
-  });
-
   /* Test: token validation */
   describe('Ensure users are not accessable unless valid JWT token is provided', function () {
     it('verifies status is 403 Forbidden', function (done) {

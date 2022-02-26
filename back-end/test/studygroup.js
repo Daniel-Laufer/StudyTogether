@@ -2,8 +2,8 @@ const { assert } = require('chai');
 var chai = require('chai');
 var chaiHttp = require('chai-http');
 var app = require('../app');
-
 var expect = chai.expect;
+var grp = '';
 
 chai.use(chaiHttp);
 
@@ -70,7 +70,7 @@ describe('/studygroups/create', function () {
         phone: '905-874-2103',
         imageUrl: '/assets/ewffejvndqj30.jpg',
         location: {
-          long: 5,
+          lng: 5,
           lat: 15,
         },
         maxAttendees: 10,
@@ -100,7 +100,7 @@ describe('/studygroups/edit/62018d54b6389a3ed07987d8', function () {
         phone: '675-874-2103',
         imageUrl: '/assets/ewffejvndqj30.jpg',
         location: {
-          long: 7155,
+          lng: 7155,
           lat: 1554,
         },
         maxAttendees: 2,

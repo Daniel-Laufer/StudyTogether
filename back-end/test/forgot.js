@@ -1,10 +1,7 @@
 var chai = require('chai');
 var chaiHttp = require('chai-http');
 var app = require('../app');
-
-var User = require('../models/user.model');
 var expect = chai.expect;
-
 chai.use(chaiHttp);
 
 describe('/forgot', function () {
