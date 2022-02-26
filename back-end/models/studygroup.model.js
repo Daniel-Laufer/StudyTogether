@@ -15,12 +15,11 @@ const studygroupSchema = new Schema(
     hostId: { type: mongoose.Types.ObjectId, required: true },
     description: { type: String, required: true },
     tags: { type: [String], required: true },
-
+    seriesId: { type: mongoose.Types.ObjectId, required: true },
     //Status
     canceledAt: { type: Date, default: undefined, required: false }, //TLL index for deleting a group after canceling. Not meant to be parsed in the frontend.
     canceled: { type: Boolean, default: false, required: false },
     rescheduled: { type: Boolean, default: false, required: false },
-
     //Accessabililty.
     private: { type: Boolean, default: false, required: false },
     paid: { type: Boolean, default: false, required: false },
