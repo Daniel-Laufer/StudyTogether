@@ -36,7 +36,7 @@ router.get('/:id', helperUser.verifyToken, (req, res) => {
 /* catching a post request with url ./create */
 router.post(
   '/create',
-  //helperUser.verifyToken,
+  helperUser.verifyToken,
   /* Parameter Validation */
   body('title').notEmpty(),
   body('startDateTime').notEmpty(),
@@ -81,7 +81,6 @@ router.post(
     }
 
     // delete the following fake id line
-    var id = mongoose.Types.ObjectId();
     /* study group creation logic  */
     let start = new Date(req.body.startDateTime);
     let end = new Date(req.body.endDateTime);
@@ -99,8 +98,7 @@ router.post(
         curAttendees: req.body.curAttendees,
         location: req.body.location,
         maxAttendees: req.body.maxAttendees,
-        //hostId: req.user.id, //change this later just for testing rn
-        hostId: id,
+        hostId: req.user.id, 
         description: req.body.description,
         tags: req.body.tags,
         seriesId: seriesId,
@@ -175,7 +173,6 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
           location: req.body.location,
           maxAttendees: req.body.maxAttendees,
           hostId: req.user.id,
-          //hostId: id, //just for back end only testing
           description: req.body.description,
           tags: req.body.tags,
           seriesId: seriesId,
