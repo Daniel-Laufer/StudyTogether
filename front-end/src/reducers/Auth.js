@@ -51,6 +51,10 @@ export default (state = initialState, action) => {
         userDetails: { ...action.user },
         authToken: action.token,
       };
+    case Auth.LOGOUT:
+      return {
+        ...initialState,
+      };
 
     default:
       return state;

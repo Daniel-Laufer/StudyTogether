@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import {
@@ -46,6 +47,10 @@ function Register({ authState, dispatch }) {
   });
   const [forceHideAlert, setForceHideAlert] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const handleEmailChange = event => {
     setErrors({ ...errors, email: false });

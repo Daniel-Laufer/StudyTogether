@@ -54,7 +54,7 @@ GreenButton.defaultProps = {
   text: 'Button',
   width: null,
   height: null,
-  onClick: () => console.log('Clicked!'),
+  onClick: () => null,
   isLoading: false,
   style: {},
 };
