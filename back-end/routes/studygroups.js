@@ -29,7 +29,7 @@ router.get('/registered', helperUser.verifyToken, async (req, res) => {
   req.user.registeredStudygroups.forEach(groupId => {
     promises.push(
       StudygroupModel.findById(groupId.toString()).then(studygroup => {
-        response.push(studygroup);
+        if (studygroup) response.push(studygroup);
       })
     );
   });
@@ -94,7 +94,7 @@ router.post(
 
     studygroup
       .save()
-      .then(() => res.status(200).json('Study group created successfully!'))
+      .then(() => res.status(200).json(studygroup))
       .catch(err => res.status(400).json('Error: ' + err));
   }
 );
@@ -130,7 +130,7 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
   else Object.assign(studygroup, req.body);
 
   await studygroup.save().catch(err => res.status(400).json('Error: ' + err));
-  res.status(200).send('Study group edited successfully!');
+  res.status(200).json(studygroup);
 });
 
 /* (5) Deleting a study group by id */
