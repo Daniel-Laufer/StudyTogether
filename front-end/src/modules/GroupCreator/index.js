@@ -349,7 +349,7 @@ function GroupCreator({ authToken }) {
                 <option value="weekly">weekly</option>
                 <option value="bi-weekly">bi-weekly</option>
               </Select>
-              <span style={{ width: '155px' }}>End date </span>
+              <span style={{ width: '334px' }}>Final session date: </span>
               <DatePicker
                 name="finalDate"
                 style={{
