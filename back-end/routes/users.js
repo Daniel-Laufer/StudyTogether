@@ -2,19 +2,77 @@ var express = require('express');
 var router = express.Router();
 var bcrypt = require('bcrypt');
 var helperUser = require('../helpers/helperUser');
+let StudygroupModel = require('../models/studygroup.model');
 var User = require('../models/user.model');
-const { body, validationResult } = require('express-validator');
+const { check, body, validationResult } = require('express-validator');
 
-/* get all users - To be removed */
-router.get('/', helperUser.verifyToken, function (req, res) {
+/* Get non-sensitive user profile info */
+router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
   if (!req.user) {
     res.status(403).send({ message: 'Invalid JWT token' });
     return;
   }
-  User.find()
-    .then(user => res.status(200).json(user))
-    .catch(err => res.status(400).json('Error: ' + err));
+  var usr = await User.findById(req.user.id).catch(err => {
+    res.status(400).json('Error: ' + err);
+    return;
+  });
+
+  //if user is checking their own profile -> provide all info (TODO: remove password hash)
+  if (req.user.id === req.params.id) {
+    res.status(200).json(usr);
+  }
+  //if user is checking other profile -> provide public info
+  else {
+    res.status(200).json({
+      firstName: usr.firstName,
+      lastName: usr.lastName,
+      userName: usr.userName,
+      role: usr.role,
+      profileImage: usr.profileImage,
+      profileAboutMe: usr.profileAboutMe,
+      profileContactInfo: usr.profileContactInfo,
+      profileInterests: usr.profileInterests,
+      profileCourses: usr.profileCourses,
+    });
+  }
 });
+
+/* Update non-sensitive user profile info */
+router.patch(
+  '/profile',
+  [
+    //middlewares
+    helperUser.verifyToken,
+    body(['password', 'email', 'verified', 'created']).not().exists(),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(400).json({ errors: errors.array() });
+      return;
+    }
+    if (!req.user) {
+      res.status(403).send({ message: 'Invalid JWT token' });
+      return;
+    }
+    var usr = await User.findById(req.user.id).catch(err => {
+      res.status(400).json('Error: ' + err);
+      return;
+    });
+
+    /* BEGIN - Update user profile */
+    var updatedUser = await User.findByIdAndUpdate(usr.id, req.body).catch(
+      err => {
+        res.status(400).json('Error: ' + err);
+        return;
+      }
+    );
+    res.status(200).json({
+      message: 'User profile updates successfully!',
+      updatedUser: updatedUser,
+    });
+  }
+);
 
 //Authentication and Authorization referenced from https://www.topcoder.com/thrive/articles/authentication-and-authorization-in-express-js-api-using-jwt
 
@@ -57,6 +115,81 @@ router.post(
         helperUser.respondJWT(user, res, 'User registered successfully!')
       )
       .catch(err => res.status(400).json('Error: ' + err));
+  }
+);
+
+router.post(
+  '/bookmark-group/',
+  helperUser.verifyToken,
+  /* Parameter Validation */
+  body('studygroupId').exists().bail().notEmpty(),
+  (req, res) => {
+    if (!req.user) {
+      res.status(401).send({ message: 'Invalid JWT token' });
+      return;
+    }
+
+    const groupId = req.body.studygroupId;
+    if (!groupId) {
+      res.status(400).send({ message: 'Missing studygroupId field' });
+      return;
+    }
+
+    // check that the studygroup exists
+    StudygroupModel.findById(groupId)
+      .then(() => {
+        // check whether user already has this study group bookmarked
+        const user = req.user;
+        if (!Array.isArray(user.savedStudygroups)) {
+          user.savedStudygroups = [groupId];
+        }
+
+        if (user.savedStudygroups.includes(groupId)) {
+          res.status(400).send({ message: 'Study group already bookmarked' });
+          return;
+        }
+
+        user.savedStudygroups.push(groupId);
+        user.save();
+        res
+          .status(200)
+          .send({ message: 'Study group bookmarked successfully!' });
+      })
+      .catch(err => res.status(404).send({ Error: 'Invalid study group id' }));
+  }
+);
+
+router.patch(
+  '/unbookmark-group/',
+  helperUser.verifyToken,
+  body('studygroupId').exists().bail().notEmpty(),
+  /* Parameter Validation */
+  (req, res) => {
+    if (!req.user) {
+      res.status(401).send({ message: 'Invalid JWT token' });
+      return;
+    }
+
+    const groupId = req.body.studygroupId;
+
+    // check that the studygroup exists
+    StudygroupModel.findById(groupId)
+      .then(() => {
+        // check whether user really has bookmarked this study group
+        const user = req.user;
+        var groupIndex = user.savedStudygroups.indexOf(groupId);
+        if (groupIndex == -1) {
+          res.status(400).send({ message: 'Study group is not bookmarked' });
+          return;
+        }
+
+        user.savedStudygroups.splice(groupIndex, 1);
+        user.save();
+        res
+          .status(200)
+          .send({ message: 'Study group unbookmarked successfully!' });
+      })
+      .catch(() => res.status(404).send({ Error: 'Invalid study group id' }));
   }
 );
 

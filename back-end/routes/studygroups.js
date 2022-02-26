@@ -8,7 +8,7 @@ const { serveFiles } = require('swagger-ui-express');
 const { mongo, Mongoose } = require('mongoose');
 const mongoose = require('mongoose');
 
-/* get all study groups*/
+/* (1) Get all study groups*/
 router.get('/', helperUser.verifyToken, (req, res) => {
   // checking if user is authenticated
   if (!req.user) {
@@ -20,7 +20,29 @@ router.get('/', helperUser.verifyToken, (req, res) => {
     .catch(err => res.status(400).json('Error: ' + err));
 });
 
-/* get an individual study group by ID*/
+/* (2) Get all studygroups saved by a user */
+router.get('/saved', helperUser.verifyToken, async (req, res) => {
+  // checking if user is authenticated
+  if (!req.user) {
+    res.status(401).send({ message: 'Invalid JWT token' });
+    return;
+  }
+
+  var response = [];
+  var promises = [];
+  req.user.savedStudygroups.forEach(groupId => {
+    promises.push(
+      StudygroupModel.findById(groupId.toString()).then(studygroup => {
+        if (studygroup) response.push(studygroup);
+      })
+    );
+  });
+
+  /* based on https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all  */
+  Promise.all(promises).then(() => res.status(200).json(response));
+});
+
+/* (3) Get an individual study group by ID*/
 router.get('/:id', helperUser.verifyToken, (req, res) => {
   // checking if user is authenticated
   if (!req.user) {
@@ -33,7 +55,7 @@ router.get('/:id', helperUser.verifyToken, (req, res) => {
     .catch(err => res.status(400).json('Error: Invalid study group id'));
 });
 
-/* catching a post request with url ./create */
+/* (4) Catching a post request with url ./create */
 router.post(
   '/create',
   helperUser.verifyToken,
@@ -120,7 +142,11 @@ router.post(
   }
 );
 
+
 /* editing a study group by id */
+
+/* (5) Editing a study group by id */
+
 router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
   // check whether the user is authenticated as the host of this study group
   if (!req.user) {
@@ -129,6 +155,7 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
   }
 
   const groupId = req.params.id;
+
   const editAll = req.body.editAll;
 
   const studyGroup = await StudygroupModel.findById(groupId).catch(err =>
@@ -155,9 +182,11 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
         session = await StudygroupModel.findById(series.studyGroups[i]).catch(
           err => res.status(400).json('Error: ' + err)
         );
-        console.log(i);
 
         Object.assign(session, req.body);
+        if(session.startDateTime != newStart){
+          session.rescheduled = true;
+        }
         session.startDateTime = newStart;
         session.endDateTime = newEnd;
         session.save().catch(err => res.status(400).json('Error: ' + err));
@@ -209,9 +238,10 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
   } catch (err) {
     console.log(err);
   }
+
 });
 
-/* deleting a study group by id */
+/* (6) Deleting a study group by id */
 router.delete('/delete/:id', helperUser.verifyToken, (req, res) => {
   // check whether the user is authenticated as the host of this study group
 
@@ -265,6 +295,61 @@ router.delete('/delete/:id', helperUser.verifyToken, (req, res) => {
         .catch(err => res.status(400).json('Error: ' + err));
     })
     .catch(err => res.status(400).json('Error: Invalid study group id'));
+});
+
+/* (7) Canceling a room marks it as inactive then deletes it after a grace period. During the grace period, the host can undo deleting a room. */
+router.put('/cancel/:id', helperUser.verifyToken, async (req, res) => {
+  // checking if user is authenticated
+  if (!req.user) {
+    res.status(401).send({ message: 'Invalid JWT token' });
+    return;
+  }
+  const groupId = req.params.id;
+  var studygroup = await StudygroupModel.findById(groupId).catch(err => {
+    res.status(400).json('Error: ' + err);
+    return;
+  });
+
+  if (studygroup.hostId != req.user.id) {
+    res.status(403).send('Permision denied');
+    return;
+  }
+  /* begin https://stackoverflow.com/questions/7687884/add-10-seconds-to-a-date */
+  var t = new Date();
+  t.setHours(t.getHours() + 24); // 24 hour grace period
+  /* end */
+  var updatedStudygroup = await StudygroupModel.findByIdAndUpdate(groupId, {
+    canceledAt: t,
+  }).catch(err => {
+    res.status(400).json('Error: ' + err);
+    return;
+  });
+
+  res.status(200).json(updatedStudygroup);
+});
+
+/* (8) Undo canceling in case the user decides otherwise */
+router.put('/reactivate/:id', helperUser.verifyToken, async (req, res) => {
+  // checking if user is authenticated
+  if (!req.user) {
+    res.status(401).send({ message: 'Invalid JWT token' });
+    return;
+  }
+  const groupId = req.params.id;
+  var studygroup = await StudygroupModel.findById(groupId).catch(err => {
+    res.status(400).json('Error: ' + err);
+    return;
+  });
+
+  if (studygroup.hostId != req.user.id) {
+    res.status(403).send({ message: 'Not study group creator' });
+    return;
+  }
+  var updatedStudygroup = await StudygroupModel.findByIdAndUpdate(groupId, {
+    $unset: { canceledAt: 1 },
+  }).catch(err => res.status(400).json('Error: ' + err));
+
+  res.status(200).json(updatedStudygroup);
 });
 
 module.exports = router;
