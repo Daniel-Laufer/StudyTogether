@@ -59,31 +59,45 @@ describe('Study Group', function () {
 /* Test: creating a study group */
 describe('/studygroups/create', function () {
   it('check study group creation is functional', function (done) {
-    chai
-      .request(app)
-      .post('/studygroups/create')
+    var agent = chai.request.agent(app);
+    agent
+      .post('/users/register')
       .set('Content-Type', 'application/json')
       .send({
-        title: 'CSC263 Midterm',
-        startDateTime: '2022-11-07T17:04:15.000Z',
-        endDateTime: '2022-11-07T17:07:15.000Z',
-        phone: '905-874-2103',
-        imageUrl: '/assets/ewffejvndqj30.jpg',
-        location: {
-          long: 5,
-          lat: 15,
-        },
-        maxAttendees: 10,
-        hostId: '6203414954e004c7a45a944e',
-        description: 'We will be going over BFS, DFS and much more!',
-        tags: ['Free', 'UTM'],
+        firstName: 'Test',
+        lastName: 'User',
+        email: 'test.use@mail.utoronto.ca',
+        password: '123456789',
+        role: 'Student',
       })
-      .end(function (err, res) {
-        expect(res).to.have.status(200);
+      .then(async function (res) {
+        console.log(res);
         expect(res.body).to.have.property('token');
+        const res_1 = await agent
+          .post('/studygroups/create')
+          .set('Content-Type', 'application/json')
+          .set('authorization', `JWT ${res.body.token}`)
+          .send({
+            title: 'CSC263 Midterm',
+            startDateTime: '2022-11-07T17:04:15.000Z',
+            endDateTime: '2022-11-07T17:07:15.000Z',
+            phone: '905-874-2103',
+            imageUrl: '/assets/ewffejvndqj30.jpg',
+            location: {
+              long: 5,
+              lat: 15,
+            },
+            maxAttendees: 10,
+            hostId: '6203414954e004c7a45a944e',
+            description: 'We will be going over BFS, DFS and much more!',
+            tags: ['Free', 'UTM'],
+            recurring: 'weekly',
+            finalDate: '2022-11-21T17:04:15.000Z',
+          });
+        expect(res_1).to.have.status(200);
         done();
       });
-  }).timeout(5000);
+  });
 });
 
 /* Test: editing a study group */
