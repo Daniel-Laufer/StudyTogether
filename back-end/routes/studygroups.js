@@ -32,7 +32,7 @@ router.get('/:id', helperUser.verifyToken, (req, res) => {
 /* catching a post request with url ./create */
 router.post(
   '/create',
-  //helperUser.verifyToken,
+  helperUser.verifyToken,
   /* Parameter Validation */
   body('title').notEmpty(),
   body('startDateTime').notEmpty(),
@@ -44,10 +44,10 @@ router.post(
   body('tags').exists().bail().isArray().bail().notEmpty(),
   (req, res) => {
     // checking if user is authenticated
-    /*if (!req.user) {
+    if (!req.user) {
       res.status(401).send({ message: 'Invalid JWT token' });
       return;
-    }*/
+    }
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
