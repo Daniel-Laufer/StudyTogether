@@ -538,6 +538,20 @@
             "description": "The study group's tags",
             "required": true,
             "type": "[string]"
+          },
+          {
+            "name": "recurring",
+            "in": "body",
+            "description": "The frequency at which this study group will recur",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "endDateTime",
+            "in": "body",
+            "description": "The time when the study group meeting ends",
+            "required": true,
+            "type": "date"
           }
         ],
         "responses": {
@@ -705,6 +719,27 @@
             "description": "The study group's tags",
             "required": true,
             "type": "[string]"
+          },
+          {
+            "name": "recurring",
+            "in": "body",
+            "description": "The frequency at which this study group will recur",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "endDateTime",
+            "in": "body",
+            "description": "The time when the study group meeting ends",
+            "required": true,
+            "type": "date"
+          },
+          {
+            "name": "editAll",
+            "in": "body",
+            "description": "Designate whether to edit this single meeting or all recurring meetings",
+            "required": true,
+            "type": "boolean"
           }
         ],
         "responses": {
@@ -751,6 +786,13 @@
             "description": "ID of study group to delete",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "deleteAll",
+            "in": "body",
+            "description": "Designate whether to delete this single meeting or all recurring meetings",
+            "required": true,
+            "type": "boolean"
           }
         ],
         "responses": {

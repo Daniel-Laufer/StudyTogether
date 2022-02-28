@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import React, { useEffect, useState } from 'react';
 import {
   Heading,
@@ -28,6 +29,10 @@ function Login({ authState, dispatch }) {
     password: '',
     rememberUser: false,
   });
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({ email: false, password: false });

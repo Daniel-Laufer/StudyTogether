@@ -44,16 +44,6 @@ function Map({
     },
   ]);
 
-  const onLoad = React.useCallback(function callback(map) {
-    const bounds = new window.google.maps.LatLngBounds();
-    map.fitBounds(bounds);
-    setMap(map);
-  }, []);
-
-  const onUnmount = React.useCallback(function callback(map) {
-    setMap(null);
-  }, []);
-
   const addMarker = ev => {
     if (restrictToOneMarker) {
       setMarkers([{ lat: ev.latLng.lat(), lng: ev.latLng.lng() }]);
@@ -70,11 +60,9 @@ function Map({
         lng: -79.66,
       }}
       mapContainerStyle={containerStyle}
-      onLoad={onLoad}
-      onUnmount={onUnmount}
       onClick={addMarker}
       zoom={16}
-      style={{ ...defaultMapStyles, ...style }}
+      style={{ ...style }}
     >
       {markers.map(marker => (
         <Marker

@@ -25,6 +25,7 @@ const studygroupSchema = new Schema(
     //Accessabililty.
     private: { type: Boolean, default: false, required: false },
     paid: { type: Boolean, default: false, required: false },
+    seriesId: { type: mongoose.Types.ObjectId, required: true },
   },
   { collection: 'studygroups' }
 );

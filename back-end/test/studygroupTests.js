@@ -100,32 +100,28 @@ describe('Studygroup Tests', function () {
 
   /* Test: creating a study group */
   describe('/studygroups/create', function () {
-    it('Check that fetching all study groups is functional', function (done) {
+    it('Check that creating a new study group is functional', function (done) {
       chai
         .request(app)
         .post('/studygroups/create')
         .set('Content-Type', 'application/json')
         .set('Authorization', `JWT ${token}`)
         .send({
-          title: 'CSC301 Project Test',
+          title: 'CSC263 Midterm',
           startDateTime: '2022-11-07T17:04:15.000Z',
           endDateTime: '2022-11-07T17:07:15.000Z',
           phone: '905-874-2103',
           imageUrl: '/assets/ewffejvndqj30.jpg',
           location: {
-            lng: 5,
+            long: 5,
             lat: 15,
           },
           maxAttendees: 10,
-          hostId: userId,
+          hostId: '6203414954e004c7a45a944e',
           description: 'We will be going over BFS, DFS and much more!',
           tags: ['Free', 'UTM'],
-          delayed: false,
-          lastModified: '2022-02-22T22:16:15.619+00:00',
-          canceled: false,
-          paid: false,
-          private: false,
-          rescheduled: false,
+          recurring: 'weekly',
+          finalDate: '2022-11-21T17:04:15.000Z',
         })
         .end(function (err, res) {
           expect(res).to.have.status(200);
