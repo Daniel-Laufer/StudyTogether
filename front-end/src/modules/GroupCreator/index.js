@@ -39,10 +39,22 @@ import Map from '../../components/Map';
 import GreenButton from '../../components/GreenButton';
 
 function GroupCreator({ authToken }) {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
+    if (authToken === null) {
+      setTimeout(() => navigate('/login'), 3000);
+    }
+  }, [authToken]);
   const [state, setState] = useState({
     title: '',
-    startDate: new Date(),
-    endDate: new Date(),
+    date: new Date(),
+    startTime: '',
+    endTime: '',
     phone: '',
     image:
       'https://image.freepik.com/free-vector/study-group-illustration-with-students-study-together-after-class-as-concept-this-illustration-can-be-use-website-landing-page-web-app-banner_9829-25.jpg',
@@ -50,14 +62,16 @@ function GroupCreator({ authToken }) {
     maxAttendees: 2,
     description: '',
     tags: [{ id: 'asdfasdfasdf', text: 'CSC301' }],
-    locationLat: 43,
-    locationLng: 76,
+    locationLat: null,
+    locationLng: null,
     recurring: 'N/A',
     finalDate: new Date(),
   });
   const [errors, setErrors] = useState({
     title: false,
     password: false,
+    startTime: false,
+    endTime: false,
     date: false,
     phone: false,
     image: false,
@@ -76,21 +90,27 @@ function GroupCreator({ authToken }) {
 
     switch (name) {
       case 'title':
+        setErrors({ ...errors, [name]: false });
         newState[name] = value;
         break;
       case 'image':
+        setErrors({ ...errors, [name]: false });
         newState[name] = value;
         break;
       case 'currAttendees':
+        setErrors({ ...errors, [name]: false });
         newState[name] = value;
         break;
       case 'maxAttendees':
+        setErrors({ ...errors, [name]: false });
         newState[name] = value;
         break;
       case 'description':
+        setErrors({ ...errors, [name]: false });
         newState[name] = value;
         break;
       case 'phone':
+        setErrors({ ...errors, [name]: false });
         newState[name] = value;
         break;
       case 'recurring':
@@ -102,19 +122,39 @@ function GroupCreator({ authToken }) {
     setState({ ...state, ...newState });
   };
 
+  const combineDateAndTimeIntoDateTime = (date, time) => {
+    const dateTimeToReturn = new Date(date.getTime());
+    const [timeHour, timeMin] = time.split(':');
+    dateTimeToReturn.setHours(timeHour);
+    dateTimeToReturn.setMinutes(timeMin);
+    dateTimeToReturn.setSeconds(0);
+    return dateTimeToReturn;
+  };
+
   // code taken from here https://stackoverflow.com/questions/4338267/validate-phone-number-with-javascript
   const validatePhoneNumber = phone => {
     const regexEx = /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/im;
     return !!String(phone).toLowerCase().match(regexEx);
   };
+
+  const imageUrlValid = imageUrl =>
+    ['png', 'jpg', 'jpeg'].includes(
+      imageUrl.substring(imageUrl.lastIndexOf('.') + 1)
+    );
+
   const navigate = useNavigate();
 
   const handleSubmit = () => {
     const groupTitleInvalid = state.title.length < 4;
     const phoneInvalid = !validatePhoneNumber(state.phone);
-    const imageUrlInvalid =
-      state.image.substring(state.image.lastIndexOf('.')) !== '.jpg';
+    const imageUrlInvalid = !imageUrlValid(state.image);
     const tagsInvalid = state.tags.length === 0;
+    const dateInvalid = !state.date;
+    const locationInvalid =
+      state.locationLng === null || state.locationLat === null;
+
+    const startTimeInvalid = state.startTime === null || state.startTime === '';
+    const endTimeInvalid = state.endTime === null || state.endTime === '';
 
     const descriptionInvalid = state.description.length < 10;
     setForceHideAlert(false);
@@ -125,6 +165,10 @@ function GroupCreator({ authToken }) {
         imageUrlInvalid,
         descriptionInvalid,
         tagsInvalid,
+        dateInvalid,
+        locationInvalid,
+        startTimeInvalid,
+        endTimeInvalid,
       ].some(boolean => boolean)
     )
       setErrors({
@@ -134,13 +178,19 @@ function GroupCreator({ authToken }) {
         image: imageUrlInvalid,
         description: descriptionInvalid,
         tags: tagsInvalid,
+        date: dateInvalid,
+        location: locationInvalid,
+        startTime: startTimeInvalid,
+        endTime: endTimeInvalid,
       });
     else {
       const body = {
         title: state.title,
-        time: state.startDate, // will remove this once back-end is updated.
-        startDateTime: state.startDate,
-        endDateTime: state.endDate,
+        startDateTime: combineDateAndTimeIntoDateTime(
+          state.date,
+          state.startTime
+        ),
+        endDateTime: combineDateAndTimeIntoDateTime(state.date, state.endTime),
         finalDate: state.finalDate,
         phone: state.phone,
         imageUrl: state.image,
@@ -200,12 +250,10 @@ function GroupCreator({ authToken }) {
     });
   };
 
-  useEffect(() => {
-    console.log(state);
-  }, [state]);
-
   const setLocation = (lat, lng) => {
     setState({ ...state, locationLat: lat, locationLng: lng });
+
+    setErrors({ ...errors, location: lat === null || lng === null });
   };
 
   return (
