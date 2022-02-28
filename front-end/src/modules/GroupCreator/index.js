@@ -65,6 +65,7 @@ function GroupCreator({ authToken }) {
     locationLat: null,
     locationLng: null,
     finalDate: new Date(),
+    recurring: 'N/A',
   });
 
   const [errors, setErrors] = useState({
@@ -80,6 +81,7 @@ function GroupCreator({ authToken }) {
     description: false,
     tags: false,
     location: false,
+    finalDate: false,
   });
   const [forceHideAlert, setForceHideAlert] = useState(false);
 
@@ -154,6 +156,14 @@ function GroupCreator({ authToken }) {
     const startTimeInvalid = state.startTime === null || state.startTime === '';
     const endTimeInvalid = state.endTime === null || state.endTime === '';
 
+    const finalDateInvalid =
+      (state.date != null &&
+        state.recurring === 'bi-weekly' &&
+        state.finalDate.getTime() - state.date.getTime() < 14 * 86400000) ||
+      (state.date != null &&
+        state.recurring === 'weekly' &&
+        state.finalDate.getTime() - state.date.getTime() < 7 * 86400000);
+    console.log(state.finalDate.getTime() - state.date.getTime());
     const descriptionInvalid = state.description.length < 10;
     setForceHideAlert(false);
     if (
@@ -167,6 +177,7 @@ function GroupCreator({ authToken }) {
         locationInvalid,
         startTimeInvalid,
         endTimeInvalid,
+        finalDateInvalid,
       ].some(boolean => boolean)
     )
       setErrors({
@@ -180,6 +191,7 @@ function GroupCreator({ authToken }) {
         location: locationInvalid,
         startTime: startTimeInvalid,
         endTime: endTimeInvalid,
+        finalDate: finalDateInvalid,
       });
     else {
       const body = {
@@ -462,18 +474,30 @@ function GroupCreator({ authToken }) {
                     <option value="weekly">weekly</option>
                     <option value="bi-weekly">bi-weekly</option>
                   </Select>
-                  <span style={{ width: '425px', marginLeft: '1rem' }}>
-                    Final session date:{' '}
-                  </span>
-                  <DatePicker
-                    name="finalDate"
-                    style={{
-                      border: '1px solid black !important',
-                      width: 'auto',
-                    }}
-                    selected={state.finalDate}
-                    onChange={finalDate => setState({ ...state, finalDate })}
-                  />
+                  {state.recurring !== 'N/A' && (
+                    <span style={{ width: '425px', marginLeft: '1rem' }}>
+                      Final session date:{' '}
+                    </span>
+                  )}
+                  {state.recurring !== 'N/A' && (
+                    <div
+                      style={{
+                        border: errors.finalDate
+                          ? 'solid 2px crimson'
+                          : 'solid 1px var(--chakra-colors-gray-200)',
+                        borderRadius: 'var(--chakra-radii-md)',
+                        padding: '2px',
+                      }}
+                    >
+                      <DatePicker
+                        name="finalDate"
+                        selected={state.finalDate}
+                        onChange={finalDate => {
+                          setState({ ...state, finalDate });
+                        }}
+                      />
+                    </div>
+                  )}
                 </HStack>
                 <>
                   <Text mb="8px">Description</Text>
