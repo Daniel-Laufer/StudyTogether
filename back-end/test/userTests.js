@@ -1,7 +1,7 @@
 var chai = require('chai');
 var chaiHttp = require('chai-http');
 var app = require('../app');
-var helperUser = require('../helpers/helperUser');
+var helperTest = require('../helpers/helperTest');
 var User = require('../models/user.model');
 var expect = chai.expect;
 var token;

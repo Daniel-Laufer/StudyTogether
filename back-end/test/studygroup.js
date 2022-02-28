@@ -128,3 +128,17 @@ describe('/studygroups/delete/62034457d73c46a32c0100e2', function () {
       });
   });
 });
+
+/* Test: cancel a study group */
+describe('/studygroups/cancel', function () {
+  it('check that the study group deletion is functional', function (done) {
+    chai
+      .request(app)
+      .delete(`/studygroups/cancel/${1 + 2}`)
+      .end(function (err, res) {
+        expect(res).to.have.status(200);
+        expect(res.body).to.have.property('token');
+        done();
+      });
+  });
+});
