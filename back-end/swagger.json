@@ -30,11 +30,11 @@
             "in": "body",
             "description": "The user name for login",
             "required": true,
-            "schema":{
+            "schema": {
               "$ref": "#/definitions/credentials"
             }
           }
-        ],  
+        ],
         "responses": {
           "200": {
             "description": "success",
@@ -51,10 +51,10 @@
           "500": {
             "description": "Internal server error"
           },
-          "404":{
+          "404": {
             "description": "User was not found in records"
           },
-          "401":{
+          "401": {
             "description": "Password was invalid"
           }
         }
@@ -68,9 +68,9 @@
           {
             "name": "user",
             "in": "body",
-            "description":"User that we want to register",
+            "description": "User that we want to register",
             "required": true,
-            "schema":{
+            "schema": {
               "$ref": "#/definitions/user"
             }
           }
@@ -331,6 +331,20 @@
             "description": "The study group's tags",
             "required": true,
             "type": "[string]"
+          },
+          {
+            "name": "recurring",
+            "in": "body",
+            "description": "The frequency at which this study group will recur",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "endDateTime",
+            "in": "body",
+            "description": "The time when the study group meeting ends",
+            "required": true,
+            "type": "date"
           }
         ],
         "responses": {
@@ -453,6 +467,27 @@
             "description": "The study group's tags",
             "required": true,
             "type": "[string]"
+          },
+          {
+            "name": "recurring",
+            "in": "body",
+            "description": "The frequency at which this study group will recur",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "endDateTime",
+            "in": "body",
+            "description": "The time when the study group meeting ends",
+            "required": true,
+            "type": "date"
+          },
+          {
+            "name": "editAll",
+            "in": "body",
+            "description": "Designate whether to edit this single meeting or all recurring meetings",
+            "required": true,
+            "type": "boolean"
           }
         ],
         "responses": {
@@ -499,6 +534,13 @@
             "description": "ID of study group to delete",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "deleteAll",
+            "in": "body",
+            "description": "Designate whether to delete this single meeting or all recurring meetings",
+            "required": true,
+            "type": "boolean"
           }
         ],
         "responses": {
@@ -601,11 +643,11 @@
         },
         "userName": {
           "type": "string",
-          "example" :"SpiderMan"
+          "example": "SpiderMan"
         },
         "email": {
           "type": "string",
-          "example":"Tobey.Maguire@mail.utoronto.ca",
+          "example": "Tobey.Maguire@mail.utoronto.ca",
           "required": true
         },
         "password": {
@@ -615,18 +657,18 @@
         },
         "role": {
           "type": "string",
-          "example":"Student",
+          "example": "Student",
           "required": true
         },
         "verified": {
           "type": "boolean",
-          "example":false,
+          "example": false,
           "required": true,
           "defualt": false
         },
         "created": {
           "type": "date",
-          "example":"2022-11-07T17:04:15.000+00:00",
+          "example": "2022-11-07T17:04:15.000+00:00",
           "required": true
         }
       }
@@ -636,7 +678,7 @@
       "properties": {
         "email": {
           "type": "string",
-          "example":"Tobey.Maguire@mail.utoronto.ca",
+          "example": "Tobey.Maguire@mail.utoronto.ca",
           "required": true
         },
         "password": {
@@ -651,20 +693,18 @@
       "properties": {
         "email": {
           "type": "string",
-          "example":"Tobey.Maguire@mail.utoronto.ca",
+          "example": "Tobey.Maguire@mail.utoronto.ca",
           "required": true
-
         },
         "token": {
           "type": "string",
           "example": "ddf2834DFG$^^%xjfhggf#$%^",
           "required": true
-
         },
         "createdAt": {
           "type": "date",
           "required": true,
-          "example":"2022-11-07T17:04:15.000+00:00",
+          "example": "2022-11-07T17:04:15.000+00:00",
           "expires": "TTL index"
         }
       }

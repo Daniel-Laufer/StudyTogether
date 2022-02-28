@@ -101,44 +101,119 @@ describe('/studygroups/create', function () {
 
 /* Test: editing a study group */
 describe('/studygroups/edit/62018d54b6389a3ed07987d8', function () {
-  it('check that the study group edit is functional', function (done) {
-    chai
-      .request(app)
-      .patch('/studygroups/edit/62018d54b6389a3ed07987d8')
+  it('check study group edit is functional', function (done) {
+    var agent = chai.request.agent(app);
+    agent
+      .post('/users/register')
       .set('Content-Type', 'application/json')
       .send({
-        title: 'CSC263 Exam',
-        startDateTime: '2022-11-07T17:04:15.000Z',
-        endDateTime: '2022-11-07T17:07:15.000Z',
-        phone: '675-874-2103',
-        imageUrl: '/assets/ewffejvndqj30.jpg',
-        location: {
-          long: 7155,
-          lat: 1554,
-        },
-        maxAttendees: 2,
-        hostId: '6203414954e004c7a45a944e',
-        description: 'We will be going over BFS, DFS and much more!',
-        tags: ['Paid', 'UTM'],
+        firstName: 'Testing',
+        lastName: 'User2',
+        email: 'test.use2@mail.utoronto.ca',
+        password: '123456789',
+        role: 'Student',
       })
-      .end(function (err, res) {
-        expect(res).to.have.status(200);
+      .then(async function (res) {
         expect(res.body).to.have.property('token');
-        done();
+        const res_1 = await agent
+          .post('/studygroups/create')
+          .set('Content-Type', 'application/json')
+          .set('authorization', `JWT ${res.body.token}`)
+          .send({
+            title: 'CSC263 Midterm',
+            startDateTime: '2022-11-07T17:04:15.000Z',
+            endDateTime: '2022-11-07T17:07:15.000Z',
+            phone: '905-874-2103',
+            imageUrl: '/assets/ewffejvndqj30.jpg',
+            location: {
+              long: 5,
+              lat: 15,
+            },
+            maxAttendees: 10,
+            hostId: '6203414954e004c7a45a944e',
+            description: 'We will be going over BFS, DFS and much more!',
+            tags: ['Free', 'UTM'],
+            recurring: 'weekly',
+            finalDate: '2022-11-21T17:04:15.000Z',
+          })
+          .then(async function (res) {
+            const res_2 = await agent
+              .patch(`/studygroups/edit/${res.body.group_id}`)
+              .set('Content-Type', 'application/json')
+              .set('authorization', `${res.body.authorization}`)
+              .send({
+                title: 'CSC263 Exam',
+                startDateTime: '2022-11-07T17:04:15.000Z',
+                endDateTime: '2022-11-07T17:07:15.000Z',
+                phone: '675-874-2103',
+                imageUrl: '/assets/ewffejvndqj30.jpg',
+                location: {
+                  long: 7155,
+                  lat: 1554,
+                },
+                maxAttendees: 2,
+                hostId: '6203414954e004c7a45a944e',
+                description: 'We will be going over BFS, DFS and much more!',
+                tags: ['Paid', 'UTM'],
+                recurring: 'N/A',
+                finalDate: '2022-11-07T17:07:15.000Z',
+                editAll: true,
+              });
+            expect(res_2).to.have.status(200);
+            done();
+          });
       });
-  }).timeout(5000);
+  }).timeout(10000);
 });
 
 /* Test: deleting a study group */
 describe('/studygroups/delete/62034457d73c46a32c0100e2', function () {
-  it('check that the study group deletion is functional', function (done) {
-    chai
-      .request(app)
-      .delete('/studygroups/delete/62034457d73c46a32c0100e2')
-      .end(function (err, res) {
-        expect(res).to.have.status(200);
+  it('check study group edit is functional', function (done) {
+    var agent = chai.request.agent(app);
+    agent
+      .post('/users/register')
+      .set('Content-Type', 'application/json')
+      .send({
+        firstName: 'Testing',
+        lastName: 'User3',
+        email: 'test.use3@mail.utoronto.ca',
+        password: '123456789',
+        role: 'Student',
+      })
+      .then(async function (res) {
         expect(res.body).to.have.property('token');
-        done();
+        const res_1 = await agent
+          .post('/studygroups/create')
+          .set('Content-Type', 'application/json')
+          .set('authorization', `JWT ${res.body.token}`)
+          .send({
+            title: 'CSC263 Midterm',
+            startDateTime: '2022-11-07T17:04:15.000Z',
+            endDateTime: '2022-11-07T17:07:15.000Z',
+            phone: '905-874-2103',
+            imageUrl: '/assets/ewffejvndqj30.jpg',
+            location: {
+              long: 5,
+              lat: 15,
+            },
+            maxAttendees: 10,
+            hostId: '6203414954e004c7a45a944e',
+            description: 'We will be going over BFS, DFS and much more!',
+            tags: ['Free', 'UTM'],
+            recurring: 'weekly',
+            finalDate: '2022-11-21T17:04:15.000Z',
+          })
+          .then(async function (res) {
+            const res_2 = await agent
+              .delete(`/studygroups/delete/${res.body.group_id}`)
+              .set('Content-Type', 'application/json')
+              .set('authorization', `${res.body.authorization}`)
+              .send({
+                deleteAll: true,
+              });
+            expect(res_2).to.have.status(200);
+            done();
+          });
       });
   }).timeout(5000);
 });

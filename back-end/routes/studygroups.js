@@ -4,6 +4,7 @@ let StudygroupModel = require('../models/studygroup.model');
 let studyGroupSeriesModel = require('../models/studygroupseries.model');
 var helperUser = require('../helpers/helperUser');
 const { body, validationResult } = require('express-validator');
+const mongoose = require('mongoose');
 
 /* get all study groups*/
 router.get('/', helperUser.verifyToken, (req, res) => {
@@ -106,7 +107,12 @@ router.post(
     newSeries
       .save()
       .catch(err => res.status(400).json('Error: ' + err))
-      .then(() => res.status(200).json('Study group created successfully!'));
+      .then(() =>
+        res.status(200).json({
+          authorization: req.headers.authorization,
+          group_id: newSeries.studyGroups[0].toString(),
+        })
+      );
   }
 );
 
@@ -210,6 +216,7 @@ router.delete('/delete/:id', helperUser.verifyToken, (req, res) => {
   }
   const deleteAll = req.body.deleteAll;
   const groupId = req.params.id;
+  console.log(groupId);
   StudygroupModel.findById(groupId)
     .then(studygroup => {
       if (studygroup.hostId != req.user.id) {
@@ -221,6 +228,7 @@ router.delete('/delete/:id', helperUser.verifyToken, (req, res) => {
       studyGroupSeriesModel
         .findById(seriesId)
         .then(series => {
+          console.log(series);
           if (deleteAll) {
             for (let i = 0; i < series.studyGroups.length; i++) {
               StudygroupModel.findById(series.studyGroups[i])
@@ -253,7 +261,7 @@ router.delete('/delete/:id', helperUser.verifyToken, (req, res) => {
         })
         .catch(err => res.status(400).json('Error: ' + err));
     })
-    .catch(err => res.status(400).json('Error: Invalid study group id'));
+    .catch(err => res.status(400).json('Error: ' + err));
 });
 
 module.exports = router;
