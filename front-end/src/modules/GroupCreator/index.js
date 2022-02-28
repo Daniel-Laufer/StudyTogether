@@ -61,8 +61,6 @@ function GroupCreator({ authToken }) {
     currAttendees: 1,
     maxAttendees: 2,
     description: '',
-    recurring: 'N/A',
-    finalDate: new Date(),
     tags: [{ id: 'dfgh7d9ssdga', text: 'CSC301' }],
     locationLat: null,
     locationLng: null,
@@ -81,7 +79,6 @@ function GroupCreator({ authToken }) {
     description: false,
     tags: false,
     location: false,
-    finalDate: false,
   });
   const [forceHideAlert, setForceHideAlert] = useState(false);
 
@@ -112,10 +109,6 @@ function GroupCreator({ authToken }) {
         break;
       case 'phone':
         setErrors({ ...errors, [name]: false });
-        newState[name] = value;
-        break;
-
-      case 'recurring':
         newState[name] = value;
         break;
 
@@ -188,19 +181,15 @@ function GroupCreator({ authToken }) {
     else {
       const body = {
         title: state.title,
-        time: state.startDate, // will remove this once back-end is updated.
-        finalDate: state.finalDate,
         startDateTime: combineDateAndTimeIntoDateTime(
           state.date,
           state.startTime
         ),
         endDateTime: combineDateAndTimeIntoDateTime(state.date, state.endTime),
-
         phone: state.phone,
         imageUrl: state.image,
         currAttendees: state.currAttendees,
         maxAttendees: state.maxAttendees,
-        recurring: state.recurring,
         description: state.description,
         location: {
           lat: state.locationLat,
@@ -495,81 +484,6 @@ function GroupCreator({ authToken }) {
                   justifyContent: 'flex-start',
                   gap: '20px',
                 }}
-
-                selected={state.startDate}
-                onChange={startDate => setState({ ...state, startDate })}
-              />
-            </HStack>
-
-            <Flex gap="1rem">
-              <span style={{ width: '80px' }}>Start time </span>
-              <TimePicker
-                name="startTime"
-                maxDetail="minute"
-                hourPlaceholder="09"
-                minutePlaceholder="00"
-                value=""
-                disableClock
-              />
-            </Flex>
-            <Flex gap="1rem">
-              <span style={{ width: '80px' }}>End time </span>
-              <TimePicker
-                name="endTime"
-                maxDetail="minute"
-                hourPlaceholder="11"
-                minutePlaceholder="00"
-                value="22:15:00"
-                disableClock
-              />
-            </Flex>
-            <HStack>
-              <span style={{ marginRight: '1rem' }}>Recurring: </span>
-              <Select
-                className="custom-select"
-                name="recurring"
-                isInvalid={errors.role}
-                placeholder=""
-                onChange={handleChange}
-              >
-                <option value="N/A">N/A</option>
-                <option value="weekly">weekly</option>
-                <option value="bi-weekly">bi-weekly</option>
-              </Select>
-              <span style={{ width: '334px' }}>Final session date: </span>
-              <DatePicker
-                name="finalDate"
-                style={{
-                  border: '1px solid black !important',
-                  width: 'auto',
-                }}
-                selected={state.finalDate}
-                onChange={finalDate => setState({ ...state, finalDate })}
-              />
-            </HStack>
-
-            <>
-              <Text mb="8px">Description</Text>
-              <Textarea
-                name="description"
-                value={state.description}
-                onChange={handleChange}
-                placeholder="We will be..."
-                size="sm"
-              />
-            </>
-            <VStack align="left" style={{ width: '100%' }}>
-              <Text mb="8px">Group Tags</Text>
-              <ReactTags
-                tags={state.tags}
-                // delimiters={delimiters}
-                handleDelete={handleDelete}
-                handleAddition={handleAddition}
-                handleDrag={handleDrag}
-                inputFieldPosition="bottom"
-                autocomplete
-              />
-
               >
                 <GreenButton
                   onClick={handleSubmit}
@@ -606,7 +520,6 @@ function GroupCreator({ authToken }) {
                   </Alert>
                 )}
               </div>
-
             </VStack>
           </Box>
           <Box
@@ -639,7 +552,6 @@ const TimePickerWrapper = styled.div`
     .react-time-picker__wrapper {
       border: solid 1px var(--chakra-colors-gray-200);
       border-radius: var(--chakra-radii-md);
-
       .react-time-picker__clear-button {
         display: none;
       }

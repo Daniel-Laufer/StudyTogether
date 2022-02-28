@@ -1,7 +1,6 @@
 import { Box, Stack, VStack, Text, Image } from '@chakra-ui/react';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
 import * as colors from '../utils/colors';
 
 const diffSize = size =>
@@ -48,7 +47,7 @@ function DetailedGroup({
   desc,
   img,
   imgAlt,
-  link,
+  onClickFunc,
   size,
 }) {
   const {
@@ -69,8 +68,12 @@ function DetailedGroup({
       border={0}
       textAlign="left"
       w={stackSize}
+      style={{
+        border: '1px solid var(--chakra-colors-gray-200)',
+        borderRadius: 'var(--chakra-radii-md)',
+      }}
     >
-      <Link to={link} style={{ textDecoration: 'none', color: 'inherit' }}>
+      <Box onClick={onClickFunc}>
         <Stack
           w={stackSize}
           direction={{ base: 'column', md: 'row' }}
@@ -94,7 +97,7 @@ function DetailedGroup({
             {CustomText(fontSize, noOfLines, `Description: ${desc}`)}
           </VStack>
         </Stack>
-      </Link>
+      </Box>
     </Box>
   );
 }
@@ -108,10 +111,10 @@ DetailedGroup.propTypes = {
   host: PropTypes.string.isRequired,
   when: PropTypes.string.isRequired,
   desc: PropTypes.string.isRequired,
-  link: PropTypes.string.isRequired,
   size: 'md' || 'lg',
+  onClickFunc: PropTypes.func,
 };
 
-DetailedGroup.defaultProps = { size: 'md' };
+DetailedGroup.defaultProps = { size: 'md', onClickFunc: () => null };
 
 export default DetailedGroup;

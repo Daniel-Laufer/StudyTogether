@@ -21,8 +21,9 @@ import { apiURL } from '../../utils/constants';
 import { logout } from '../../actions/Auth';
 import CustomSpinner from '../../components/CustomSpinner';
 import DetailedGroup from '../../components/DetailedGroup';
+import Map from '../../components/Map';
 
-function SavedGroups({
+function Groups({
   authToken,
   dispatch,
   studyGroupsEndPoint,
@@ -98,58 +99,97 @@ function SavedGroups({
         </FormControl>
       </Flex>
 
-      <Flex
+      <Box
         style={{
-          marginTop: '2rem',
-          flexWrap: 'wrap',
-          justifyContent: '',
+          marginTop: '1rem',
+          border: '1px solid var(--chakra-colors-gray-200)',
+          borderRadius: 'var(--chakra-radii-md)',
+          padding: '0.5rem',
+          height: '40vh',
+          overflowY: 'scroll',
         }}
       >
-        {groups.length > 0 ? (
-          groups.map(g =>
-            !viewDetailedGroupCards ? (
-              <Group
-                title={g.title}
-                restrict="UofT students"
-                availability={`${g.maxAttendees - g.curAttendees} / ${
-                  g.maxAttendees
-                }`}
-                imgAlt="Study group image"
-                img={g.imageUrl}
-                when={g.time}
-                host={g.hostFirstName + g.hostLastName}
-                desc={g.description}
-                link={`${g._id}`}
-                size="md"
-              />
-            ) : (
-              <DetailedGroup
-                title={g.title}
-                restrict="UofT students"
-                availability={`${g.maxAttendees - g.curAttendees} / ${
-                  g.maxAttendees
-                }`}
-                imgAlt="Study group image"
-                img={g.imageUrl}
-                when={g.time}
-                host={g.hostFirstName + g.hostLastName}
-                desc={g.description}
-                link={`${g._id}`}
-                size="md"
-              />
+        <Heading size="sm">Results</Heading>
+
+        <Flex
+          style={{
+            marginTop: '2rem',
+            flexWrap: 'wrap',
+            justifyContent: '',
+          }}
+          gap="0.5rem"
+        >
+          {groups.length > 0 ? (
+            groups.map(g =>
+              !viewDetailedGroupCards ? (
+                <Group
+                  title={g.title}
+                  restrict="UofT students"
+                  availability={`${g.maxAttendees - g.curAttendees} / ${
+                    g.maxAttendees
+                  }`}
+                  imgAlt="Study group image"
+                  img={g.imageUrl}
+                  when={g.time}
+                  host={g.hostFirstName + g.hostLastName}
+                  desc={g.description}
+                  // onClickFunc={() => navigate(`${g._id}`)}
+                  onClickFunc={() => alert(g._id)}
+                  size="md"
+                />
+              ) : (
+                <DetailedGroup
+                  title={g.title}
+                  restrict="UofT students"
+                  availability={`${g.maxAttendees - g.curAttendees} / ${
+                    g.maxAttendees
+                  }`}
+                  imgAlt="Study group image"
+                  img={g.imageUrl}
+                  when={g.time}
+                  host={g.hostFirstName + g.hostLastName}
+                  desc={g.description}
+                  // onClickFunc={() => navigate(`${g._id}`)}
+                  onClickFunc={() => alert(g._id)}
+                  size="md"
+                />
+              )
             )
-          )
-        ) : (
-          <Text> {noGroupsFoundText} </Text>
-        )}
-      </Flex>
+          ) : (
+            <Text> {noGroupsFoundText} </Text>
+          )}
+        </Flex>
+      </Box>
+
+      <Box
+        style={{
+          marginTop: '1rem',
+          border: '1px solid var(--chakra-colors-gray-200)',
+          borderRadius: 'var(--chakra-radii-md)',
+          padding: '0.5rem',
+          height: '40vh',
+          overflowY: 'scroll',
+        }}
+      >
+        <Heading size="sm">Locations</Heading>
+        <Box
+          style={{
+            margin: 'auto',
+          }}
+        >
+          <Map
+            disableAddingNewMarkers
+            initialCenter={{ lat: 43.54, lng: -79.66 }}
+          />
+        </Box>
+      </Box>
     </Box>
   ) : (
     <CustomSpinner />
   );
 }
 
-SavedGroups.propTypes = {
+Groups.propTypes = {
   authToken: PropTypes.string,
   dispatch: PropTypes.func.isRequired,
   studyGroupsEndPoint: PropTypes.string,
@@ -157,7 +197,7 @@ SavedGroups.propTypes = {
   noGroupsFoundText: PropTypes.string,
 };
 
-SavedGroups.defaultProps = {
+Groups.defaultProps = {
   authToken: '',
   studyGroupsEndPoint: 'studygroups',
   headerContent: 'Study groups happening near you',
@@ -166,4 +206,4 @@ SavedGroups.defaultProps = {
 
 export default connect(state => ({
   authToken: state.Auth.authToken || localStorage.getItem('authToken'),
-}))(SavedGroups);
+}))(Groups);

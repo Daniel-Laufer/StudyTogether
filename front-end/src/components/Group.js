@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 import { Box, Image, Flex, Spacer } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
 import * as colors from '../utils/colors';
 
 const ImageContainer = styled.div`
@@ -11,19 +10,22 @@ const ImageContainer = styled.div`
   filter: brightness(70%);
 `;
 
-function Group({ heading, img, imgAlt, restrict, price, link }) {
+function Group({ heading, img, imgAlt, restrict, price, onClickFunc }) {
   return (
     <Box
       border={0}
       bg="none"
       as="button"
       w={{ base: '400px', sm: '300px', md: '350px' }}
-      borderRadius="md"
       px={2}
       py={4}
       overflow="hidden"
+      style={{
+        border: '1px solid var(--chakra-colors-gray-200)',
+        borderRadius: 'var(--chakra-radii-md)',
+      }}
     >
-      <Link to={link} style={{ textDecoration: 'none', color: 'inherit' }}>
+      <Box onClick={() => onClickFunc()}>
         <Box
           sx={{
             fontFamily: 'Inter',
@@ -60,7 +62,7 @@ function Group({ heading, img, imgAlt, restrict, price, link }) {
           <Spacer />
           <Box color={colors.grey.dark}>{price}</Box>
         </Flex>
-      </Link>
+      </Box>
     </Box>
   );
 }
@@ -71,7 +73,11 @@ Group.propTypes = {
   imgAlt: PropTypes.string.isRequired,
   restrict: PropTypes.string.isRequired,
   price: PropTypes.string.isRequired,
-  link: PropTypes.string.isRequired,
+  onClickFunc: PropTypes.func,
+};
+
+Group.defaultProps = {
+  onClickFunc: () => null,
 };
 
 export default Group;

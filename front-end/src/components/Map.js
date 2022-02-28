@@ -26,10 +26,11 @@ const center = {
 };
 function Map({
   initialCenter,
-  zoom,
+  initialZoom,
   style,
   restrictToOneMarker,
   getLngLatOfNewMarker,
+  disableAddingNewMarkers,
 }) {
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -37,14 +38,10 @@ function Map({
   });
 
   const [map, setMap] = React.useState(null);
-  const [markers, setMarkers] = React.useState([
-    {
-      lat: 43.54904,
-      lng: -79.662116,
-    },
-  ]);
+  const [markers, setMarkers] = React.useState([]);
 
   const addMarker = ev => {
+    if (disableAddingNewMarkers) return;
     if (restrictToOneMarker) {
       setMarkers([{ lat: ev.latLng.lat(), lng: ev.latLng.lng() }]);
     } else
@@ -55,13 +52,10 @@ function Map({
 
   return isLoaded ? (
     <GoogleMap
-      center={{
-        lat: 43.54,
-        lng: -79.66,
-      }}
+      center={initialCenter}
       mapContainerStyle={containerStyle}
       onClick={addMarker}
-      zoom={16}
+      zoom={initialZoom}
       style={{ ...style }}
     >
       {markers.map(marker => (
@@ -84,18 +78,20 @@ Map.propTypes = {
     lat: PropTypes.number,
     lng: PropTypes.number,
   }),
-  zoom: PropTypes.number,
+  initialZoom: PropTypes.number,
   restrictToOneMarker: PropTypes.bool,
   getLngLatOfNewMarker: PropTypes.func,
+  disableAddingNewMarkers: PropTypes.bool,
 };
 Map.defaultProps = {
   initialCenter: {
     lat: 43.54,
     lng: -79.66,
   },
-  zoom: 20,
+  initialZoom: 14,
   restrictToOneMarker: false,
   getLngLatOfNewMarker: () => {},
+  disableAddingNewMarkers: false,
 };
 
 export default React.memo(Map);
