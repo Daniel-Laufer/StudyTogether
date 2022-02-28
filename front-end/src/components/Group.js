@@ -21,8 +21,6 @@ function Group({ heading, img, imgAlt, restrict, price, link }) {
       borderRadius="md"
       px={2}
       py={4}
-      mx={8}
-      my={4}
       overflow="hidden"
     >
       <Link to={link} style={{ textDecoration: 'none', color: 'inherit' }}>

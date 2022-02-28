@@ -7,11 +7,11 @@
   },
   "tags": [
     {
-      "name": "user",
+      "name": "User",
       "description": "Everything user related"
     },
     {
-      "name": "study groups",
+      "name": "Study Groups",
       "description": "Everything study group related"
     },
     {
@@ -22,7 +22,7 @@
   "paths": {
     "/users/login": {
       "post": {
-        "tags": ["user"],
+        "tags": ["User"],
         "summary": "Logs in exising user",
         "parameters": [
           {
@@ -30,11 +30,11 @@
             "in": "body",
             "description": "The user name for login",
             "required": true,
-            "schema":{
+            "schema": {
               "$ref": "#/definitions/credentials"
             }
           }
-        ],  
+        ],
         "responses": {
           "200": {
             "description": "success",
@@ -51,10 +51,10 @@
           "500": {
             "description": "Internal server error"
           },
-          "404":{
+          "404": {
             "description": "User was not found in records"
           },
-          "401":{
+          "401": {
             "description": "Password was invalid"
           }
         }
@@ -62,15 +62,15 @@
     },
     "/user/register": {
       "post": {
-        "tags": ["user"],
-        "summary": "register a new user",
+        "tags": ["User"],
+        "summary": "Register a new user",
         "parameters": [
           {
             "name": "user",
             "in": "body",
-            "description":"User that we want to register",
+            "description": "User that we want to register",
             "required": true,
-            "schema":{
+            "schema": {
               "$ref": "#/definitions/user"
             }
           }
@@ -87,6 +87,100 @@
           },
           "400": {
             "description": "Invalid parameter(s) supplied"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/user/bookmark-group/": {
+      "post": {
+        "tags": ["User"],
+        "summary": "Bookmark a study group by id",
+        "description": "",
+        "parameters": [
+          {
+            "name": "studygroupId",
+            "in": "body",
+            "description": "ID of study group to bookmark",
+            "required": true,
+            "type": "string",
+            "example": "{\"studygroupId\": \"62034213b10d3c4264eb84c7\"}"
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "format is 'JWT ' followed by the token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "token": {
+                "type": "json",
+                "description": "Study group was bookmarked successfully"
+              }
+            }
+          },
+          "400": {
+            "description": "Study group with the given id was already bookmarked"
+          },
+          "401": {
+            "description": "Unauthenticated user"
+          },
+          "404": {
+            "description": "Study group with the given ID was not found in the database"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/user/unbookmark-group/": {
+      "patch": {
+        "tags": ["User"],
+        "summary": "Unbookmark a study group by id",
+        "description": "",
+        "parameters": [
+          {
+            "name": "studygroupId",
+            "in": "body",
+            "description": "ID of study group to bookmark",
+            "required": true,
+            "type": "string",
+            "example": "{\"studygroupId\": \"62034213b10d3c4264eb84c7\"}"
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "format is 'JWT ' followed by the token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "token": {
+                "type": "json",
+                "description": "Study group was unbookmarked successfully"
+              }
+            }
+          },
+          "400": {
+            "description": "Study group with the given id has not been bookmarked"
+          },
+          "401": {
+            "description": "Unauthenticated user"
+          },
+          "404": {
+            "description": "Study group with the given ID was not found in the database"
           },
           "500": {
             "description": "Internal server error"
@@ -165,7 +259,7 @@
 
     "/studygroups": {
       "get": {
-        "tags": ["study groups"],
+        "tags": ["Study Groups"],
         "summary": "Returns all the study groups in the database",
         "description": "",
         "parameters": [
@@ -199,7 +293,7 @@
 
     "/studygroups/{id}": {
       "get": {
-        "tags": ["study groups"],
+        "tags": ["Study Groups"],
         "summary": "Find study group by id",
         "description": "",
         "parameters": [
@@ -242,7 +336,7 @@
     },
     "/studygroups/create": {
       "post": {
-        "tags": ["study groups"],
+        "tags": ["Study Groups"],
         "summary": "Create a study group",
         "description": "The user must be authenticated since their user id will be used as the study group's host id",
         "parameters": [
@@ -357,7 +451,7 @@
     },
     "/studygroups/edit/{id}": {
       "patch": {
-        "tags": ["study groups"],
+        "tags": ["Study Groups"],
         "summary": "Edit a study group",
         "description": "A user can only edit study groups they have created",
         "parameters": [
@@ -424,7 +518,7 @@
             "in": "body",
             "description": "The coordinates (longitude and latitude) of the meeting",
             "required": true,
-            "type": "{long: x, lat: y}"
+            "type": "{lng: x, lat: y}"
           },
           {
             "name": "maxAttendees",
@@ -482,7 +576,7 @@
     },
     "/studygroups/delete/{id}": {
       "delete": {
-        "tags": ["study groups"],
+        "tags": ["Study Groups"],
         "summary": "Delete a study group",
         "description": "A user can only delete study groups they have created",
         "parameters": [
@@ -601,11 +695,11 @@
         },
         "userName": {
           "type": "string",
-          "example" :"SpiderMan"
+          "example": "SpiderMan"
         },
         "email": {
           "type": "string",
-          "example":"Tobey.Maguire@mail.utoronto.ca",
+          "example": "Tobey.Maguire@mail.utoronto.ca",
           "required": true
         },
         "password": {
@@ -615,18 +709,18 @@
         },
         "role": {
           "type": "string",
-          "example":"Student",
+          "example": "Student",
           "required": true
         },
         "verified": {
           "type": "boolean",
-          "example":false,
+          "example": false,
           "required": true,
           "defualt": false
         },
         "created": {
           "type": "date",
-          "example":"2022-11-07T17:04:15.000+00:00",
+          "example": "2022-11-07T17:04:15.000+00:00",
           "required": true
         }
       }
@@ -636,7 +730,7 @@
       "properties": {
         "email": {
           "type": "string",
-          "example":"Tobey.Maguire@mail.utoronto.ca",
+          "example": "Tobey.Maguire@mail.utoronto.ca",
           "required": true
         },
         "password": {
@@ -651,20 +745,18 @@
       "properties": {
         "email": {
           "type": "string",
-          "example":"Tobey.Maguire@mail.utoronto.ca",
+          "example": "Tobey.Maguire@mail.utoronto.ca",
           "required": true
-
         },
         "token": {
           "type": "string",
           "example": "ddf2834DFG$^^%xjfhggf#$%^",
           "required": true
-
         },
         "createdAt": {
           "type": "date",
           "required": true,
-          "example":"2022-11-07T17:04:15.000+00:00",
+          "example": "2022-11-07T17:04:15.000+00:00",
           "expires": "TTL index"
         }
       }
