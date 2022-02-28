@@ -24,7 +24,7 @@ import GreenButton from './GreenButton';
 import * as colors from '../utils/colors';
 import useOutsideAlerter from '../hooks/useOutsideAlerter';
 
-function NavBar({ authToken, dispatch }) {
+function NavBar({ authToken, dispatch, userDetails }) {
   const navigate = useNavigate();
   const [isUserProfileMenuOpen, setIsUserProfileMenuOpen] = useState(false);
 
@@ -119,7 +119,9 @@ function NavBar({ authToken, dispatch }) {
               >
                 <Menu isOpen={isUserProfileMenuOpen}>
                   <MenuList>
-                    <MenuItem onClick={() => navigate('/account-info')}>
+                    <MenuItem
+                      onClick={() => navigate(`/user/${userDetails.id}`)}
+                    >
                       View your profile
                     </MenuItem>
                     <MenuItem onClick={() => navigate('/saved-groups')}>
@@ -154,6 +156,12 @@ NavBar.propTypes = {
     error: PropTypes.string,
   }).isRequired,
   authToken: PropTypes.string.isRequired,
+  userDetails: {
+    id: PropTypes.string,
+    email: PropTypes.string,
+    firstName: PropTypes.string,
+    lastName: PropTypes.string,
+  }.isRequired,
   dispatch: PropTypes.func.isRequired,
 };
 
@@ -163,4 +171,9 @@ export default connect(state => ({
   authState: state.Auth,
   // eslint-disable-next-line no-undef
   authToken: state.Auth.authToken || localStorage.getItem('authToken'),
+  userDetails:
+    (Object.keys(state.Auth.userDetails).length === 0
+      ? null
+      : state.Auth.userDetails) ||
+    JSON.parse(localStorage.getItem('userDetails')),
 }))(NavBar);
