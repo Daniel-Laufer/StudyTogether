@@ -1,10 +1,7 @@
 var chai = require('chai');
 var chaiHttp = require('chai-http');
 var app = require('../app');
-
-var User = require('../models/user.model');
 var expect = chai.expect;
-
 chai.use(chaiHttp);
 
 describe('/forgot', function () {
@@ -18,7 +15,7 @@ describe('/forgot', function () {
         expect(res).to.have.status(200);
         done();
       });
-  }).timeout(5000);
+  });
 });
 
 describe('/forgot', function () {
@@ -31,7 +28,7 @@ describe('/forgot', function () {
         expect(res).to.have.status(400);
         done();
       });
-  }).timeout(5000);
+  });
 });
 
 describe('/forgot/reset', function () {
@@ -45,7 +42,7 @@ describe('/forgot/reset', function () {
         expect(res).to.have.status(400);
         done();
       });
-  }).timeout(5000);
+  });
 });
 describe('/forgot/reset', function () {
   it('check reset returns correct error invalid token', function (done) {
@@ -62,5 +59,5 @@ describe('/forgot/reset', function () {
         expect(res).to.have.status(401);
         done();
       });
-  }).timeout(5000);
+  });
 });
