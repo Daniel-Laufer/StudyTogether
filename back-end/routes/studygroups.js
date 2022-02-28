@@ -126,6 +126,7 @@ router.post(
       end.setDate(end.getDate() + numDays);
     } while (start <= finalDate);
 
+
     newSeries
       .save()
       .catch(err => res.status(400).json('Error: ' + err))

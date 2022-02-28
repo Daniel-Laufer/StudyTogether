@@ -71,22 +71,10 @@ describe('/studygroups/create', function () {
         password: '123456789',
         role: 'Student',
 
-        title: 'CSC263 Midterm',
-        startDateTime: '2022-11-07T17:04:15.000Z',
-        endDateTime: '2022-11-07T17:07:15.000Z',
-        phone: '905-874-2103',
-        imageUrl: '/assets/ewffejvndqj30.jpg',
-        location: {
-          lng: 5,
-          lat: 15,
-        },
-        maxAttendees: 10,
-        hostId: '6203414954e004c7a45a944e',
-        description: 'We will be going over BFS, DFS and much more!',
-        tags: ['Free', 'UTM'],
 
       })
       .then(async function (res) {
+
         expect(res.body).to.have.property('token');
         const res_1 = await agent
           .post('/studygroups/create')
@@ -143,6 +131,9 @@ describe('/studygroups/edit/62018d54b6389a3ed07987d8', function () {
         hostId: '6203414954e004c7a45a944e',
         description: 'We will be going over BFS, DFS and much more!',
         tags: ['Paid', 'UTM'],
+
+        recurring: 'N/A',
+        finalDate: '2022-11-07T17:04:15.000Z',
 
       })
       .then(async function (res) {
