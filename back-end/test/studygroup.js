@@ -96,7 +96,7 @@ describe('/studygroups/create', function () {
         expect(res_1).to.have.status(200);
         done();
       });
-  }).timeout(10000);
+  });
 });
 
 /* Test: editing a study group */

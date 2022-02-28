@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 let StudygroupModel = require('../models/studygroup.model');
+let studyGroupSeriesModel = require('../models/studygroupseries.model');
 var helperUser = require('../helpers/helperUser');
 const { body, validationResult } = require('express-validator');
 
@@ -42,6 +43,8 @@ router.post(
   body('location').exists().bail().isObject().bail().notEmpty(),
   body('maxAttendees').notEmpty(),
   body('tags').exists().bail().isArray().bail().notEmpty(),
+  body('recurring').notEmpty(),
+  body('finalDate').notEmpty(),
   (req, res) => {
     // checking if user is authenticated
     if (!req.user) {
@@ -52,28 +55,58 @@ router.post(
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       res.status(400).json({ errors: errors.array() });
+      console.log(errors);
       return;
     }
+    let recurring = req.body.recurring;
+    let numDays = 0;
+    let finalDate = new Date(req.body.finalDate);
+    finalDate.setHours(23, 59, 59);
+    if (recurring == 'weekly') {
+      numDays = 7;
+    } else if (recurring == 'bi-weekly') {
+      numDays = 14;
+    } else {
+      finalDate = req.body.startDateTime;
+    }
+    var newSeries = new studyGroupSeriesModel({
+      studyGroups: [],
+      finalDateTime: finalDate,
+      recurring: req.body.recurring,
+    });
+    var seriesId = newSeries._id;
 
     /* study group creation logic  */
-    let studygroup = new StudygroupModel({
-      title: req.body.title,
-      startDateTime: req.body.startDateTime,
-      endDateTime: req.body.endDateTime,
-      phone: req.body.phone,
-      imageUrl: req.body.imageUrl,
-      curAttendees: req.body.curAttendees,
-      location: req.body.location,
-      maxAttendees: req.body.maxAttendees,
-      hostId: req.user.id,
-      description: req.body.description,
-      tags: req.body.tags,
-    });
+    let start = new Date(req.body.startDateTime);
+    let end = new Date(req.body.endDateTime);
+    do {
+      var newStart = new Date(start);
+      var newEnd = new Date(end);
+      let studygroup = new StudygroupModel({
+        title: req.body.title,
+        startDateTime: newStart,
+        endDateTime: newEnd,
+        phone: req.body.phone,
+        imageUrl: req.body.imageUrl,
+        curAttendees: req.body.curAttendees,
+        location: req.body.location,
+        maxAttendees: req.body.maxAttendees,
+        hostId: req.user.id,
+        description: req.body.description,
+        tags: req.body.tags,
+        seriesId: seriesId,
+      });
+      studygroup.save().catch(err => res.status(400).json('Error: ' + err));
 
-    studygroup
+      newSeries.studyGroups.push(studygroup._id);
+      start.setDate(start.getDate() + numDays);
+      end.setDate(end.getDate() + numDays);
+    } while (start <= finalDate);
+
+    newSeries
       .save()
-      .then(() => res.status(200).json('Study group created successfully!'))
-      .catch(err => res.status(400).json('Error: ' + err));
+      .catch(err => res.status(400).json('Error: ' + err))
+      .then(() => res.status(200).json('Study group created successfully!'));
   }
 );
 
@@ -138,7 +171,6 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
       }
 
       newStudyGroupsList.push(session._id);
-      console.log(newStudyGroupsList);
       start.setDate(start.getDate() + numDays);
       end.setDate(end.getDate() + numDays);
       i++;
