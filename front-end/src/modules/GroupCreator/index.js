@@ -159,11 +159,16 @@ function GroupCreator({ authToken }) {
     const finalDateInvalid =
       (state.date != null &&
         state.recurring === 'bi-weekly' &&
-        state.finalDate.getTime() - state.date.getTime() < 14 * 86400000) ||
+        (state.finalDate.getTime() - state.date.getTime()) /
+          (1000 * 3600 * 24) +
+          0.5 <
+          14) ||
       (state.date != null &&
         state.recurring === 'weekly' &&
-        state.finalDate.getTime() - state.date.getTime() < 7 * 86400000);
-    console.log(state.finalDate.getTime() - state.date.getTime());
+        (state.finalDate.getTime() - state.date.getTime()) /
+          (1000 * 3600 * 24) +
+          0.5 <
+          7);
     const descriptionInvalid = state.description.length < 10;
     setForceHideAlert(false);
     if (
