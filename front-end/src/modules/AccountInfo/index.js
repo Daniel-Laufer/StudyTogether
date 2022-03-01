@@ -31,44 +31,13 @@ import DetailedGroup from '../../components/DetailedGroup';
 import { logout } from '../../actions/Auth';
 import * as colors from '../../utils/colors';
 
-const groups = [
-  {
-    heading: 'CSC108 Study Group',
-    restrict: 'UofT Students Only ',
-    price: 'Free',
-    imgAlt: 'cat',
-    profileImage: Cat,
-    size: 'lg',
-  },
-  {
-    heading: 'CSC309 Study Group',
-    restrict: 'UofT Students Only ',
-    price: 'Free',
-    imgAlt: 'cat',
-    profileImage: Cat,
-  },
-  {
-    heading: 'CSC148 Study Group',
-    restrict: 'UofT Students Only ',
-    price: 'Free',
-    imgAlt: 'cat',
-    profileImage: Cat,
-  },
-  {
-    heading: 'CSC209 Study Group',
-    restrict: 'UofT Students Only ',
-    price: 'Free',
-    imgAlt: 'cat',
-    profileImage: Cat,
-    profileAboutMe:
-      'dhue gyf geufh uirgey bfui rbfgy sfbyrgfsn gygrhuis dghfuihr frfhurgdn fvfhruighdk frhgr frhugndlkf rehgdrn fv',
-  },
-];
-
 function AccountInfo({ authToken, userDetails, dispatch }) {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState({
+    groups: false,
+    user: false,
+  });
   const [dataUpdated, setDataUpdated] = useState(false);
   const [errorOccured, setErrorOccured] = useState(false);
   const [userInfo, setUserInfo] = useState({
@@ -88,40 +57,72 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
     ],
   });
   const [oldUserInfo, setOldUserInfo] = useState({});
+  const [groups, setGroups] = useState([]);
 
   useEffect(() => {
-    if (authToken === null || authToken === '') navigate('/');
+    if (authToken === null) setTimeout(() => navigate('/login'), 3000);
   }, [authToken]);
 
   useEffect(() => {
     const config = {
       headers: { Authorization: `JWT ${authToken}` },
     };
-    setLoading(true);
     axios
       .get(`${apiURL}/users/profile/${id}`, config)
       .then(res => {
-        setLoading(false);
-        setOldUserInfo({
-          ...res.data,
-          profileCourses: res.data.profileCourses.map((c, index) => {
-            return { id: index, text: c };
-          }),
-        });
-        setUserInfo({
-          ...res.data,
-          profileCourses: res.data.profileCourses.map((c, index) => {
-            return { id: index, text: c };
-          }),
+        if (res.data.profileContactInfo) {
+          setOldUserInfo({
+            ...res.data,
+            profileCourses: res.data.profileCourses.map((c, index) => {
+              return { id: index, text: c };
+            }),
+          });
+          setUserInfo({
+            ...res.data,
+            profileCourses: res.data.profileCourses.map((c, index) => {
+              return { id: index, text: c };
+            }),
+          });
+        } else {
+          setOldUserInfo(res.data);
+          setUserInfo(res.data);
+        }
+        setLoading({
+          ...loading,
+          user: false,
         });
       })
       .catch(err => {
-        setLoading(false);
+        setLoading({
+          ...loading,
+          user: false,
+        });
+        console.log(err);
         if (err.response.status === 401) {
           dispatch(logout());
           navigate('/login');
         }
       });
+    axios
+      .get(`${apiURL}/studygroups/registered`, config)
+      .then(res => {
+        setGroups(res.data);
+        setLoading({
+          ...loading,
+          groups: false,
+        });
+      })
+      .catch(err => {
+        setLoading({
+          ...loading,
+          groups: false,
+        });
+        if (err.response.status === 401) {
+          dispatch(logout());
+          navigate('/login');
+        }
+      });
+    console.log(userInfo);
   }, []);
 
   const handleDelete = i => {
@@ -141,6 +142,7 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
   };
 
   const saveUserInfo = () => {
+    if (JSON.stringify(userInfo) === JSON.stringify(oldUserInfo)) return;
     const config = {
       headers: { Authorization: `JWT ${authToken}` },
     };
@@ -183,7 +185,19 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
 
   const [edit, setEdit] = useState(false);
 
-  return !loading ? (
+  if (authToken === null) {
+    return (
+      <Container maxW="container.lg">
+        <Alert status="warning">
+          <AlertIcon />
+          You need to be logged in to view your saved study groups. Redirecting
+          you to the login page now...
+        </Alert>
+      </Container>
+    );
+  }
+
+  return !loading.groups && !loading.user ? (
     <Container maxW="container.lg" style={{ marginTop: '2rem' }}>
       <Grid templateColumns="repeat(2, 1fr)" gap={12}>
         <GridItem
@@ -345,7 +359,7 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
                   {userInfo.firstName} {userInfo.lastName} ({userInfo.role})
                 </Text>
                 <Text color={colors.grey.dark}>{userInfo.profileAboutMe}</Text>
-                {id === userDetails.id ? (
+                {userDetails && id === userDetails.id ? (
                   <GreenButton
                     width="200px"
                     style={{ fontSize: '20px' }}
@@ -385,7 +399,8 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
                     </Text>
                   </Box>
                 ) : null}
-                {userInfo.profileCourses.length !== 0 ? (
+                {userInfo.profileCourses &&
+                userInfo.profileCourses.length !== 0 ? (
                   <Box w="100%">
                     <Text
                       color={colors.grey.dark}
@@ -451,18 +466,28 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
         >
           <VStack w="full" alignItems="flex-start">
             <Text fontSize={[10, 25, 30]} as="b" color={colors.grey.dark}>
-              Study groups you are part of.
+              {groups.length === 0
+                ? 'You are part of no study groups.'
+                : 'Study groups you are part of.'}
             </Text>
-            {groups.map(g => (
-              <DetailedGroup
-                heading={g.heading}
-                restrict={g.restrict}
-                price={g.price}
-                imgAlt={g.imgAlt}
-                img={g.profileImage}
-                link="cat"
-              />
-            ))}
+            {groups.length > 0
+              ? groups.map(g => (
+                  <DetailedGroup
+                    key={g}
+                    title={g.title}
+                    restrict="UofT students"
+                    availability={`${g.maxAttendees - g.curAttendees} / ${
+                      g.maxAttendees
+                    }`}
+                    imgAlt="Study group image"
+                    img={g.imageUrl}
+                    when={g.time}
+                    host={g.hostFirstName + g.hostLastName}
+                    desc={g.description}
+                    link={`${g._id}`}
+                  />
+                ))
+              : null}
           </VStack>
         </GridItem>
       </Grid>
