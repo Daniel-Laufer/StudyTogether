@@ -98,9 +98,9 @@ describe('Studygroup Tests', function () {
     }).timeout(5000);
   });
 
-  /* Test: creating a study group */
-  describe('/studygroups/create', function () {
-    it('Check that creating a new study group is functional', function (done) {
+  /* Test: creating a series study group */
+  describe('Test the endpoints work for a study-group series', function () {
+    it('/studygroups/create', function (done) {
       chai
         .request(app)
         .post('/studygroups/create')
@@ -113,7 +113,7 @@ describe('Studygroup Tests', function () {
           phone: '905-874-2103',
           imageUrl: '/assets/ewffejvndqj30.jpg',
           location: {
-            long: 5,
+            lng: 5,
             lat: 15,
           },
           maxAttendees: 10,
@@ -129,11 +129,9 @@ describe('Studygroup Tests', function () {
           done();
         });
     }).timeout(5000);
-  });
 
-  /* Test: Fetching an individual study group */
-  describe('/studygroups/:id', function () {
-    it('Check that fetching an individual study group is functional', function (done) {
+    /* Test: Fetching an individual study group */
+    it('/studygroups/:id', function (done) {
       chai
         .request(app)
         .get(`/studygroups/${studyGroupId}`)
@@ -146,11 +144,89 @@ describe('Studygroup Tests', function () {
           done();
         });
     }).timeout(5000);
-  });
 
-  /* Test: Editing a study group */
-  describe('/studygroups/edit/:id', function () {
+    /* Test: Editing a study group */
     it('Check that Editing an indivdual group is functional', function (done) {
+      chai
+        .request(app)
+        .patch(`/studygroups/edit/${studyGroupId}`)
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `JWT ${token}`)
+        .send({
+          startDateTime: '2022-11-08T17:04:15.000Z',
+        })
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          expect(res.body._id).to.equal(studyGroupId);
+          done();
+        });
+    }).timeout(5000);
+  });
+  describe('Test the endpoints work for non-series study-group', function () {
+    it('/studygroups/create', function (done) {
+      chai
+        .request(app)
+        .post('/studygroups/create')
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `JWT ${token}`)
+        .send({
+          title: 'CSC263 Midterm',
+          startDateTime: '2022-11-07T17:04:15.000Z',
+          endDateTime: '2022-11-07T17:07:15.000Z',
+          phone: '905-874-2103',
+          imageUrl: '/assets/ewffejvndqj30.jpg',
+          location: {
+            lng: 5,
+            lat: 15,
+          },
+          maxAttendees: 10,
+          hostId: '6203414954e004c7a45a944e',
+          description: 'We will be going over BFS, DFS and much more!',
+          tags: ['Free', 'UTM'],
+          recurring: 'N/A',
+          finalDate: '2022-11-21T17:04:15.000Z',
+        })
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          studyGroupId = res.body._id;
+          done();
+        });
+    });
+
+    /* Test: Fetching an individual study group */
+    it('/studygroups/:id', function (done) {
+      chai
+        .request(app)
+        .get(`/studygroups/${studyGroupId}`)
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `JWT ${token}`)
+        .send()
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          expect(res.body._id).to.equal(studyGroupId);
+          done();
+        });
+    });
+
+    /* Test: Editing a study group */
+    it('/studygroups/edit/:id - Same start time', function (done) {
+      chai
+        .request(app)
+        .patch(`/studygroups/edit/${studyGroupId}`)
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `JWT ${token}`)
+        .send({
+          startDateTime: '2022-11-07T17:04:15.000Z',
+        })
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          expect(res.body._id).to.equal(studyGroupId);
+          expect(res.body.rescheduled).to.equal(false);
+          done();
+        });
+    });
+    /* Test: Editing a study group */
+    it('/studygroups/edit/:id - Different start time', function (done) {
       chai
         .request(app)
         .patch(`/studygroups/edit/${studyGroupId}`)
@@ -165,9 +241,8 @@ describe('Studygroup Tests', function () {
           expect(res.body.rescheduled).to.equal(true);
           done();
         });
-    }).timeout(5000);
+    });
   });
-
   /* Test: Fetching study groups a logged in user is registered to attend */
   describe('/studygroups/registered', function () {
     it('Check that fetching study groups a logged in user is registered to attend is functional', function (done) {
