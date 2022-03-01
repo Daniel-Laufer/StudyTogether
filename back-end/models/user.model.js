@@ -55,6 +55,17 @@ const userSchema = new Schema(
       default: [],
       required: false,
     },
+    //profile info
+    profileImage: {
+      type: String,
+      default:
+        'https://img.freepik.com/free-vector/cute-cat-gaming-cartoon_138676-2969.jpg?size=338&ext=jpg',
+      required: false,
+    },
+    profileAboutMe: { type: String, default: '', required: false },
+    profileContactInfo: { type: String, default: '', required: false },
+    profileInterests: { type: String, default: '', required: false },
+    profileCourses: { type: [String], default: [], required: false },
   },
   { collection: 'users' }
 );
