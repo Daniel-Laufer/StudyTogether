@@ -119,7 +119,7 @@ router.post(
 );
 
 router.post(
-  '/bookmark-group/',
+  '/bookmark-group',
   helperUser.verifyToken,
   /* Parameter Validation */
   body('studygroupId').exists().bail().notEmpty(),
@@ -160,7 +160,7 @@ router.post(
 );
 
 router.patch(
-  '/unbookmark-group/',
+  '/unbookmark-group',
   helperUser.verifyToken,
   body('studygroupId').exists().bail().notEmpty(),
   /* Parameter Validation */

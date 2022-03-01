@@ -14,6 +14,7 @@ const studygroupSchema = new Schema(
     maxAttendees: { type: Number, min: 2, required: true },
     hostId: { type: mongoose.Types.ObjectId, required: true },
     description: { type: String, required: true },
+    attendees: { type: [mongoose.Types.ObjectId], default: [], required: true },
     tags: { type: [String], required: true },
 
     //Status
@@ -24,6 +25,7 @@ const studygroupSchema = new Schema(
     //Accessabililty.
     private: { type: Boolean, default: false, required: false },
     paid: { type: Boolean, default: false, required: false },
+    seriesId: { type: mongoose.Types.ObjectId, required: true },
   },
   { collection: 'studygroups' }
 );
