@@ -242,15 +242,15 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
     /* TODO: Notify users once postponed (after notification feature is added) */
     var isRescheduled =
       (new Date(req.body.startDateTime).getTime() ??
-        new Date(studygroup.startDateTime).getTime()) !=
-      new Date(studygroup.startDateTime).getTime();
+        new Date(studyGroup.startDateTime).getTime()) !=
+      new Date(studyGroup.startDateTime).getTime();
 
     if (isRescheduled)
-      Object.assign(studygroup, {
+      Object.assign(studyGroup, {
         ...req.body,
         ...{ rescheduled: isRescheduled },
       });
-    else Object.assign(studygroup, req.body);
+    else Object.assign(studyGroup, req.body);
     studyGroup.save().catch(err => res.status(400).json('Error: ' + err));
   }
   try {
@@ -360,7 +360,7 @@ router.put('/reactivate/:id', helperUser.verifyToken, async (req, res) => {
   });
 
   if (studygroup.hostId != req.user.id) {
-    res.status(403).send({ message: 'Not study group creator' });
+    res.status(403).send({ message: 'Permission denied' });
     return;
   }
   var updatedStudygroup = await StudygroupModel.findByIdAndUpdate(groupId, {

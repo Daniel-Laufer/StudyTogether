@@ -150,18 +150,19 @@ describe('Studygroup Tests', function () {
 
   /* Test: Editing a study group */
   describe('/studygroups/edit/:id', function () {
-    it('Check that fetching an individual study group is functional', function (done) {
+    it('Check that Editing an indivdual group is functional', function (done) {
       chai
         .request(app)
         .patch(`/studygroups/edit/${studyGroupId}`)
         .set('Content-Type', 'application/json')
         .set('Authorization', `JWT ${token}`)
         .send({
-          delayed: true,
+          startDateTime: '2022-11-08T17:04:15.000Z',
         })
         .end(function (err, res) {
           expect(res).to.have.status(200);
           expect(res.body._id).to.equal(studyGroupId);
+          expect(res.body.rescheduled).to.equal(true);
           done();
         });
     }).timeout(5000);
