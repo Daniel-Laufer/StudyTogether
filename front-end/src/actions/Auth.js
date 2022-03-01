@@ -31,6 +31,7 @@ export function login(userDetails) {
           window.localStorage.setItem('authToken', res.data.token);
           // window.localStorage.setItem('userDetails', res.data.token);
         }
+        window.localStorage.setItem('role', res.data.user.role);
       })
       .catch(err => {
         let errMessage = err.toString();
@@ -50,6 +51,8 @@ export function logout() {
   // eslint-disable-next-line no-undef
   localStorage.removeItem('authToken');
   localStorage.removeItem('userDetails');
+  // localStorage.removeItem('authToken', res.data.token);
+  localStorage.removeItem('role');
   return { type: LOGOUT };
 }
 
