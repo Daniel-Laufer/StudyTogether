@@ -143,6 +143,7 @@ router.post(
         description: req.body.description,
         tags: req.body.tags,
         seriesId: seriesId,
+        official: req.body.official,
       });
       studygroup.save().catch(err => res.status(400).json('Error: ' + err));
 
@@ -215,6 +216,7 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
           description: req.body.description,
           tags: req.body.tags,
           seriesId: seriesId,
+          official: req.body.official,
         });
         session.save().catch(err => res.status(400).json('Error: ' + err));
       }

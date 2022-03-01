@@ -16,6 +16,7 @@ const studygroupSchema = new Schema(
     description: { type: String, required: true },
     attendees: { type: [mongoose.Types.ObjectId], default: [], required: true },
     tags: { type: [String], required: true },
+    official: { type: Boolean, required: true },
 
     //Status
     canceledAt: { type: Date, default: undefined, required: false }, //TLL index for deleting a group after canceling. Not meant to be parsed in the frontend.
