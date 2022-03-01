@@ -239,7 +239,18 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
     series.studyGroups = newStudyGroupsList;
     series.save().catch(err => res.status(400).json('Error: ' + err));
   } else {
-    Object.assign(studyGroup, req.body);
+    /* TODO: Notify users once postponed (after notification feature is added) */
+    var isRescheduled =
+      (new Date(req.body.startDateTime).getTime() ??
+        new Date(studygroup.startDateTime).getTime()) !=
+      new Date(studygroup.startDateTime).getTime();
+
+    if (isRescheduled)
+      Object.assign(studygroup, {
+        ...req.body,
+        ...{ rescheduled: isRescheduled },
+      });
+    else Object.assign(studygroup, req.body);
     studyGroup.save().catch(err => res.status(400).json('Error: ' + err));
   }
   try {
@@ -326,6 +337,7 @@ router.put('/cancel/:id', helperUser.verifyToken, async (req, res) => {
   /* end */
   var updatedStudygroup = await StudygroupModel.findByIdAndUpdate(groupId, {
     canceledAt: t,
+    canceled: true,
   }).catch(err => {
     res.status(400).json('Error: ' + err);
     return;
@@ -353,6 +365,7 @@ router.put('/reactivate/:id', helperUser.verifyToken, async (req, res) => {
   }
   var updatedStudygroup = await StudygroupModel.findByIdAndUpdate(groupId, {
     $unset: { canceledAt: 1 },
+    canceled: false,
   }).catch(err => res.status(400).json('Error: ' + err));
 
   res.status(200).json(updatedStudygroup);
