@@ -73,7 +73,7 @@ router.get('/:id', helperUser.verifyToken, (req, res) => {
   const groupId = req.params.id;
   StudygroupModel.findById(groupId)
     .then(studygroup => res.status(200).json(studygroup))
-    .catch(err => res.status(400).json('Error: Invalid study group id'));
+    .catch(err => res.status(400).json('Error: ' + err));
 });
 
 /* (5) Catching a post request with url ./create */
