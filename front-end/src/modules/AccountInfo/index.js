@@ -70,23 +70,18 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
     axios
       .get(`${apiURL}/users/profile/${id}`, config)
       .then(res => {
-        if (res.data.profileContactInfo) {
-          setOldUserInfo({
-            ...res.data,
-            profileCourses: res.data.profileCourses.map((c, index) => {
-              return { id: index, text: c };
-            }),
-          });
-          setUserInfo({
-            ...res.data,
-            profileCourses: res.data.profileCourses.map((c, index) => {
-              return { id: index, text: c };
-            }),
-          });
-        } else {
-          setOldUserInfo(res.data);
-          setUserInfo(res.data);
-        }
+        setOldUserInfo({
+          ...res.data,
+          profileCourses: res.data.profileCourses.map((c, index) => {
+            return { id: index, text: c };
+          }),
+        });
+        setUserInfo({
+          ...res.data,
+          profileCourses: res.data.profileCourses.map((c, index) => {
+            return { id: index, text: c };
+          }),
+        });
         setLoading({
           ...loading,
           user: false,
