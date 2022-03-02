@@ -319,6 +319,32 @@ describe('Studygroup Tests', function () {
           done();
         });
     });
+    it('/studygroups/reactivate/:id', function (done) {
+      chai
+        .request(app)
+        .put(`/studygroups/reactivate/${studyGroupId}`)
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `JWT ${token}`)
+        .send()
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          done();
+        });
+    });
+    it('Fetch stud-group to check it was marked as canceled', function (done) {
+      chai
+        .request(app)
+        .get(`/studygroups/${studyGroupId}`)
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `JWT ${token}`)
+        .send()
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          expect(res.body._id).to.equal(studyGroupId);
+          expect(res.body.canceled).to.equal(false);
+          done();
+        });
+    });
     it('check that the study group deletion is functional', function (done) {
       chai
         .request(app)
