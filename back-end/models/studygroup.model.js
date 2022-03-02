@@ -4,6 +4,7 @@ const Schema = mongoose.Schema;
 
 const studygroupSchema = new Schema(
   {
+    //general info
     title: { type: String, required: true },
     startDateTime: { type: Date, required: true },
     endDateTime: { type: Date, required: true },
@@ -25,6 +26,8 @@ const studygroupSchema = new Schema(
     //Accessabililty.
     private: { type: Boolean, default: false, required: false },
     paid: { type: Boolean, default: false, required: false },
+
+    //Series
     seriesId: { type: mongoose.Types.ObjectId, required: true },
   },
   { collection: 'studygroups' }

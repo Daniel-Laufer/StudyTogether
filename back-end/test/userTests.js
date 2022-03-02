@@ -9,19 +9,6 @@ var token;
 chai.use(chaiHttp);
 
 describe('User Tests', function () {
-  /* Test: token validation */
-  describe('Ensure users are not accessable unless valid JWT token is provided', function () {
-    it('verifies status is 403 Forbidden', function (done) {
-      chai
-        .request(app)
-        .get('/users')
-        .end(function (err, res) {
-          expect(res).to.have.status(403);
-        });
-      done();
-    });
-  });
-
   /* Test: register user */
   describe('/users/register', function () {
     it('check registaration is functional', function (done) {
