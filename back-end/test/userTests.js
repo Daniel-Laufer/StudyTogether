@@ -1,10 +1,9 @@
 var chai = require('chai');
 var chaiHttp = require('chai-http');
 var app = require('../app');
-var helperUser = require('../helpers/helperUser');
-var User = require('../models/user.model');
 var expect = chai.expect;
 var token;
+var userId;
 
 chai.use(chaiHttp);
 
@@ -55,6 +54,7 @@ describe('User Tests', function () {
 
           expect(res.body).to.have.property('token');
           token = res.body.token;
+          userId = res.body.id;
           expect(res.body.user).to.have.property('email');
 
           expect(res.body.user.email).to.be.equal('test.user@mail.utoronto.ca');
@@ -94,6 +94,26 @@ describe('User Tests', function () {
         })
         .end(function (err, res) {
           expect(res).to.have.status(200);
+          done();
+        });
+    });
+  });
+
+  /* Test: Show profile info*/
+  describe('/users/profile', function () {
+    it('check study group bookmarking is functional', function (done) {
+      chai
+        .request(app)
+        .get(`/users/profile/${userId}`)
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `JWT ${token}`)
+        .send({
+          studygroupId: '62018d7ab6389a3ed07987db',
+        })
+        .end(function (err, res) {
+          console.log(res.body);
+          expect(res).to.have.status(200);
+          expect(res.body.email).to.equal(undefined);
           done();
         });
     });
