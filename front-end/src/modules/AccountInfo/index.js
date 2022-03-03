@@ -28,7 +28,7 @@ import { apiURL } from '../../utils/constants';
 import Cat from '../../assets/images/cat.jpeg';
 import GreenButton from '../../components/GreenButton';
 import DetailedGroup from '../../components/DetailedGroup';
-import { logout } from '../../actions/Auth';
+import { logout, updateUserDetails } from '../../actions/Auth';
 import * as colors from '../../utils/colors';
 
 function AccountInfo({ authToken, userDetails, dispatch }) {
@@ -157,7 +157,6 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
         return acc;
       }, []),
     };
-    // setLoading(true);
     axios
       .patch(`${apiURL}/users/profile`, body, config)
       .then(() => {
@@ -165,6 +164,17 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
         setInterval(() => {
           setDataUpdated(false);
         }, 3000);
+        if (
+          userDetails.lastName !== userInfo.lastName ||
+          userDetails.firstName !== userInfo.firstName
+        ) {
+          const updatedUserDetails = {
+            ...userDetails,
+            firstName: userInfo.firstName,
+            lastName: userInfo.lastName,
+          };
+          dispatch(updateUserDetails(updatedUserDetails));
+        }
       })
       .catch(err => {
         console.log(err);

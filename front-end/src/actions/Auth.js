@@ -11,6 +11,7 @@ export const REGISTRATION_SUCCESS = 'REGISTRATION_SUCCESS';
 export const REGISTRATION_ERROR = 'REGISTRATION_ERROR';
 export const SAVE_AUTH_DETAILS = 'SAVE_AUTH_DETAILS';
 export const LOGOUT = 'LOGOUT';
+export const UPDATE_USER_DETAILS = 'UPDATE_USER_DETAILS';
 
 export function login(userDetails) {
   return dispatch => {
@@ -85,5 +86,14 @@ export function register(userDetails) {
           errMessage = err.response.data.errors[0].msg;
         dispatch({ type: LOGIN_ERROR, error: errMessage });
       });
+  };
+}
+
+export function updateUserDetails(userDetails) {
+  return dispatch => {
+    dispatch({ type: UPDATE_USER_DETAILS, user: userDetails });
+    const localUser = window.localStorage.getItem('userDetails');
+    if (localUser)
+      window.localStorage.setItem('userDetails', JSON.stringify(userDetails));
   };
 }
