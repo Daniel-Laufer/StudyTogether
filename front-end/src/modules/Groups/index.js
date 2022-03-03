@@ -1,3 +1,6 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-unneeded-ternary */
+/* eslint-disable no-nested-ternary */
 /* eslint-disable no-undef */
 /* eslint-disable no-underscore-dangle */
 import React, { useEffect, useState } from 'react';
@@ -33,6 +36,8 @@ function Groups({
   const navigate = useNavigate();
   const location = useLocation();
   const [groups, setGroups] = useState([]);
+  // eslint-disable-next-line no-unused-vars
+  const [currentlySelectedGroup, setCurrentlySelectedGroup] = useState(null);
   const [viewDetailedGroupCards, setViewDetailedGroupCards] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -55,11 +60,27 @@ function Groups({
       })
       .catch(err => {
         setLoading(false);
-        if (err.response.status === 401) {
+        if (err.response && err.response.status === 401) {
           dispatch(logout());
           navigate('/login');
         }
       });
+  };
+
+  // // extract all the location data needed by the google map
+  // // component
+  // useEffect(() => {
+  //   if(!groups) return;
+
+  // }, [groups]);
+
+  const formatGroupDataForMapDisplay = () => {
+    if (!groups) return [];
+    return groups.reduce((acc, curr) => {
+      if (curr.location && 'lat' in curr.location && 'lng' in curr.location)
+        acc.push({ ...curr.location, id: curr._id, metaData: { ...curr } });
+      return acc;
+    }, []);
   };
 
   // on component mount, retrieve all the saved study groups
@@ -76,6 +97,23 @@ function Groups({
       </Alert>
     );
   }
+
+  const getLocationOfGroupId = targetGroupId => {
+    if (!groups || !targetGroupId) return undefined;
+
+    const foundGroup = groups.find(
+      group =>
+        group._id === targetGroupId &&
+        group.location &&
+        'lat' in group.location &&
+        'lng' in group.location
+    );
+
+    console.log(foundGroup);
+    if (!foundGroup) return undefined;
+
+    return foundGroup.location;
+  };
 
   return !loading ? (
     <Box style={{ width: '60%', margin: 'auto', marginTop: '2rem' }}>
@@ -133,9 +171,9 @@ function Groups({
                   when={g.time}
                   host={g.hostFirstName + g.hostLastName}
                   desc={g.description}
-                  // onClickFunc={() => navigate(`${g._id}`)}
-                  onClickFunc={() => alert(g._id)}
+                  onClickFunc={() => setCurrentlySelectedGroup(g._id)}
                   size="md"
+                  selected={currentlySelectedGroup === g._id}
                 />
               ) : (
                 <DetailedGroup
@@ -149,8 +187,7 @@ function Groups({
                   when={g.time}
                   host={g.hostFirstName + g.hostLastName}
                   desc={g.description}
-                  // onClickFunc={() => navigate(`${g._id}`)}
-                  onClickFunc={() => alert(g._id)}
+                  onClickFunc={() => setCurrentlySelectedGroup(g._id)}
                   size="md"
                 />
               )
@@ -179,7 +216,9 @@ function Groups({
         >
           <Map
             disableAddingNewMarkers
-            initialCenter={{ lat: 43.54, lng: -79.66 }}
+            markers={formatGroupDataForMapDisplay()}
+            initialCenter={getLocationOfGroupId(currentlySelectedGroup)}
+            initialZoom={18}
           />
         </Box>
       </Box>

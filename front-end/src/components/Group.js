@@ -10,20 +10,35 @@ const ImageContainer = styled.div`
   filter: brightness(70%);
 `;
 
-function Group({ heading, img, imgAlt, restrict, price, onClickFunc }) {
+function Group({
+  heading,
+  img,
+  imgAlt,
+  restrict,
+  price,
+  onClickFunc,
+  selected,
+}) {
   return (
     <Box
       border={0}
-      bg="none"
       as="button"
       w={{ base: '400px', sm: '300px', md: '350px' }}
       px={2}
       py={4}
       overflow="hidden"
-      style={{
-        border: '1px solid var(--chakra-colors-gray-200)',
-        borderRadius: 'var(--chakra-radii-md)',
-      }}
+      style={
+        selected
+          ? {
+              border: `2px solid ${colors.green.dark}`,
+              borderRadius: 'var(--chakra-radii-md)',
+              backgroundColor: 'var(--chakra-colors-gray-100)',
+            }
+          : {
+              border: '1px solid var(--chakra-colors-gray-200)',
+              borderRadius: 'var(--chakra-radii-md)',
+            }
+      }
     >
       <Box onClick={() => onClickFunc()}>
         <Box
@@ -40,22 +55,6 @@ function Group({ heading, img, imgAlt, restrict, price, onClickFunc }) {
         </Box>
         <ImageContainer>
           <Image src={img} htmlWidth="100%" alt={imgAlt} />
-          <Box
-            sx={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              textAlign: 'center',
-              width: '100%',
-              transform: 'translate(-50%, -50%)',
-              fontFamily: 'Inter',
-              fontSize: '30px',
-              filter: 'brightness(70%)',
-              color: colors.white,
-            }}
-          >
-            More Information
-          </Box>
         </ImageContainer>
         <Flex>
           <Box color={colors.grey.dark}>{restrict}</Box>
@@ -74,10 +73,12 @@ Group.propTypes = {
   restrict: PropTypes.string.isRequired,
   price: PropTypes.string.isRequired,
   onClickFunc: PropTypes.func,
+  selected: PropTypes.bool,
 };
 
 Group.defaultProps = {
   onClickFunc: () => null,
+  selected: false,
 };
 
 export default Group;

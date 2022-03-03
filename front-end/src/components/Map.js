@@ -31,6 +31,7 @@ function Map({
   restrictToOneMarker,
   getLngLatOfNewMarker,
   disableAddingNewMarkers,
+  markers: markerLocations,
 }) {
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -38,7 +39,15 @@ function Map({
   });
 
   const [map, setMap] = React.useState(null);
-  const [markers, setMarkers] = React.useState([]);
+  const [markers, setMarkers] = React.useState(markerLocations);
+
+  useEffect(() => {
+    if (
+      markerLocations &&
+      JSON.stringify(markers) !== JSON.stringify(markerLocations)
+    )
+      setMarkers(markerLocations);
+  }, [markerLocations]);
 
   const addMarker = ev => {
     if (disableAddingNewMarkers) return;
@@ -58,15 +67,17 @@ function Map({
       zoom={initialZoom}
       style={{ ...style }}
     >
-      {markers.map(marker => (
-        <Marker
-          key={`${marker.lat}-${marker.lng}`}
-          position={{ lat: marker.lat, lng: marker.lng }}
-          onClick={() => {
-            setSelected(marker);
-          }}
-        />
-      ))}
+      {markers
+        ? markers.map(marker => (
+            <Marker
+              key={`${marker.lat}-${marker.lng}-${marker.id}`}
+              position={{ lat: marker.lat, lng: marker.lng }}
+              onClick={() => {
+                setSelected(marker);
+              }}
+            />
+          ))
+        : null}
     </GoogleMap>
   ) : (
     <></>
@@ -78,6 +89,15 @@ Map.propTypes = {
     lat: PropTypes.number,
     lng: PropTypes.number,
   }),
+
+  markers: PropTypes.arrayOf(
+    PropTypes.shape({
+      lat: PropTypes.number,
+      lng: PropTypes.number,
+      id: PropTypes.string,
+      metaData: PropTypes.shape(),
+    })
+  ),
   initialZoom: PropTypes.number,
   restrictToOneMarker: PropTypes.bool,
   getLngLatOfNewMarker: PropTypes.func,
@@ -88,6 +108,7 @@ Map.defaultProps = {
     lat: 43.54,
     lng: -79.66,
   },
+  markers: [],
   initialZoom: 14,
   restrictToOneMarker: false,
   getLngLatOfNewMarker: () => {},
