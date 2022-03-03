@@ -568,6 +568,13 @@
             "type": "string"
           },
           {
+            "name": "official",
+            "in": "body",
+            "description": "whether the study group is an offical office hours session",
+            "required": true,
+            "type": "boolean"
+          },
+          {
             "name": "tags",
             "in": "body",
             "description": "The study group's tags",

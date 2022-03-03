@@ -122,6 +122,7 @@ describe('Studygroup Tests', function () {
           tags: ['Free', 'UTM'],
           recurring: 'weekly',
           finalDate: '2022-11-21T17:04:15.000Z',
+          official: false,
         })
         .end(function (err, res) {
           expect(res).to.have.status(200);
