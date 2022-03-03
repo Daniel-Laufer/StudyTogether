@@ -123,7 +123,7 @@ function SavedGroups({
                 desc={g.description}
                 link={`${g._id}`}
                 status={{
-                  reschedule: g.reschedule,
+                  reschedule: g.rescheduled,
                   cancelled: g.canceled,
                   full: g.maxAttendees - g.curAttendees === 0,
                 }}
@@ -143,7 +143,7 @@ function SavedGroups({
                 desc={g.description}
                 link={`${g._id}`}
                 status={{
-                  reschedule: g.reschedule,
+                  reschedule: g.rescheduled,
                   cancelled: g.canceled,
                   full: g.maxAttendees - g.curAttendees === 0,
                 }}
