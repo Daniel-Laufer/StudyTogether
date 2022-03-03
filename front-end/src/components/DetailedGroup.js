@@ -1,4 +1,4 @@
-import { Box, Stack, VStack, Text, Image } from '@chakra-ui/react';
+import { Box, Stack, VStack, Text, Image, Tag } from '@chakra-ui/react';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
@@ -50,6 +50,7 @@ function DetailedGroup({
   imgAlt,
   link,
   size,
+  status,
 }) {
   const {
     stackSize,
@@ -77,14 +78,31 @@ function DetailedGroup({
           align="left"
           wrap
         >
-          <Image
-            src={img}
-            width={imgWidth}
-            alt={imgAlt}
-            borderRadius="lg"
-            mr={imgMr}
-            alignSelf={imgAlign}
-          />
+          <VStack alignItems="start">
+            <Image
+              src={img}
+              width={imgWidth}
+              alt={imgAlt}
+              borderRadius="lg"
+              mr={imgMr}
+              alignSelf={imgAlign}
+            />
+            {status.cancelled ? (
+              <Tag colorScheme="red" m={0}>
+                Cancelled
+              </Tag>
+            ) : null}
+            {status.reschedule ? (
+              <Tag colorScheme="yellow" m={0}>
+                Rescheduled
+              </Tag>
+            ) : null}
+            {status.full ? (
+              <Tag colorScheme="green" m={0}>
+                Full
+              </Tag>
+            ) : null}
+          </VStack>
           <VStack justifyContent="center" spacing={vstackSpacing} align="left">
             {CustomText(fontSize, noOfLines, `Title: ${title}`)}
             {CustomText(fontSize, noOfLines, `Restriction: ${restrict}`)}
@@ -110,8 +128,20 @@ DetailedGroup.propTypes = {
   desc: PropTypes.string.isRequired,
   link: PropTypes.string.isRequired,
   size: 'md' || 'lg',
+  status: {
+    reschedule: PropTypes.boolean,
+    cancelled: PropTypes.boolean,
+    full: PropTypes.boolean,
+  },
 };
 
-DetailedGroup.defaultProps = { size: 'md' };
+DetailedGroup.defaultProps = {
+  size: 'md',
+  status: {
+    reschedule: false,
+    cancelled: false,
+    full: false,
+  },
+};
 
 export default DetailedGroup;
