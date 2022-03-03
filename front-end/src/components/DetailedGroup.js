@@ -60,41 +60,49 @@ function DetailedGroup({
     imgMr,
     imgAlign,
   } = diffSize(size);
+
+  const groupView = (
+    <Stack
+      w={stackSize}
+      direction={{ base: 'column', md: 'row' }}
+      align="left"
+      wrap
+    >
+      <Image
+        src={img}
+        width={imgWidth}
+        alt={imgAlt}
+        borderRadius="lg"
+        mr={imgMr}
+        alignSelf={imgAlign}
+      />
+      <VStack justifyContent="center" spacing={vstackSpacing} align="left">
+        {CustomText(fontSize, noOfLines, `Title: ${title}`)}
+        {CustomText(fontSize, noOfLines, `Restriction: ${restrict}`)}
+        {CustomText(fontSize, noOfLines, `Availability: ${availability}`)}
+        {CustomText(fontSize, noOfLines, `When: ${when}`)}
+        {CustomText(fontSize, noOfLines, `Hosted by: ${host}`)}
+        {CustomText(fontSize, noOfLines, `Description: ${desc}`)}
+      </VStack>
+    </Stack>
+  );
+
   return (
     <Box
       p={2}
       overflow="hidden"
       bg="none"
-      as="button"
       border={0}
       textAlign="left"
       w={stackSize}
     >
-      <Link to={link} style={{ textDecoration: 'none', color: 'inherit' }}>
-        <Stack
-          w={stackSize}
-          direction={{ base: 'column', md: 'row' }}
-          align="left"
-          wrap
-        >
-          <Image
-            src={img}
-            width={imgWidth}
-            alt={imgAlt}
-            borderRadius="lg"
-            mr={imgMr}
-            alignSelf={imgAlign}
-          />
-          <VStack justifyContent="center" spacing={vstackSpacing} align="left">
-            {CustomText(fontSize, noOfLines, `Title: ${title}`)}
-            {CustomText(fontSize, noOfLines, `Restriction: ${restrict}`)}
-            {CustomText(fontSize, noOfLines, `Availability: ${availability}`)}
-            {CustomText(fontSize, noOfLines, `When: ${when}`)}
-            {CustomText(fontSize, noOfLines, `Hosted by: ${host}`)}
-            {CustomText(fontSize, noOfLines, `Description: ${desc}`)}
-          </VStack>
-        </Stack>
-      </Link>
+      {size === 'md' ? (
+        <Link to={link} style={{ textDecoration: 'none', color: 'inherit' }}>
+          <Stack>{groupView}</Stack>
+        </Link>
+      ) : (
+        <Stack>{groupView}</Stack>
+      )}
     </Box>
   );
 }

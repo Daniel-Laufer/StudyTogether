@@ -5,6 +5,7 @@ import {
   Box,
   Flex,
   Alert,
+  Button,
   AlertIcon,
   Heading,
   FormControl,
@@ -72,6 +73,16 @@ function GroupView({
     );
   }
 
+  //   const isDisabled = {
+  //     group.maxAttendees === group.curAttendees ? (
+
+  //     ) : (
+  //       <Button colorScheme="teal" size="md" width="400px">
+  //         Register
+  //       </Button>
+  //     );
+  //   };
+
   return !loading ? (
     <Box style={{ width: '60%', margin: 'auto', marginTop: '2rem' }}>
       <Flex justify="space-between" wrap="wrap" gap="1rem">
@@ -103,9 +114,17 @@ function GroupView({
           when={group.time}
           host={`${group.hostFirstName} ${group.hostLastName}`}
           desc={group.description}
-          link={`${group._id}`}
           size="lg"
         />
+
+        <Button
+          colorScheme="teal"
+          size="md"
+          width="400px"
+          isDisabled={group.maxAttendees === group.curAttendees}
+        >
+          Register
+        </Button>
       </Flex>
     </Box>
   ) : (
