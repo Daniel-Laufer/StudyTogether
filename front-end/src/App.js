@@ -19,6 +19,7 @@ import GroupCreator from './modules/GroupCreator';
 import NavBar from './components/NavBar';
 import NotFoundPage from './modules/NotFoundPage';
 import AccountInfo from './modules/AccountInfo';
+import GroupView from './modules/GroupView';
 
 const store = createStore(
   rootReducer,
@@ -68,6 +69,7 @@ function App() {
               }
             />
             <Route path="/account-info" element={<AccountInfo />} />
+            <Route path="/groups/:id" element={<GroupView />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </BrowserRouter>
