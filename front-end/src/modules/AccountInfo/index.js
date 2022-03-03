@@ -25,7 +25,7 @@ import axios from 'axios';
 import { WithContext as ReactTags } from 'react-tag-input';
 import CustomSpinner from '../../components/CustomSpinner';
 import { apiURL } from '../../utils/constants';
-import Cat from '../../assets/images/cat.jpeg';
+import defUserImage from '../../assets/images/defuser.jpeg';
 import GreenButton from '../../components/GreenButton';
 import DetailedGroup from '../../components/DetailedGroup';
 import { logout } from '../../actions/Auth';
@@ -46,7 +46,7 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
     profileAboutMe:
       "I am a first year student at UTM who's majoring in CS, and trying to find like-minded people",
     role: 'Student',
-    profileImage: Cat,
+    profileImage: defUserImage,
     profileContactInfo:
       'You can reach me on Instagram, Snapchat, or email. I usually respond on the same day. IG: geralt.stan, Email: geralt.s@mail.utoronto.ca',
     profileInterests:
@@ -318,6 +318,7 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
                   }
                   size="md"
                 />
+
                 <Text alignSelf="flex-start" as="b" mr={1}>
                   Courses I&apos;m taking:
                 </Text>
@@ -328,6 +329,7 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
                   inputFieldPosition="bottom"
                   autocomplete
                 />
+
                 <GreenButton
                   width="200px"
                   style={{ fontSize: '20px' }}
@@ -429,7 +431,7 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
               mt={5}
             >
               <AlertIcon />
-              <AlertDescription>User information is updated!</AlertDescription>
+              <AlertDescription>User information was updated!</AlertDescription>
             </Alert>
           ) : null}
           {errorOccured ? (
@@ -464,8 +466,8 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
           <VStack w="full" alignItems="flex-start">
             <Text fontSize={[10, 25, 30]} as="b" color={colors.grey.dark}>
               {groups.length === 0
-                ? 'You are part of no study groups.'
-                : 'Study groups you are part of.'}
+                ? "You aren't part of any study groups."
+                : 'Study groups you are part of:'}
             </Text>
             {groups.length > 0
               ? groups.map(g => (
