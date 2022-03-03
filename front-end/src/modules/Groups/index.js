@@ -51,6 +51,7 @@ function SavedGroups({
       .then(res => {
         setLoading(false);
         setGroups(res.data);
+        console.log(res.data);
       })
       .catch(err => {
         setLoading(false);
@@ -103,13 +104,14 @@ function SavedGroups({
           marginTop: '2rem',
           flexWrap: 'wrap',
           justifyContent: '',
+          alignContent: 'center',
         }}
       >
         {groups.length > 0 ? (
           groups.map(g =>
             !viewDetailedGroupCards ? (
               <Group
-                title={g.title}
+                heading={g.title}
                 restrict="UofT students"
                 availability={`${g.maxAttendees - g.curAttendees} / ${
                   g.maxAttendees
@@ -120,6 +122,11 @@ function SavedGroups({
                 host={g.hostFirstName + g.hostLastName}
                 desc={g.description}
                 link={`${g._id}`}
+                status={{
+                  reschedule: g.reschedule,
+                  cancelled: g.canceled,
+                  full: g.maxAttendees - g.curAttendees === 0,
+                }}
                 size="md"
               />
             ) : (
@@ -135,6 +142,11 @@ function SavedGroups({
                 host={g.hostFirstName + g.hostLastName}
                 desc={g.description}
                 link={`${g._id}`}
+                status={{
+                  reschedule: g.reschedule,
+                  cancelled: g.canceled,
+                  full: g.maxAttendees - g.curAttendees === 0,
+                }}
                 size="md"
               />
             )
