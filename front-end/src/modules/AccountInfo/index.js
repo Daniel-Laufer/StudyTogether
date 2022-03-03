@@ -52,8 +52,8 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
     profileInterests:
       'I like playing the Witcher 3 on my PS4 whever I catch a break from my school-work, and watching Naruto. I also like working on side-projects pertaining to AI.',
     profileCourses: [
-      { id: 'asdfasdfasdf', text: 'CSC301' },
-      { id: 'asdfasdfasdf', text: 'CSC302' },
+      { id: '0', text: 'CSC301' },
+      { id: '1', text: 'CSC302' },
     ],
   });
   const [oldUserInfo, setOldUserInfo] = useState({});
@@ -73,13 +73,15 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
         setOldUserInfo({
           ...res.data,
           profileCourses: res.data.profileCourses.map((c, index) => {
-            return { id: index, text: c };
+            const i = index.toString();
+            return { id: i, text: c };
           }),
         });
         setUserInfo({
           ...res.data,
           profileCourses: res.data.profileCourses.map((c, index) => {
-            return { id: index, text: c };
+            const i = index.toString();
+            return { id: i, text: c };
           }),
         });
         setLoading({
@@ -117,7 +119,6 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
           navigate('/login');
         }
       });
-    console.log(userInfo);
   }, []);
 
   const handleDelete = i => {
@@ -130,6 +131,7 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
   };
 
   const handleAddition = c => {
+    console.log(c);
     setUserInfo({
       ...userInfo,
       profileCourses: [...userInfo.profileCourses, c],
