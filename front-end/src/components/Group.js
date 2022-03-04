@@ -1,6 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Box, Image, Flex, Spacer } from '@chakra-ui/react';
+import {
+  Box,
+  Image,
+  Flex,
+  Spacer,
+  Tag,
+  HStack,
+  VStack,
+} from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 import * as colors from '../utils/colors';
 
@@ -18,15 +26,18 @@ function Group({
   price,
   onClickFunc,
   selected,
+  status,
 }) {
   return (
-    <Box
+    <VStack
       border={0}
       as="button"
       w={{ base: '400px', sm: '300px', md: '350px' }}
       px={2}
-      py={4}
+      py={2}
       overflow="hidden"
+      justifyContent="space-between"
+      alignItems="start"
       style={
         selected
           ? {
@@ -39,30 +50,61 @@ function Group({
               borderRadius: 'var(--chakra-radii-md)',
             }
       }
+      onClick={() => onClickFunc()}
     >
-      <Box onClick={() => onClickFunc()}>
+      <Box
+        sx={{
+          fontFamily: 'Inter',
+          fontSize: '16px',
+          fontWeight: 600,
+          margin: 0,
+          textAlign: 'left',
+        }}
+      >
+        {heading}
+      </Box>
+      <HStack mb={2}>
+        {status.cancelled ? (
+          <Tag colorScheme="red" m={0}>
+            Cancelled
+          </Tag>
+        ) : null}
+        {status.reschedule ? (
+          <Tag colorScheme="yellow" m={0}>
+            Rescheduled
+          </Tag>
+        ) : null}
+        {status.full ? (
+          <Tag colorScheme="green" m={0}>
+            Full
+          </Tag>
+        ) : null}
+      </HStack>
+      <ImageContainer>
+        <Image src={img} htmlWidth="334px" htmlHeight="223px" alt={imgAlt} />
         <Box
           sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            textAlign: 'center',
+            width: '100%',
+            transform: 'translate(-50%, -50%)',
             fontFamily: 'Inter',
-            fontSize: '16px',
-            fontWeight: 600,
-            margin: 0,
-            paddingBottom: '9px',
-            textAlign: 'left',
+            fontSize: '30px',
+            filter: 'brightness(70%)',
+            color: colors.white,
           }}
         >
-          {heading}
+          More Information
         </Box>
-        <ImageContainer>
-          <Image src={img} htmlWidth="100%" alt={imgAlt} />
-        </ImageContainer>
-        <Flex>
-          <Box color={colors.grey.dark}>{restrict}</Box>
-          <Spacer />
-          <Box color={colors.grey.dark}>{price}</Box>
-        </Flex>
-      </Box>
-    </Box>
+      </ImageContainer>
+      <Flex>
+        <Box color={colors.grey.dark}>{restrict}</Box>
+        <Spacer />
+        <Box color={colors.grey.dark}>{price}</Box>
+      </Flex>
+    </VStack>
   );
 }
 
@@ -72,11 +114,21 @@ Group.propTypes = {
   imgAlt: PropTypes.string.isRequired,
   restrict: PropTypes.string.isRequired,
   price: PropTypes.string.isRequired,
+  status: {
+    reschedule: PropTypes.boolean,
+    cancelled: PropTypes.boolean,
+    full: PropTypes.boolean,
+  },
   onClickFunc: PropTypes.func,
   selected: PropTypes.bool,
 };
 
 Group.defaultProps = {
+  status: {
+    reschedule: false,
+    cancelled: false,
+    full: false,
+  },
   onClickFunc: () => null,
   selected: false,
 };

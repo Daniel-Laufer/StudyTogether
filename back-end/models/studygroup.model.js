@@ -4,6 +4,7 @@ const Schema = mongoose.Schema;
 
 const studygroupSchema = new Schema(
   {
+    //general info
     title: { type: String, required: true },
     startDateTime: { type: Date, required: true },
     endDateTime: { type: Date, required: true },
@@ -14,15 +15,21 @@ const studygroupSchema = new Schema(
     maxAttendees: { type: Number, min: 2, required: true },
     hostId: { type: mongoose.Types.ObjectId, required: true },
     description: { type: String, required: true },
+    attendees: { type: [mongoose.Types.ObjectId], default: [], required: true },
     tags: { type: [String], required: true },
-    seriesId: { type: mongoose.Types.ObjectId, required: true },
+    official: { type: Boolean, required: true },
+
     //Status
     canceledAt: { type: Date, default: undefined, required: false }, //TLL index for deleting a group after canceling. Not meant to be parsed in the frontend.
     canceled: { type: Boolean, default: false, required: false },
     rescheduled: { type: Boolean, default: false, required: false },
+
     //Accessabililty.
     private: { type: Boolean, default: false, required: false },
     paid: { type: Boolean, default: false, required: false },
+
+    //Series
+    seriesId: { type: mongoose.Types.ObjectId, required: true },
   },
   { collection: 'studygroups' }
 );

@@ -67,7 +67,7 @@ function App() {
                 />
               }
             />
-            <Route path="/account-info" element={<AccountInfo />} />
+            <Route path="/user/:id" element={<AccountInfo />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </BrowserRouter>

@@ -4,9 +4,8 @@ let StudygroupModel = require('../models/studygroup.model');
 let studyGroupSeriesModel = require('../models/studygroupseries.model');
 var helperUser = require('../helpers/helperUser');
 const { body, validationResult } = require('express-validator');
-const { serveFiles } = require('swagger-ui-express');
-const { mongo, Mongoose } = require('mongoose');
 const mongoose = require('mongoose');
+const studygroup = require('../models/studygroup.model');
 
 /* (1) Get all study groups*/
 router.get('/', helperUser.verifyToken, (req, res) => {
@@ -42,7 +41,29 @@ router.get('/saved', helperUser.verifyToken, async (req, res) => {
   Promise.all(promises).then(() => res.status(200).json(response));
 });
 
-/* (3) Get an individual study group by ID*/
+/* (3) Get all studygroups the current logged in user is registered for */
+router.get('/registered', helperUser.verifyToken, async (req, res) => {
+  // checking if user is authenticated
+  if (!req.user) {
+    res.status(401).send({ message: 'Invalid JWT token' });
+    return;
+  }
+
+  var response = [];
+  var promises = [];
+  req.user.registeredStudygroups.forEach(groupId => {
+    promises.push(
+      StudygroupModel.findById(groupId.toString()).then(studygroup => {
+        if (studygroup) response.push(studygroup);
+      })
+    );
+  });
+
+  /* based on https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all  */
+  Promise.all(promises).then(() => res.status(200).json(response));
+});
+
+/* (4) Get an individual study group by ID*/
 router.get('/:id', helperUser.verifyToken, (req, res) => {
   // checking if user is authenticated
   if (!req.user) {
@@ -52,10 +73,10 @@ router.get('/:id', helperUser.verifyToken, (req, res) => {
   const groupId = req.params.id;
   StudygroupModel.findById(groupId)
     .then(studygroup => res.status(200).json(studygroup))
-    .catch(err => res.status(400).json('Error: Invalid study group id'));
+    .catch(err => res.status(400).json('Error: ' + err));
 });
 
-/* (4) Catching a post request with url ./create */
+/* (5) Catching a post request with url ./create */
 router.post(
   '/create',
   helperUser.verifyToken,
@@ -71,12 +92,13 @@ router.post(
   body('recurring').notEmpty(),
   body('finalDate').notEmpty(),
   (req, res) => {
-    console.log('made here');
     // checking if user is authenticated
     if (!req.user) {
       res.status(401).send({ message: 'Invalid JWT token' });
       return;
     }
+
+    let studygroup;
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -84,7 +106,6 @@ router.post(
       console.log(errors);
       return;
     }
-
     let recurring = req.body.recurring;
     let numDays = 0;
     let finalDate = new Date(req.body.finalDate);
@@ -96,26 +117,20 @@ router.post(
     } else {
       finalDate = req.body.startDateTime;
     }
-    let newSeries;
-    var seriesId;
-    newSeries = new studyGroupSeriesModel({
+    var newSeries = new studyGroupSeriesModel({
       studyGroups: [],
       finalDateTime: finalDate,
-      recurring: recurring,
+      recurring: req.body.recurring,
     });
-    seriesId = newSeries._id;
-    console.log('made here3');
-
+    var seriesId = newSeries._id;
 
     /* study group creation logic  */
     let start = new Date(req.body.startDateTime);
     let end = new Date(req.body.endDateTime);
-    console.log(start);
     do {
       var newStart = new Date(start);
       var newEnd = new Date(end);
-      console.log('new series ' + newSeries._id);
-      let studygroup = new StudygroupModel({
+      studygroup = new StudygroupModel({
         title: req.body.title,
         startDateTime: newStart,
         endDateTime: newEnd,
@@ -124,32 +139,27 @@ router.post(
         curAttendees: req.body.curAttendees,
         location: req.body.location,
         maxAttendees: req.body.maxAttendees,
-        hostId: req.user.id, 
+        hostId: req.user.id,
         description: req.body.description,
         tags: req.body.tags,
         seriesId: seriesId,
+        official: req.body.official,
       });
       studygroup.save().catch(err => res.status(400).json('Error: ' + err));
 
       newSeries.studyGroups.push(studygroup._id);
-      console.log(newSeries.studyGroups);
       start.setDate(start.getDate() + numDays);
-      console.log('new start date: ' + start);
       end.setDate(end.getDate() + numDays);
-      console.log('new end date: ' + end);
     } while (start <= finalDate);
 
     newSeries
       .save()
       .catch(err => res.status(400).json('Error: ' + err))
-      .then(() => res.status(200).json('Study group created successfully!'));
+      .then(() => res.status(200).json(studygroup));
   }
 );
 
-
-/* editing a study group by id */
-
-/* (5) Editing a study group by id */
+/* (6) Editing a study group by id */
 
 router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
   // check whether the user is authenticated as the host of this study group
@@ -188,9 +198,6 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
         );
 
         Object.assign(session, req.body);
-        if(session.startDateTime != newStart){
-          session.rescheduled = true;
-        }
         session.startDateTime = newStart;
         session.endDateTime = newEnd;
         session.save().catch(err => res.status(400).json('Error: ' + err));
@@ -209,12 +216,12 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
           description: req.body.description,
           tags: req.body.tags,
           seriesId: seriesId,
+          official: req.body.official,
         });
         session.save().catch(err => res.status(400).json('Error: ' + err));
       }
 
       newStudyGroupsList.push(session._id);
-      console.log(newStudyGroupsList);
       start.setDate(start.getDate() + numDays);
       end.setDate(end.getDate() + numDays);
       i++;
@@ -234,18 +241,28 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
     series.studyGroups = newStudyGroupsList;
     series.save().catch(err => res.status(400).json('Error: ' + err));
   } else {
-    Object.assign(studyGroup, req.body);
+    /* TODO: Notify users once postponed (after notification feature is added) */
+    var isRescheduled =
+      (new Date(req.body.startDateTime).getTime() ??
+        new Date(studyGroup.startDateTime).getTime()) !=
+      new Date(studyGroup.startDateTime).getTime();
+
+    if (isRescheduled)
+      Object.assign(studyGroup, {
+        ...req.body,
+        ...{ rescheduled: isRescheduled },
+      });
+    else Object.assign(studyGroup, req.body);
     studyGroup.save().catch(err => res.status(400).json('Error: ' + err));
   }
   try {
-    res.status(200).json('Study group edited succesfully!');
+    res.status(200).json(studyGroup);
   } catch (err) {
     console.log(err);
   }
-
 });
 
-/* (6) Deleting a study group by id */
+/* (7) Deleting a study group by id */
 router.delete('/delete/:id', helperUser.verifyToken, (req, res) => {
   // check whether the user is authenticated as the host of this study group
 
@@ -261,7 +278,6 @@ router.delete('/delete/:id', helperUser.verifyToken, (req, res) => {
         res.status(403).send({ message: 'Not study group creator' });
         return;
       }
-      console.log(studygroup);
       var seriesId = new mongoose.Types.ObjectId(studygroup.seriesId);
       studyGroupSeriesModel
         .findById(seriesId)
@@ -282,7 +298,6 @@ router.delete('/delete/:id', helperUser.verifyToken, (req, res) => {
                 series.studyGroups[i].toString() == studygroup._id.toString()
               ) {
                 series.studyGroups.splice(i, 1);
-                console.log('here');
                 break;
               }
             }
@@ -298,10 +313,10 @@ router.delete('/delete/:id', helperUser.verifyToken, (req, res) => {
         })
         .catch(err => res.status(400).json('Error: ' + err));
     })
-    .catch(err => res.status(400).json('Error: Invalid study group id'));
+    .catch(err => res.status(400).json('Error: ' + err));
 });
 
-/* (7) Canceling a room marks it as inactive then deletes it after a grace period. During the grace period, the host can undo deleting a room. */
+/* (8) Canceling a room marks it as inactive then deletes it after a grace period. During the grace period, the host can undo deleting a room. */
 router.put('/cancel/:id', helperUser.verifyToken, async (req, res) => {
   // checking if user is authenticated
   if (!req.user) {
@@ -324,6 +339,7 @@ router.put('/cancel/:id', helperUser.verifyToken, async (req, res) => {
   /* end */
   var updatedStudygroup = await StudygroupModel.findByIdAndUpdate(groupId, {
     canceledAt: t,
+    canceled: true,
   }).catch(err => {
     res.status(400).json('Error: ' + err);
     return;
@@ -332,7 +348,7 @@ router.put('/cancel/:id', helperUser.verifyToken, async (req, res) => {
   res.status(200).json(updatedStudygroup);
 });
 
-/* (8) Undo canceling in case the user decides otherwise */
+/* (9) Undo canceling in case the user decides otherwise */
 router.put('/reactivate/:id', helperUser.verifyToken, async (req, res) => {
   // checking if user is authenticated
   if (!req.user) {
@@ -346,14 +362,75 @@ router.put('/reactivate/:id', helperUser.verifyToken, async (req, res) => {
   });
 
   if (studygroup.hostId != req.user.id) {
-    res.status(403).send({ message: 'Not study group creator' });
+    res.status(403).send({ message: 'Permission denied' });
     return;
   }
   var updatedStudygroup = await StudygroupModel.findByIdAndUpdate(groupId, {
     $unset: { canceledAt: 1 },
+    canceled: false,
   }).catch(err => res.status(400).json('Error: ' + err));
 
   res.status(200).json(updatedStudygroup);
+});
+
+/* (10) Attend a study group given an id */
+router.post('/attend/:id', helperUser.verifyToken, (req, res) => {
+  // checking if user is authenticated
+  if (!req.user) {
+    res.status(401).send({ message: 'Invalid JWT token' });
+    return;
+  }
+
+  const groupId = req.params.id;
+  StudygroupModel.findById(groupId)
+    .then(studygroup => {
+      if (studygroup.attendees.includes(req.user.id)) {
+        res
+          .status(400)
+          .send({ message: 'User already attends this study group' });
+        return;
+      }
+
+      studygroup.attendees.push(req.user);
+      studygroup.save();
+      req.user.registeredStudygroups.push(studygroup);
+      req.user.save();
+      res.status(200).json(studygroup);
+    })
+    .catch(() => res.status(404).json('Error: Invalid study group id'));
+});
+
+/* (11) Leave a study group given an id */
+router.patch('/leave/:id', helperUser.verifyToken, (req, res) => {
+  // checking if user is authenticated
+  if (!req.user) {
+    res.status(401).send({ message: 'Invalid JWT token' });
+    return;
+  }
+
+  const groupId = req.params.id;
+  StudygroupModel.findById(groupId)
+    .then(studygroup => {
+      var userIndex = studygroup.attendees.indexOf(req.user.id);
+      if (userIndex == -1) {
+        res
+          .status(400)
+          .send({ message: 'User does not attend this study group' });
+        return;
+      }
+
+      studygroup.attendees.splice(userIndex, 1);
+      studygroup.save();
+
+      var studygroupId = req.user.registeredStudygroups.indexOf(studygroup.id);
+      if (studygroupId != -1) {
+        req.user.registeredStudygroups.splice(studygroupId, 1);
+        req.user.save();
+      }
+
+      res.status(200).json(studygroup);
+    })
+    .catch(() => res.status(404).json('Error: Invalid study group id'));
 });
 
 module.exports = router;

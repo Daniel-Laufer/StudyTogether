@@ -20,6 +20,7 @@ import {
   Text,
   Textarea,
   Image,
+  Checkbox,
 } from '@chakra-ui/react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
@@ -37,7 +38,7 @@ import { apiURL, userRoles } from '../../utils/constants';
 import Map from '../../components/Map';
 import GreenButton from '../../components/GreenButton';
 
-function GroupCreator({ authToken }) {
+function GroupCreator({ authToken, userRole }) {
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -64,6 +65,9 @@ function GroupCreator({ authToken }) {
     tags: [{ id: 'dfgh7d9ssdga', text: 'CSC301' }],
     locationLat: null,
     locationLng: null,
+    finalDate: new Date(),
+    recurring: 'N/A',
+    official: false,
   });
 
   const [errors, setErrors] = useState({
@@ -111,7 +115,9 @@ function GroupCreator({ authToken }) {
         setErrors({ ...errors, [name]: false });
         newState[name] = value;
         break;
-
+      case 'recurring':
+        newState[name] = value;
+        break;
       default:
         console.log('Name does not exist.');
     }
@@ -151,6 +157,19 @@ function GroupCreator({ authToken }) {
     const startTimeInvalid = state.startTime === null || state.startTime === '';
     const endTimeInvalid = state.endTime === null || state.endTime === '';
 
+    const finalDateInvalid =
+      (state.date != null &&
+        state.recurring === 'bi-weekly' &&
+        (state.finalDate.getTime() - state.date.getTime()) /
+          (1000 * 3600 * 24) +
+          0.5 <
+          14) ||
+      (state.date != null &&
+        state.recurring === 'weekly' &&
+        (state.finalDate.getTime() - state.date.getTime()) /
+          (1000 * 3600 * 24) +
+          0.5 <
+          7);
     const descriptionInvalid = state.description.length < 10;
     setForceHideAlert(false);
     if (
@@ -164,6 +183,7 @@ function GroupCreator({ authToken }) {
         locationInvalid,
         startTimeInvalid,
         endTimeInvalid,
+        finalDateInvalid,
       ].some(boolean => boolean)
     )
       setErrors({
@@ -177,6 +197,7 @@ function GroupCreator({ authToken }) {
         location: locationInvalid,
         startTime: startTimeInvalid,
         endTime: endTimeInvalid,
+        finalDate: finalDateInvalid,
       });
     else {
       const body = {
@@ -187,9 +208,12 @@ function GroupCreator({ authToken }) {
         ),
         endDateTime: combineDateAndTimeIntoDateTime(state.date, state.endTime),
         phone: state.phone,
+        finalDate: state.finalDate,
         imageUrl: state.image,
         currAttendees: state.currAttendees,
         maxAttendees: state.maxAttendees,
+        recurring: state.recurring,
+        official: state.official,
         description: state.description,
         location: {
           lat: state.locationLat,
@@ -328,7 +352,7 @@ function GroupCreator({ authToken }) {
                 </HStack>
                 <HStack>
                   <span style={{ marginRight: '1rem' }}>
-                    Curent number of ateendees{' '}
+                    Curent number of attendees{' '}
                   </span>
                   <NumberInput name="currAttendees" value={state.currAttendees}>
                     <NumberInputField />
@@ -358,7 +382,7 @@ function GroupCreator({ authToken }) {
 
                 <HStack>
                   <span style={{ marginRight: '1rem' }}>
-                    Maximum number of ateendees{' '}
+                    Maximum number of attendees{' '}
                   </span>
                   <NumberInput name="maxAttendees" value={state.maxAttendees}>
                     <NumberInputField />
@@ -444,6 +468,56 @@ function GroupCreator({ authToken }) {
                     />
                   </TimePickerWrapper>
                 </Flex>
+                <HStack>
+                  <span style={{ marginRight: '1rem' }}>Recurring: </span>
+                  <Select
+                    className="custom-select"
+                    name="recurring"
+                    isInvalid={errors.role}
+                    placeholder=""
+                    onChange={handleChange}
+                  >
+                    <option value="N/A">N/A</option>
+                    <option value="weekly">weekly</option>
+                    <option value="bi-weekly">bi-weekly</option>
+                  </Select>
+                  {state.recurring !== 'N/A' && (
+                    <span style={{ width: '425px', marginLeft: '1rem' }}>
+                      Final session date:{' '}
+                    </span>
+                  )}
+                  {state.recurring !== 'N/A' && (
+                    <div
+                      style={{
+                        border: errors.finalDate
+                          ? 'solid 2px crimson'
+                          : 'solid 1px var(--chakra-colors-gray-200)',
+                        borderRadius: 'var(--chakra-radii-md)',
+                        padding: '2px',
+                      }}
+                    >
+                      <DatePicker
+                        name="finalDate"
+                        selected={state.finalDate}
+                        onChange={finalDate => {
+                          setState({ ...state, finalDate });
+                        }}
+                      />
+                    </div>
+                  )}
+                </HStack>
+                {userRole && userRole === 'TA' && (
+                  <HStack>
+                    <span>Designate as office hours:</span>
+                    <Checkbox
+                      name="official"
+                      checked={state.official}
+                      onChange={official => {
+                        setState({ ...state, official: !state.official });
+                      }}
+                    />
+                  </HStack>
+                )}
                 <>
                   <Text mb="8px">Description</Text>
                   <Textarea
@@ -561,11 +635,13 @@ const TimePickerWrapper = styled.div`
 
 GroupCreator.propTypes = {
   authToken: PropTypes.string,
+  userRole: PropTypes.string,
 };
 
-GroupCreator.defaultProps = { authToken: '' };
+GroupCreator.defaultProps = { authToken: '', userRole: '' };
 
 export default connect(state => ({
   // eslint-disable-next-line no-undef
   authToken: state.Auth.authToken || localStorage.getItem('authToken'),
+  userRole: localStorage.getItem('role'),
 }))(GroupCreator);

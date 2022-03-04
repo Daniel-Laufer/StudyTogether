@@ -1,4 +1,4 @@
-import { Box, Stack, VStack, Text, Image } from '@chakra-ui/react';
+import { Box, Stack, VStack, Text, Image, Tag } from '@chakra-ui/react';
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as colors from '../utils/colors';
@@ -50,6 +50,7 @@ function DetailedGroup({
   onClickFunc,
   size,
   selected,
+  status,
 }) {
   const {
     stackSize,
@@ -88,14 +89,31 @@ function DetailedGroup({
           align="left"
           wrap
         >
-          <Image
-            src={img}
-            width={imgWidth}
-            alt={imgAlt}
-            borderRadius="lg"
-            mr={imgMr}
-            alignSelf={imgAlign}
-          />
+          <VStack alignItems="start">
+            <Image
+              src={img}
+              width={imgWidth}
+              alt={imgAlt}
+              borderRadius="lg"
+              mr={imgMr}
+              alignSelf={imgAlign}
+            />
+            {status.cancelled ? (
+              <Tag colorScheme="red" m={0}>
+                Cancelled
+              </Tag>
+            ) : null}
+            {status.reschedule ? (
+              <Tag colorScheme="yellow" m={0}>
+                Rescheduled
+              </Tag>
+            ) : null}
+            {status.full ? (
+              <Tag colorScheme="green" m={0}>
+                Full
+              </Tag>
+            ) : null}
+          </VStack>
           <VStack justifyContent="center" spacing={vstackSpacing} align="left">
             {CustomText(fontSize, noOfLines, `Title: ${title}`)}
             {CustomText(fontSize, noOfLines, `Restriction: ${restrict}`)}
@@ -122,12 +140,22 @@ DetailedGroup.propTypes = {
   size: 'md' || 'lg',
   onClickFunc: PropTypes.func,
   selected: PropTypes.bool,
+  status: {
+    reschedule: PropTypes.boolean,
+    cancelled: PropTypes.boolean,
+    full: PropTypes.boolean,
+  },
 };
 
 DetailedGroup.defaultProps = {
   size: 'md',
   onClickFunc: () => null,
   selected: false,
+  status: {
+    reschedule: false,
+    cancelled: false,
+    full: false,
+  },
 };
 
 export default DetailedGroup;

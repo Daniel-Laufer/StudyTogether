@@ -12,17 +12,23 @@ router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
     res.status(403).send({ message: 'Invalid JWT token' });
     return;
   }
-  var usr = await User.findById(req.user.id).catch(err => {
-    res.status(400).json('Error: ' + err);
-    return;
-  });
+  var usr;
 
   //if user is checking their own profile -> provide all info (TODO: remove password hash)
   if (req.user.id === req.params.id) {
+    usr = await User.findById(req.user.id).catch(err => {
+      res.status(400).json('Error: ' + err);
+      return;
+    });
     res.status(200).json(usr);
   }
   //if user is checking other profile -> provide public info
   else {
+    usr = await User.findById(req.params.id).catch(err => {
+      res.status(400).json('Error: ' + err);
+      return;
+    });
+
     res.status(200).json({
       firstName: usr.firstName,
       lastName: usr.lastName,
@@ -119,7 +125,7 @@ router.post(
 );
 
 router.post(
-  '/bookmark-group/',
+  '/bookmark-group',
   helperUser.verifyToken,
   /* Parameter Validation */
   body('studygroupId').exists().bail().notEmpty(),
@@ -160,7 +166,7 @@ router.post(
 );
 
 router.patch(
-  '/unbookmark-group/',
+  '/unbookmark-group',
   helperUser.verifyToken,
   body('studygroupId').exists().bail().notEmpty(),
   /* Parameter Validation */

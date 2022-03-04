@@ -94,7 +94,42 @@
         }
       }
     },
-    "/user/bookmark-group/": {
+    "/user/profile/{id}": {
+      "get": {
+        "tags": ["User"],
+        "summary": "Get profile information. Amount of data returned back depends on whether the user is request their profile or another user's profile.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "format is 'JWT ' followed by the token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "User identifier",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/PublicProfile"
+            }
+          },
+          "400": {
+            "description": "Invalid parameter(s) supplied"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/user/bookmark-group": {
       "post": {
         "tags": ["User"],
         "summary": "Bookmark a study group by id",
@@ -141,7 +176,7 @@
         }
       }
     },
-    "/user/unbookmark-group/": {
+    "/user/unbookmark-group": {
       "patch": {
         "tags": ["User"],
         "summary": "Unbookmark a study group by id",
@@ -291,6 +326,74 @@
       }
     },
 
+    "/studygroups/saved": {
+      "get": {
+        "tags": ["Study Groups"],
+        "summary": "Returns all the study groups the current logged in user has bookmarked",
+        "description": "",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "format is 'JWT ' followed by the token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "token": {
+                "type": "json",
+                "description": "object containing information about all study groups"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated user"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+
+    "/studygroups/registered": {
+      "get": {
+        "tags": ["Study Groups"],
+        "summary": "Returns all the study groups the current logged in user has registered to attend",
+        "description": "",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "format is 'JWT ' followed by the token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "token": {
+                "type": "json",
+                "description": "object containing information about all study groups"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated user"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+
     "/studygroups/{id}": {
       "get": {
         "tags": ["Study Groups"],
@@ -334,6 +437,51 @@
         }
       }
     },
+
+    "/studygroups/attend/{id}": {
+      "post": {
+        "tags": ["Study Groups"],
+        "summary": "Attend a study group as a logged in user",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of study group to attend",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "format is 'JWT ' followed by the token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "headers": {
+              "token": {
+                "type": "json",
+                "description": "object containing information about a specific study group"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated user"
+          },
+          "404": {
+            "description": "Study group with the given id was not found in database"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+
     "/studygroups/create": {
       "post": {
         "tags": ["Study Groups"],
@@ -420,11 +568,32 @@
             "type": "string"
           },
           {
+            "name": "official",
+            "in": "body",
+            "description": "whether the study group is an offical office hours session",
+            "required": true,
+            "type": "boolean"
+          },
+          {
             "name": "tags",
             "in": "body",
             "description": "The study group's tags",
             "required": true,
             "type": "[string]"
+          },
+          {
+            "name": "recurring",
+            "in": "body",
+            "description": "The frequency at which this study group will recur",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "endDateTime",
+            "in": "body",
+            "description": "The time when the study group meeting ends",
+            "required": true,
+            "type": "date"
           }
         ],
         "responses": {
@@ -449,6 +618,51 @@
         }
       }
     },
+
+    "/studygroups/leave/{id}": {
+      "patch": {
+        "tags": ["Study Groups"],
+        "summary": "Leave a study group that the current logged in user has registered to attend",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of study group to leave",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "format is 'JWT ' followed by the token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "headers": {
+              "token": {
+                "type": "json",
+                "description": "object containing information about a specific study group"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated user"
+          },
+          "404": {
+            "description": "Study group with the given id was not found in database"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+
     "/studygroups/edit/{id}": {
       "patch": {
         "tags": ["Study Groups"],
@@ -547,6 +761,27 @@
             "description": "The study group's tags",
             "required": true,
             "type": "[string]"
+          },
+          {
+            "name": "recurring",
+            "in": "body",
+            "description": "The frequency at which this study group will recur",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "endDateTime",
+            "in": "body",
+            "description": "The time when the study group meeting ends",
+            "required": true,
+            "type": "date"
+          },
+          {
+            "name": "editAll",
+            "in": "body",
+            "description": "Designate whether to edit this single meeting or all recurring meetings",
+            "required": true,
+            "type": "boolean"
           }
         ],
         "responses": {
@@ -593,6 +828,13 @@
             "description": "ID of study group to delete",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "deleteAll",
+            "in": "body",
+            "description": "Designate whether to delete this single meeting or all recurring meetings",
+            "required": true,
+            "type": "boolean"
           }
         ],
         "responses": {
@@ -721,6 +963,31 @@
         "created": {
           "type": "date",
           "example": "2022-11-07T17:04:15.000+00:00",
+          "required": true
+        }
+      }
+    },
+    "PublicProfile": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string",
+          "example": "Tobey",
+          "required": true
+        },
+        "lastName": {
+          "type": "string",
+          "example": "Maguire",
+          "required": true
+        },
+        "userName": {
+          "type": "string",
+          "example": "SpiderMan"
+        },
+
+        "role": {
+          "type": "string",
+          "example": "Student",
           "required": true
         }
       }

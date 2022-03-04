@@ -155,7 +155,7 @@ function Groups({
               !viewDetailedGroupCards ? (
                 <Group
                   id={`group-${g._id}`}
-                  title={g.title}
+                  heading={g.title}
                   restrict="UofT students"
                   availability={`${g.maxAttendees - g.curAttendees} / ${
                     g.maxAttendees
@@ -165,13 +165,18 @@ function Groups({
                   when={g.time}
                   host={g.hostFirstName + g.hostLastName}
                   desc={g.description}
+                  link={`${g._id}`}
+                  status={{
+                    reschedule: g.rescheduled,
+                    cancelled: g.canceled,
+                    full: g.maxAttendees - g.curAttendees === 0,
+                  }}
                   onClickFunc={() => setCurrentlySelectedGroup(g._id)}
                   size="md"
                   selected={currentlySelectedGroup === g._id}
                 />
               ) : (
                 <DetailedGroup
-                  id={`group-${g._id}`}
                   title={g.title}
                   restrict="UofT students"
                   availability={`${g.maxAttendees - g.curAttendees} / ${
@@ -182,8 +187,12 @@ function Groups({
                   when={g.time}
                   host={g.hostFirstName + g.hostLastName}
                   desc={g.description}
-                  onClickFunc={() => setCurrentlySelectedGroup(g._id)}
-                  size="md"
+                  link={`${g._id}`}
+                  status={{
+                    reschedule: g.rescheduled,
+                    cancelled: g.canceled,
+                    full: g.maxAttendees - g.curAttendees === 0,
+                  }}
                   selected={currentlySelectedGroup === g._id}
                 />
               )

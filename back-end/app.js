@@ -29,9 +29,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/forgot', forgotRouter);
-
-app.use('/forgot', forgotRouter);
-
 app.use('/users', usersRouter);
 app.use('/studygroups', studygroupsRouter);
 
@@ -50,7 +47,7 @@ connection.once('open', () => {
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
-  next(createError(404));
+  res.status(401).send('Resource does not exist (T_T)7');
 });
 
 // error handler
