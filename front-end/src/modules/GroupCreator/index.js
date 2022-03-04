@@ -83,7 +83,6 @@ function GroupCreator({ authToken, userRole }) {
     description: false,
     tags: false,
     location: false,
-    finalDate: false,
   });
   const [forceHideAlert, setForceHideAlert] = useState(false);
 
@@ -146,7 +145,6 @@ function GroupCreator({ authToken, userRole }) {
     );
 
   const handleSubmit = () => {
-    console.log(state.official);
     const groupTitleInvalid = state.title.length < 4;
     const phoneInvalid = !validatePhoneNumber(state.phone);
     const imageUrlInvalid = !imageUrlValid(state.image);
@@ -628,7 +626,6 @@ const TimePickerWrapper = styled.div`
     .react-time-picker__wrapper {
       border: solid 1px var(--chakra-colors-gray-200);
       border-radius: var(--chakra-radii-md);
-
       .react-time-picker__clear-button {
         display: none;
       }

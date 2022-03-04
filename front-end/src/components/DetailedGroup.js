@@ -1,7 +1,6 @@
 import { Box, Stack, VStack, Text, Image, Tag } from '@chakra-ui/react';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
 import * as colors from '../utils/colors';
 
 const diffSize = size =>
@@ -48,8 +47,9 @@ function DetailedGroup({
   desc,
   img,
   imgAlt,
-  link,
+  onClickFunc,
   size,
+  selected,
   status,
 }) {
   const {
@@ -65,13 +65,24 @@ function DetailedGroup({
     <Box
       p={2}
       overflow="hidden"
-      bg="none"
       as="button"
       border={0}
       textAlign="left"
       w={stackSize}
+      style={
+        selected
+          ? {
+              border: `2px solid ${colors.green.dark}`,
+              borderRadius: 'var(--chakra-radii-md)',
+              backgroundColor: 'var(--chakra-colors-gray-100)',
+            }
+          : {
+              border: '1px solid var(--chakra-colors-gray-200)',
+              borderRadius: 'var(--chakra-radii-md)',
+            }
+      }
     >
-      <Link to={link} style={{ textDecoration: 'none', color: 'inherit' }}>
+      <Box onClick={onClickFunc}>
         <Stack
           w={stackSize}
           direction={{ base: 'column', md: 'row' }}
@@ -112,7 +123,7 @@ function DetailedGroup({
             {CustomText(fontSize, noOfLines, `Description: ${desc}`)}
           </VStack>
         </Stack>
-      </Link>
+      </Box>
     </Box>
   );
 }
@@ -126,8 +137,9 @@ DetailedGroup.propTypes = {
   host: PropTypes.string.isRequired,
   when: PropTypes.string.isRequired,
   desc: PropTypes.string.isRequired,
-  link: PropTypes.string.isRequired,
   size: 'md' || 'lg',
+  onClickFunc: PropTypes.func,
+  selected: PropTypes.bool,
   status: {
     reschedule: PropTypes.boolean,
     cancelled: PropTypes.boolean,
@@ -137,6 +149,8 @@ DetailedGroup.propTypes = {
 
 DetailedGroup.defaultProps = {
   size: 'md',
+  onClickFunc: () => null,
+  selected: false,
   status: {
     reschedule: false,
     cancelled: false,
