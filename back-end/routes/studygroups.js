@@ -73,7 +73,7 @@ router.get('/:id', helperUser.verifyToken, (req, res) => {
   const groupId = req.params.id;
   StudygroupModel.findById(groupId)
     .then(studygroup => res.status(200).json(studygroup))
-    .catch(err => res.status(400).json('Error: Invalid study group id'));
+    .catch(err => res.status(400).json('Error: ' + err));
 });
 
 /* (5) Catching a post request with url ./create */
@@ -143,6 +143,7 @@ router.post(
         description: req.body.description,
         tags: req.body.tags,
         seriesId: seriesId,
+        official: req.body.official,
       });
       studygroup.save().catch(err => res.status(400).json('Error: ' + err));
 
@@ -215,6 +216,7 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
           description: req.body.description,
           tags: req.body.tags,
           seriesId: seriesId,
+          official: req.body.official,
         });
         session.save().catch(err => res.status(400).json('Error: ' + err));
       }
@@ -239,7 +241,18 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
     series.studyGroups = newStudyGroupsList;
     series.save().catch(err => res.status(400).json('Error: ' + err));
   } else {
-    Object.assign(studyGroup, req.body);
+    /* TODO: Notify users once postponed (after notification feature is added) */
+    var isRescheduled =
+      (new Date(req.body.startDateTime).getTime() ??
+        new Date(studyGroup.startDateTime).getTime()) !=
+      new Date(studyGroup.startDateTime).getTime();
+
+    if (isRescheduled)
+      Object.assign(studyGroup, {
+        ...req.body,
+        ...{ rescheduled: isRescheduled },
+      });
+    else Object.assign(studyGroup, req.body);
     studyGroup.save().catch(err => res.status(400).json('Error: ' + err));
   }
   try {
@@ -326,6 +339,7 @@ router.put('/cancel/:id', helperUser.verifyToken, async (req, res) => {
   /* end */
   var updatedStudygroup = await StudygroupModel.findByIdAndUpdate(groupId, {
     canceledAt: t,
+    canceled: true,
   }).catch(err => {
     res.status(400).json('Error: ' + err);
     return;
@@ -348,11 +362,12 @@ router.put('/reactivate/:id', helperUser.verifyToken, async (req, res) => {
   });
 
   if (studygroup.hostId != req.user.id) {
-    res.status(403).send({ message: 'Not study group creator' });
+    res.status(403).send({ message: 'Permission denied' });
     return;
   }
   var updatedStudygroup = await StudygroupModel.findByIdAndUpdate(groupId, {
     $unset: { canceledAt: 1 },
+    canceled: false,
   }).catch(err => res.status(400).json('Error: ' + err));
 
   res.status(200).json(updatedStudygroup);

@@ -1,8 +1,9 @@
-import { Box, Stack, VStack, Text, Image } from '@chakra-ui/react';
+import { Box, Stack, VStack, Text, Image, Tag } from '@chakra-ui/react';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import * as colors from '../utils/colors';
+import GreenButton from './GreenButton';
 
 const diffSize = size =>
   size === 'lg'
@@ -48,8 +49,11 @@ function DetailedGroup({
   desc,
   img,
   imgAlt,
+  onClickFunc,
   link,
   size,
+  selected,
+  status,
 }) {
   const {
     stackSize,
@@ -76,6 +80,21 @@ function DetailedGroup({
         mr={imgMr}
         alignSelf={imgAlign}
       />
+      {status.cancelled ? (
+        <Tag colorScheme="red" m={0}>
+          Cancelled
+        </Tag>
+      ) : null}
+      {status.reschedule ? (
+        <Tag colorScheme="yellow" m={0}>
+          Rescheduled
+        </Tag>
+      ) : null}
+      {status.full ? (
+        <Tag colorScheme="green" m={0}>
+          Full
+        </Tag>
+      ) : null}
       <VStack justifyContent="center" spacing={vstackSpacing} align="left">
         {CustomText(fontSize, noOfLines, `Title: ${title}`)}
         {CustomText(fontSize, noOfLines, `Restriction: ${restrict}`)}
@@ -95,11 +114,27 @@ function DetailedGroup({
       border={0}
       textAlign="left"
       w={stackSize}
+      style={
+        selected
+          ? {
+              border: `2px solid ${colors.green.dark}`,
+              borderRadius: 'var(--chakra-radii-md)',
+              backgroundColor: 'var(--chakra-colors-gray-100)',
+            }
+          : {
+              border: '1px solid var(--chakra-colors-gray-200)',
+              borderRadius: 'var(--chakra-radii-md)',
+            }
+      }
+      onClick={() => onClickFunc()}
     >
       {size === 'md' ? (
-        <Link to={link} style={{ textDecoration: 'none', color: 'inherit' }}>
-          <Stack>{groupView}</Stack>
-        </Link>
+        <Stack>
+          {groupView}
+          <Link to={link}>
+            <GreenButton>View More</GreenButton>
+          </Link>
+        </Stack>
       ) : (
         <Stack>{groupView}</Stack>
       )}
@@ -116,10 +151,27 @@ DetailedGroup.propTypes = {
   host: PropTypes.string.isRequired,
   when: PropTypes.string.isRequired,
   desc: PropTypes.string.isRequired,
-  link: PropTypes.string.isRequired,
   size: 'md' || 'lg',
+  onClickFunc: PropTypes.func,
+  selected: PropTypes.bool,
+  status: {
+    reschedule: PropTypes.boolean,
+    cancelled: PropTypes.boolean,
+    full: PropTypes.boolean,
+  },
+  link: PropTypes.string,
 };
 
-DetailedGroup.defaultProps = { size: 'md' };
+DetailedGroup.defaultProps = {
+  size: 'md',
+  onClickFunc: () => null,
+  selected: false,
+  status: {
+    reschedule: false,
+    cancelled: false,
+    full: false,
+  },
+  link: '',
+};
 
 export default DetailedGroup;

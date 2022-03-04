@@ -1,9 +1,18 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Box, Image, Flex, Spacer } from '@chakra-ui/react';
-import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import {
+  Box,
+  Image,
+  Flex,
+  Spacer,
+  Tag,
+  HStack,
+  VStack,
+} from '@chakra-ui/react';
+import PropTypes from 'prop-types';
 import * as colors from '../utils/colors';
+import GreenButton from './GreenButton';
 
 const ImageContainer = styled.div`
   position: relative;
@@ -11,57 +20,81 @@ const ImageContainer = styled.div`
   filter: brightness(70%);
 `;
 
-function Group({ heading, img, imgAlt, restrict, price, link }) {
+function Group({
+  heading,
+  img,
+  imgAlt,
+  restrict,
+  price,
+  onClickFunc,
+  selected,
+  status,
+  link,
+}) {
   return (
-    <Box
+    <VStack
       border={0}
-      bg="none"
       as="button"
       w={{ base: '400px', sm: '300px', md: '350px' }}
-      borderRadius="md"
       px={2}
-      py={4}
+      py={2}
       overflow="hidden"
+      justifyContent="space-between"
+      alignItems="start"
+      style={
+        selected
+          ? {
+              border: `2px solid ${colors.green.dark}`,
+              borderRadius: 'var(--chakra-radii-md)',
+              backgroundColor: 'var(--chakra-colors-gray-100)',
+            }
+          : {
+              border: '1px solid var(--chakra-colors-gray-200)',
+              borderRadius: 'var(--chakra-radii-md)',
+            }
+      }
+      onClick={() => onClickFunc()}
     >
-      <Link to={link} style={{ textDecoration: 'none', color: 'inherit' }}>
-        <Box
-          sx={{
-            fontFamily: 'Inter',
-            fontSize: '16px',
-            fontWeight: 600,
-            margin: 0,
-            paddingBottom: '9px',
-            textAlign: 'left',
-          }}
-        >
-          {heading}
-        </Box>
-        <ImageContainer>
-          <Image src={img} htmlWidth="100%" alt={imgAlt} />
-          <Box
-            sx={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              textAlign: 'center',
-              width: '100%',
-              transform: 'translate(-50%, -50%)',
-              fontFamily: 'Inter',
-              fontSize: '30px',
-              filter: 'brightness(70%)',
-              color: colors.white,
-            }}
-          >
-            More Information
-          </Box>
-        </ImageContainer>
-        <Flex>
-          <Box color={colors.grey.dark}>{restrict}</Box>
-          <Spacer />
-          <Box color={colors.grey.dark}>{price}</Box>
-        </Flex>
+      <Box
+        sx={{
+          fontFamily: 'Inter',
+          fontSize: '16px',
+          fontWeight: 600,
+          margin: 0,
+          textAlign: 'left',
+        }}
+      >
+        {heading}
+      </Box>
+      <HStack mb={2}>
+        {status.cancelled ? (
+          <Tag colorScheme="red" m={0}>
+            Cancelled
+          </Tag>
+        ) : null}
+        {status.reschedule ? (
+          <Tag colorScheme="yellow" m={0}>
+            Rescheduled
+          </Tag>
+        ) : null}
+        {status.full ? (
+          <Tag colorScheme="green" m={0}>
+            Full
+          </Tag>
+        ) : null}
+      </HStack>
+      <ImageContainer>
+        <Image src={img} htmlWidth="334px" htmlHeight="223px" alt={imgAlt} />
+      </ImageContainer>
+      <Flex>
+        <Box color={colors.grey.dark}>{restrict}</Box>
+        <Spacer />
+        <Box color={colors.grey.dark}>{price}</Box>
+      </Flex>
+      <Link to={link}>
+        <GreenButton>View More</GreenButton>
       </Link>
-    </Box>
+    </VStack>
   );
 }
 
@@ -71,7 +104,25 @@ Group.propTypes = {
   imgAlt: PropTypes.string.isRequired,
   restrict: PropTypes.string.isRequired,
   price: PropTypes.string.isRequired,
-  link: PropTypes.string.isRequired,
+  status: {
+    reschedule: PropTypes.boolean,
+    cancelled: PropTypes.boolean,
+    full: PropTypes.boolean,
+  },
+  onClickFunc: PropTypes.func,
+  selected: PropTypes.bool,
+  link: PropTypes.string,
+};
+
+Group.defaultProps = {
+  status: {
+    reschedule: false,
+    cancelled: false,
+    full: false,
+  },
+  onClickFunc: () => null,
+  selected: false,
+  link: '',
 };
 
 export default Group;

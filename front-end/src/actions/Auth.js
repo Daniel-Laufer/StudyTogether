@@ -11,6 +11,7 @@ export const REGISTRATION_SUCCESS = 'REGISTRATION_SUCCESS';
 export const REGISTRATION_ERROR = 'REGISTRATION_ERROR';
 export const SAVE_AUTH_DETAILS = 'SAVE_AUTH_DETAILS';
 export const LOGOUT = 'LOGOUT';
+export const UPDATE_USER_DETAILS = 'UPDATE_USER_DETAILS';
 
 export function login(userDetails) {
   return dispatch => {
@@ -31,6 +32,7 @@ export function login(userDetails) {
           window.localStorage.setItem('authToken', res.data.token);
           // window.localStorage.setItem('userDetails', res.data.token);
         }
+        window.localStorage.setItem('role', res.data.user.role);
       })
       .catch(err => {
         let errMessage = err.toString();
@@ -50,6 +52,8 @@ export function logout() {
   // eslint-disable-next-line no-undef
   localStorage.removeItem('authToken');
   localStorage.removeItem('userDetails');
+  // localStorage.removeItem('authToken', res.data.token);
+  localStorage.removeItem('role');
   return { type: LOGOUT };
 }
 
@@ -85,5 +89,14 @@ export function register(userDetails) {
           errMessage = err.response.data.errors[0].msg;
         dispatch({ type: LOGIN_ERROR, error: errMessage });
       });
+  };
+}
+
+export function updateUserDetails(userDetails) {
+  return dispatch => {
+    dispatch({ type: UPDATE_USER_DETAILS, user: userDetails });
+    const localUser = window.localStorage.getItem('userDetails');
+    if (localUser)
+      window.localStorage.setItem('userDetails', JSON.stringify(userDetails));
   };
 }

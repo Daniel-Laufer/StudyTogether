@@ -1,3 +1,6 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-unneeded-ternary */
+/* eslint-disable no-nested-ternary */
 /* eslint-disable no-undef */
 /* eslint-disable no-underscore-dangle */
 import React, { useEffect, useState } from 'react';
@@ -16,13 +19,15 @@ import { connect } from 'react-redux';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { scroller } from 'react-scroll';
 import Group from '../../components/Group';
 import { apiURL } from '../../utils/constants';
 import { logout } from '../../actions/Auth';
 import CustomSpinner from '../../components/CustomSpinner';
 import DetailedGroup from '../../components/DetailedGroup';
+import Map from '../../components/Map';
 
-function SavedGroups({
+function Groups({
   authToken,
   dispatch,
   studyGroupsEndPoint,
@@ -32,6 +37,8 @@ function SavedGroups({
   const navigate = useNavigate();
   const location = useLocation();
   const [groups, setGroups] = useState([]);
+  // eslint-disable-next-line no-unused-vars
+  const [currentlySelectedGroup, setCurrentlySelectedGroup] = useState(null);
   const [viewDetailedGroupCards, setViewDetailedGroupCards] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -54,11 +61,20 @@ function SavedGroups({
       })
       .catch(err => {
         setLoading(false);
-        if (err.response.status === 401) {
+        if (err.response && err.response.status === 401) {
           dispatch(logout());
           navigate('/login');
         }
       });
+  };
+
+  const formatGroupDataForMapDisplay = () => {
+    if (!groups) return [];
+    return groups.reduce((acc, curr) => {
+      if (curr.location && 'lat' in curr.location && 'lng' in curr.location)
+        acc.push({ ...curr.location, id: curr._id, metaData: { ...curr } });
+      return acc;
+    }, []);
   };
 
   // on component mount, retrieve all the saved study groups
@@ -75,6 +91,22 @@ function SavedGroups({
       </Alert>
     );
   }
+
+  const getLocationOfGroupId = targetGroupId => {
+    if (!groups || !targetGroupId) return undefined;
+
+    const foundGroup = groups.find(
+      group =>
+        group._id === targetGroupId &&
+        group.location &&
+        'lat' in group.location &&
+        'lng' in group.location
+    );
+
+    if (!foundGroup) return undefined;
+
+    return foundGroup.location;
+  };
 
   return !loading ? (
     <Box style={{ width: '60%', margin: 'auto', marginTop: '2rem' }}>
@@ -98,58 +130,118 @@ function SavedGroups({
         </FormControl>
       </Flex>
 
-      <Flex
+      <Box
         style={{
-          marginTop: '2rem',
-          flexWrap: 'wrap',
-          justifyContent: '',
+          marginTop: '1rem',
+          border: '1px solid var(--chakra-colors-gray-200)',
+          borderRadius: 'var(--chakra-radii-md)',
+          padding: '0.5rem',
+          height: '40vh',
+          overflowY: 'scroll',
         }}
       >
-        {groups.length > 0 ? (
-          groups.map(g =>
-            !viewDetailedGroupCards ? (
-              <Group
-                title={g.title}
-                restrict="UofT students"
-                availability={`${g.maxAttendees - g.curAttendees} / ${
-                  g.maxAttendees
-                }`}
-                imgAlt="Study group image"
-                img={g.imageUrl}
-                when={g.time}
-                host={g.hostFirstName + g.hostLastName}
-                desc={g.description}
-                link={`${g._id}`}
-                size="md"
-              />
-            ) : (
-              <DetailedGroup
-                title={g.title}
-                restrict="UofT students"
-                availability={`${g.maxAttendees - g.curAttendees} / ${
-                  g.maxAttendees
-                }`}
-                imgAlt="Study group image"
-                img={g.imageUrl}
-                when={g.time}
-                host={g.hostFirstName + g.hostLastName}
-                desc={g.description}
-                link={`${g._id}`}
-                size="md"
-              />
+        <Heading size="sm">Results</Heading>
+
+        <Flex
+          style={{
+            marginTop: '2rem',
+            flexWrap: 'wrap',
+            justifyContent: '',
+          }}
+          gap="0.5rem"
+        >
+          {groups.length > 0 ? (
+            groups.map(g =>
+              !viewDetailedGroupCards ? (
+                <Group
+                  id={`group-${g._id}`}
+                  heading={g.title}
+                  restrict="UofT students"
+                  availability={`${g.maxAttendees - g.curAttendees} / ${
+                    g.maxAttendees
+                  }`}
+                  imgAlt="Study group image"
+                  img={g.imageUrl}
+                  when={g.time}
+                  host={g.hostFirstName + g.hostLastName}
+                  desc={g.description}
+                  link={`${g._id}`}
+                  status={{
+                    reschedule: g.rescheduled,
+                    cancelled: g.canceled,
+                    full: g.maxAttendees - g.curAttendees === 0,
+                  }}
+                  onClickFunc={() => setCurrentlySelectedGroup(g._id)}
+                  size="md"
+                  selected={currentlySelectedGroup === g._id}
+                />
+              ) : (
+                <DetailedGroup
+                  title={g.title}
+                  restrict="UofT students"
+                  availability={`${g.maxAttendees - g.curAttendees} / ${
+                    g.maxAttendees
+                  }`}
+                  imgAlt="Study group image"
+                  img={g.imageUrl}
+                  when={g.time}
+                  host={g.hostFirstName + g.hostLastName}
+                  desc={g.description}
+                  link={`${g._id}`}
+                  status={{
+                    reschedule: g.rescheduled,
+                    cancelled: g.canceled,
+                    full: g.maxAttendees - g.curAttendees === 0,
+                  }}
+                  onClickFunc={() => setCurrentlySelectedGroup(g._id)}
+                  size="md"
+                  selected={currentlySelectedGroup === g._id}
+                />
+              )
             )
-          )
-        ) : (
-          <Text> {noGroupsFoundText} </Text>
-        )}
-      </Flex>
+          ) : (
+            <Text> {noGroupsFoundText} </Text>
+          )}
+        </Flex>
+      </Box>
+
+      <Box
+        style={{
+          marginTop: '1rem',
+          border: '1px solid var(--chakra-colors-gray-200)',
+          borderRadius: 'var(--chakra-radii-md)',
+          padding: '0.5rem',
+          height: '40vh',
+          overflowY: 'scroll',
+        }}
+      >
+        <Heading size="sm">Locations</Heading>
+        <Box
+          style={{
+            margin: 'auto',
+          }}
+        >
+          <Map
+            disableAddingNewMarkers
+            markers={formatGroupDataForMapDisplay()}
+            initialCenter={getLocationOfGroupId(currentlySelectedGroup)}
+            initialZoom={18}
+            markerOnClickFunc={groupId => {
+              setCurrentlySelectedGroup(groupId);
+            }}
+            currentlySelectedGroup={getLocationOfGroupId(
+              currentlySelectedGroup
+            )}
+          />
+        </Box>
+      </Box>
     </Box>
   ) : (
     <CustomSpinner />
   );
 }
 
-SavedGroups.propTypes = {
+Groups.propTypes = {
   authToken: PropTypes.string,
   dispatch: PropTypes.func.isRequired,
   studyGroupsEndPoint: PropTypes.string,
@@ -157,13 +249,13 @@ SavedGroups.propTypes = {
   noGroupsFoundText: PropTypes.string,
 };
 
-SavedGroups.defaultProps = {
+Groups.defaultProps = {
   authToken: '',
   studyGroupsEndPoint: 'studygroups',
-  headerContent: 'Study groups happening near you',
+  headerContent: 'Study groups near you',
   noGroupsFoundText: 'No study groups found.',
 };
 
 export default connect(state => ({
   authToken: state.Auth.authToken || localStorage.getItem('authToken'),
-}))(SavedGroups);
+}))(Groups);

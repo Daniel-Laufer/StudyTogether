@@ -55,7 +55,11 @@ export default (state = initialState, action) => {
       return {
         ...initialState,
       };
-
+    case Auth.UPDATE_USER_DETAILS:
+      return {
+        ...state,
+        userDetails: { ...action.user },
+      };
     default:
       return state;
   }

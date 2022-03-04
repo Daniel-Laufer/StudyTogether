@@ -39,7 +39,7 @@ function App() {
               element={
                 <Groups
                   studyGroupsEndPoint="studygroups"
-                  headerContent="Study groups happening near you"
+                  headerContent="Study groups near you"
                 />
               }
             />
@@ -53,7 +53,7 @@ function App() {
               element={
                 <Groups
                   studyGroupsEndPoint="studygroups"
-                  headerContent="Study groups happening near you"
+                  headerContent="Study groups near you"
                 />
               }
             />
@@ -68,8 +68,8 @@ function App() {
                 />
               }
             />
-            <Route path="/account-info" element={<AccountInfo />} />
             <Route path="/groups/:id" element={<GroupView />} />
+            <Route path="/user/:id" element={<AccountInfo />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </BrowserRouter>
