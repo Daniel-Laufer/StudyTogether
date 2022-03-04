@@ -391,6 +391,7 @@ router.post('/attend/:id', helperUser.verifyToken, (req, res) => {
         return;
       }
 
+      studygroup.curAttendees++;
       studygroup.attendees.push(req.user);
       studygroup.save();
       req.user.registeredStudygroups.push(studygroup);
@@ -419,6 +420,7 @@ router.patch('/leave/:id', helperUser.verifyToken, (req, res) => {
         return;
       }
 
+      studygroup.curAttendees--;
       studygroup.attendees.splice(userIndex, 1);
       studygroup.save();
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 import {
   Box,
   Image,
@@ -11,6 +12,7 @@ import {
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 import * as colors from '../utils/colors';
+import GreenButton from './GreenButton';
 
 const ImageContainer = styled.div`
   position: relative;
@@ -27,6 +29,7 @@ function Group({
   onClickFunc,
   selected,
   status,
+  link,
 }) {
   return (
     <VStack
@@ -88,6 +91,9 @@ function Group({
         <Spacer />
         <Box color={colors.grey.dark}>{price}</Box>
       </Flex>
+      <Link to={link}>
+        <GreenButton>View More</GreenButton>
+      </Link>
     </VStack>
   );
 }
@@ -105,6 +111,7 @@ Group.propTypes = {
   },
   onClickFunc: PropTypes.func,
   selected: PropTypes.bool,
+  link: PropTypes.string,
 };
 
 Group.defaultProps = {
@@ -115,6 +122,7 @@ Group.defaultProps = {
   },
   onClickFunc: () => null,
   selected: false,
+  link: '',
 };
 
 export default Group;

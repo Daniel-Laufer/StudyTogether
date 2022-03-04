@@ -1,7 +1,9 @@
 import { Box, Stack, VStack, Text, Image, Tag } from '@chakra-ui/react';
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import * as colors from '../utils/colors';
+import GreenButton from './GreenButton';
 
 const diffSize = size =>
   size === 'lg'
@@ -48,6 +50,7 @@ function DetailedGroup({
   img,
   imgAlt,
   onClickFunc,
+  link,
   size,
   selected,
   status,
@@ -61,11 +64,53 @@ function DetailedGroup({
     imgMr,
     imgAlign,
   } = diffSize(size);
+
+  const groupView = (
+    <Stack
+      w={stackSize}
+      direction={{ base: 'column', md: 'row' }}
+      align="left"
+      wrap
+    >
+      <Image
+        src={img}
+        width={imgWidth}
+        alt={imgAlt}
+        borderRadius="lg"
+        mr={imgMr}
+        alignSelf={imgAlign}
+      />
+      {status.cancelled ? (
+        <Tag colorScheme="red" m={0}>
+          Cancelled
+        </Tag>
+      ) : null}
+      {status.reschedule ? (
+        <Tag colorScheme="yellow" m={0}>
+          Rescheduled
+        </Tag>
+      ) : null}
+      {status.full ? (
+        <Tag colorScheme="green" m={0}>
+          Full
+        </Tag>
+      ) : null}
+      <VStack justifyContent="center" spacing={vstackSpacing} align="left">
+        {CustomText(fontSize, noOfLines, `Title: ${title}`)}
+        {CustomText(fontSize, noOfLines, `Restriction: ${restrict}`)}
+        {CustomText(fontSize, noOfLines, `Availability: ${availability}`)}
+        {CustomText(fontSize, noOfLines, `When: ${when}`)}
+        {CustomText(fontSize, noOfLines, `Hosted by: ${host}`)}
+        {CustomText(fontSize, noOfLines, `Description: ${desc}`)}
+      </VStack>
+    </Stack>
+  );
+
   return (
     <Box
       p={2}
       overflow="hidden"
-      as="button"
+      bg="none"
       border={0}
       textAlign="left"
       w={stackSize}
@@ -81,49 +126,18 @@ function DetailedGroup({
               borderRadius: 'var(--chakra-radii-md)',
             }
       }
+      onClick={() => onClickFunc()}
     >
-      <Box onClick={onClickFunc}>
-        <Stack
-          w={stackSize}
-          direction={{ base: 'column', md: 'row' }}
-          align="left"
-          wrap
-        >
-          <VStack alignItems="start">
-            <Image
-              src={img}
-              width={imgWidth}
-              alt={imgAlt}
-              borderRadius="lg"
-              mr={imgMr}
-              alignSelf={imgAlign}
-            />
-            {status.cancelled ? (
-              <Tag colorScheme="red" m={0}>
-                Cancelled
-              </Tag>
-            ) : null}
-            {status.reschedule ? (
-              <Tag colorScheme="yellow" m={0}>
-                Rescheduled
-              </Tag>
-            ) : null}
-            {status.full ? (
-              <Tag colorScheme="green" m={0}>
-                Full
-              </Tag>
-            ) : null}
-          </VStack>
-          <VStack justifyContent="center" spacing={vstackSpacing} align="left">
-            {CustomText(fontSize, noOfLines, `Title: ${title}`)}
-            {CustomText(fontSize, noOfLines, `Restriction: ${restrict}`)}
-            {CustomText(fontSize, noOfLines, `Availability: ${availability}`)}
-            {CustomText(fontSize, noOfLines, `When: ${when}`)}
-            {CustomText(fontSize, noOfLines, `Hosted by: ${host}`)}
-            {CustomText(fontSize, noOfLines, `Description: ${desc}`)}
-          </VStack>
+      {size === 'md' ? (
+        <Stack>
+          {groupView}
+          <Link to={link}>
+            <GreenButton>View More</GreenButton>
+          </Link>
         </Stack>
-      </Box>
+      ) : (
+        <Stack>{groupView}</Stack>
+      )}
     </Box>
   );
 }
@@ -145,6 +159,7 @@ DetailedGroup.propTypes = {
     cancelled: PropTypes.boolean,
     full: PropTypes.boolean,
   },
+  link: PropTypes.string,
 };
 
 DetailedGroup.defaultProps = {
@@ -156,6 +171,7 @@ DetailedGroup.defaultProps = {
     cancelled: false,
     full: false,
   },
+  link: '',
 };
 
 export default DetailedGroup;

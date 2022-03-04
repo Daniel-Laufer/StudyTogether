@@ -13,6 +13,7 @@ function GreenButton({
   isLoading,
   children,
   style,
+  isDisabled,
 }) {
   return (
     <Button
@@ -32,6 +33,7 @@ function GreenButton({
       _focus={{
         boxShadow: `0 0 1px 2px ${colors.green.dark}, 0 1px 1px rgba(0, 0, 0, .15)`,
       }}
+      isDisabled={isDisabled}
     >
       {children}
     </Button>
@@ -49,6 +51,7 @@ GreenButton.propTypes = {
     PropTypes.node,
   ]).isRequired,
   style: PropTypes.shape({}),
+  isDisabled: PropTypes.bool,
 };
 GreenButton.defaultProps = {
   text: 'Button',
@@ -57,6 +60,7 @@ GreenButton.defaultProps = {
   onClick: () => null,
   isLoading: false,
   style: {},
+  isDisabled: false,
 };
 
 export default GreenButton;
