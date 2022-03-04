@@ -38,7 +38,7 @@ function App() {
               element={
                 <Groups
                   studyGroupsEndPoint="studygroups"
-                  headerContent="Study groups happening near you"
+                  headerContent="Study groups near you"
                 />
               }
             />
@@ -52,7 +52,7 @@ function App() {
               element={
                 <Groups
                   studyGroupsEndPoint="studygroups"
-                  headerContent="Study groups happening near you"
+                  headerContent="Study groups near you"
                 />
               }
             />

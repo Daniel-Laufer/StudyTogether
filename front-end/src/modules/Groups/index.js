@@ -193,6 +193,8 @@ function Groups({
                     cancelled: g.canceled,
                     full: g.maxAttendees - g.curAttendees === 0,
                   }}
+                  onClickFunc={() => setCurrentlySelectedGroup(g._id)}
+                  size="md"
                   selected={currentlySelectedGroup === g._id}
                 />
               )
@@ -250,7 +252,7 @@ Groups.propTypes = {
 Groups.defaultProps = {
   authToken: '',
   studyGroupsEndPoint: 'studygroups',
-  headerContent: 'Study groups happening near you',
+  headerContent: 'Study groups near you',
   noGroupsFoundText: 'No study groups found.',
 };
 

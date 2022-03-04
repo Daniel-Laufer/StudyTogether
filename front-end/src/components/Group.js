@@ -82,22 +82,6 @@ function Group({
       </HStack>
       <ImageContainer>
         <Image src={img} htmlWidth="334px" htmlHeight="223px" alt={imgAlt} />
-        <Box
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            textAlign: 'center',
-            width: '100%',
-            transform: 'translate(-50%, -50%)',
-            fontFamily: 'Inter',
-            fontSize: '30px',
-            filter: 'brightness(70%)',
-            color: colors.white,
-          }}
-        >
-          More Information
-        </Box>
       </ImageContainer>
       <Flex>
         <Box color={colors.grey.dark}>{restrict}</Box>
