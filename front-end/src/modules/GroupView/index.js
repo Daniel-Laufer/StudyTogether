@@ -5,10 +5,10 @@ import {
   Box,
   Flex,
   Alert,
-  Button,
   AlertIcon,
   Heading,
   FormControl,
+  AlertDescription,
 } from '@chakra-ui/react';
 import { connect } from 'react-redux';
 import axios from 'axios';
@@ -18,19 +18,22 @@ import { apiURL } from '../../utils/constants';
 import { logout } from '../../actions/Auth';
 import CustomSpinner from '../../components/CustomSpinner';
 import DetailedGroup from '../../components/DetailedGroup';
+import GreenButton from '../../components/GreenButton';
 
 function GroupView({
   authToken,
   dispatch,
   studyGroupsEndPoint,
   headerContent,
+  userDetails,
 }) {
   const navigate = useNavigate();
   const { id } = useParams();
-  console.log(id);
   const location = useLocation();
-  const [group, setGroup] = useState([]);
+  const [group, setGroup] = useState({});
   const [loading, setLoading] = useState(false);
+  const [errorOccured, setErrorOccured] = useState(false);
+  const [successOccured, setSuccessOccured] = useState(false);
 
   useEffect(() => {
     if (authToken === null) {
@@ -73,15 +76,71 @@ function GroupView({
     );
   }
 
-  //   const isDisabled = {
-  //     group.maxAttendees === group.curAttendees ? (
+  const handleRegister = () => {
+    console.log(authToken);
+    const config = {
+      headers: { Authorization: `JWT ${authToken}` },
+    };
+    setLoading(true);
+    axios
+      .post(`${apiURL}/${studyGroupsEndPoint}/attend/${id}`, {}, config)
+      .then(res => {
+        console.log('Registered successfully');
+        setGroup(res.data);
+        setSuccessOccured(true);
+        setLoading(false);
+        setInterval(() => {
+          setSuccessOccured(false);
+        }, 3000);
+      })
+      .catch(err => {
+        console.log(err);
+        setLoading(false);
+        setErrorOccured(true);
+        console.log(err.response.status);
+        if (err.response.status === 400) {
+          console.log('already registered');
+        } else if (err.response.status === 401) {
+          dispatch(logout());
+          navigate('/login');
+        }
+        setInterval(() => {
+          setErrorOccured(false);
+        }, 3000);
+      });
+  };
 
-  //     ) : (
-  //       <Button colorScheme="teal" size="md" width="400px">
-  //         Register
-  //       </Button>
-  //     );
-  //   };
+  const handleCancel = () => {
+    console.log(authToken);
+    const config = {
+      headers: { Authorization: `JWT ${authToken}` },
+    };
+    setLoading(true);
+    axios
+      .patch(`${apiURL}/${studyGroupsEndPoint}/leave/${id}`, {}, config)
+      .then(res => {
+        setGroup(res.data);
+        setSuccessOccured(true);
+        setLoading(false);
+        setInterval(() => {
+          setSuccessOccured(false);
+        }, 3000);
+      })
+      .catch(err => {
+        setLoading(false);
+        setErrorOccured(true);
+        console.log(err.response.status);
+        if (err.response.status === 400) {
+          console.log('not registered in the first place');
+        } else if (err.response.status === 401) {
+          dispatch(logout());
+          navigate('/login');
+        }
+        setInterval(() => {
+          setErrorOccured(false);
+        }, 3000);
+      });
+  };
 
   return !loading ? (
     <Box style={{ width: '60%', margin: 'auto', marginTop: '2rem' }}>
@@ -116,15 +175,54 @@ function GroupView({
           desc={group.description}
           size="lg"
         />
-
-        <Button
-          colorScheme="teal"
-          size="md"
-          width="400px"
-          isDisabled={group.maxAttendees === group.curAttendees}
-        >
-          Register
-        </Button>
+        {group &&
+        group.attendees &&
+        group.attendees.filter(g => g === userDetails.id).length === 0 ? (
+          <GreenButton
+            colorScheme="teal"
+            size="md"
+            width="400px"
+            isDisabled={group.maxAttendees === group.curAttendees}
+            onClick={handleRegister}
+          >
+            Register
+          </GreenButton>
+        ) : (
+          <GreenButton
+            style={{ backgroundColor: '#EE3625' }}
+            size="md"
+            width="400px"
+            onClick={handleCancel}
+          >
+            Leave
+          </GreenButton>
+        )}
+        {errorOccured ? (
+          <Alert
+            style={{
+              width: '100%',
+            }}
+            status="error"
+            mt={5}
+          >
+            <AlertIcon />
+            <AlertDescription>
+              Could not perform the operation successfully. Please reload!
+            </AlertDescription>
+          </Alert>
+        ) : null}
+        {successOccured ? (
+          <Alert
+            style={{
+              width: '100%',
+            }}
+            status="success"
+            mt={5}
+          >
+            <AlertIcon />
+            <AlertDescription>The operation was successful!</AlertDescription>
+          </Alert>
+        ) : null}
       </Flex>
     </Box>
   ) : (
@@ -137,14 +235,31 @@ GroupView.propTypes = {
   dispatch: PropTypes.func.isRequired,
   studyGroupsEndPoint: PropTypes.string,
   headerContent: PropTypes.string,
+  userDetails: {
+    id: PropTypes.string,
+    email: PropTypes.string,
+    firstName: PropTypes.string,
+    lastName: PropTypes.string,
+  },
 };
 
 GroupView.defaultProps = {
   authToken: '',
   studyGroupsEndPoint: 'studygroups',
   headerContent: 'Additonal Study Group Information',
+  userDetails: {
+    id: '',
+    email: '',
+    firstName: '',
+    lastName: '',
+  },
 };
 
 export default connect(state => ({
   authToken: state.Auth.authToken || localStorage.getItem('authToken'),
+  userDetails:
+    (Object.keys(state.Auth.userDetails).length === 0
+      ? null
+      : state.Auth.userDetails) ||
+    JSON.parse(localStorage.getItem('userDetails')),
 }))(GroupView);
