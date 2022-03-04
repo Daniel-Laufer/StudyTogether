@@ -77,7 +77,6 @@ function GroupView({
   }
 
   const handleRegister = () => {
-    console.log(authToken);
     const config = {
       headers: { Authorization: `JWT ${authToken}` },
     };
@@ -85,7 +84,6 @@ function GroupView({
     axios
       .post(`${apiURL}/${studyGroupsEndPoint}/attend/${id}`, {}, config)
       .then(res => {
-        console.log('Registered successfully');
         setGroup(res.data);
         setSuccessOccured(true);
         setLoading(false);
@@ -94,12 +92,10 @@ function GroupView({
         }, 3000);
       })
       .catch(err => {
-        console.log(err);
         setLoading(false);
         setErrorOccured(true);
-        console.log(err.response.status);
         if (err.response.status === 400) {
-          console.log('already registered');
+          console.log('Error 400');
         } else if (err.response.status === 401) {
           dispatch(logout());
           navigate('/login');
@@ -111,7 +107,6 @@ function GroupView({
   };
 
   const handleCancel = () => {
-    console.log(authToken);
     const config = {
       headers: { Authorization: `JWT ${authToken}` },
     };
@@ -129,9 +124,8 @@ function GroupView({
       .catch(err => {
         setLoading(false);
         setErrorOccured(true);
-        console.log(err.response.status);
         if (err.response.status === 400) {
-          console.log('not registered in the first place');
+          console.log('error 400');
         } else if (err.response.status === 401) {
           dispatch(logout());
           navigate('/login');
@@ -175,54 +169,56 @@ function GroupView({
           desc={group.description}
           size="lg"
         />
-        {group &&
-        group.attendees &&
-        group.attendees.filter(g => g === userDetails.id).length === 0 ? (
-          <GreenButton
-            colorScheme="teal"
-            size="md"
-            width="400px"
-            isDisabled={group.maxAttendees === group.curAttendees}
-            onClick={handleRegister}
-          >
-            Register
-          </GreenButton>
-        ) : (
-          <GreenButton
-            style={{ backgroundColor: '#EE3625' }}
-            size="md"
-            width="400px"
-            onClick={handleCancel}
-          >
-            Leave
-          </GreenButton>
-        )}
-        {errorOccured ? (
-          <Alert
-            style={{
-              width: '100%',
-            }}
-            status="error"
-            mt={5}
-          >
-            <AlertIcon />
-            <AlertDescription>
-              Could not perform the operation successfully. Please reload!
-            </AlertDescription>
-          </Alert>
-        ) : null}
-        {successOccured ? (
-          <Alert
-            style={{
-              width: '100%',
-            }}
-            status="success"
-            mt={5}
-          >
-            <AlertIcon />
-            <AlertDescription>The operation was successful!</AlertDescription>
-          </Alert>
-        ) : null}
+        <div style={{ marginTop: '1rem' }}>
+          {group &&
+          group.attendees &&
+          group.attendees.filter(g => g === userDetails.id).length === 0 ? (
+            <GreenButton
+              colorScheme="teal"
+              size="md"
+              width="400px"
+              isDisabled={group.maxAttendees === group.curAttendees}
+              onClick={handleRegister}
+            >
+              Register
+            </GreenButton>
+          ) : (
+            <GreenButton
+              style={{ backgroundColor: '#EE3625' }}
+              size="md"
+              width="400px"
+              onClick={handleCancel}
+            >
+              Leave
+            </GreenButton>
+          )}
+          {errorOccured ? (
+            <Alert
+              style={{
+                width: '100%',
+              }}
+              status="error"
+              mt={5}
+            >
+              <AlertIcon />
+              <AlertDescription>
+                Could not perform the operation successfully. Please reload!
+              </AlertDescription>
+            </Alert>
+          ) : null}
+          {successOccured ? (
+            <Alert
+              style={{
+                width: '100%',
+              }}
+              status="success"
+              mt={5}
+            >
+              <AlertIcon />
+              <AlertDescription>The operation was successful!</AlertDescription>
+            </Alert>
+          ) : null}
+        </div>
       </Flex>
     </Box>
   ) : (
