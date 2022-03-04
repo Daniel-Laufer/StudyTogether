@@ -5,7 +5,12 @@
 /* eslint-disable prefer-arrow-callback */
 /* eslint-disable react/jsx-no-useless-fragment */
 import React, { useEffect } from 'react';
-import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
+import {
+  GoogleMap,
+  useJsApiLoader,
+  Marker,
+  InfoWindow,
+} from '@react-google-maps/api';
 import PropTypes from 'prop-types';
 
 // a lot of this code was taken from https://www.npmjs.com/package/@react-google-maps/api (the starter code provided in the documentation)
@@ -32,6 +37,10 @@ function Map({
   getLngLatOfNewMarker,
   disableAddingNewMarkers,
   markers: markerLocations,
+  markerOnClickFunc,
+  infoWindowOpenOnCenter,
+  disableInfoWindows,
+  currentlySelectedGroup,
 }) {
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -39,6 +48,7 @@ function Map({
   });
 
   const [map, setMap] = React.useState(null);
+  const [infoWindowOpen, setInfoWindowOpen] = React.useState(true);
   const [markers, setMarkers] = React.useState(markerLocations);
 
   useEffect(() => {
@@ -70,14 +80,28 @@ function Map({
       {markers
         ? markers.map(marker => (
             <Marker
+              onClick={() => markerOnClickFunc(marker.id)}
               key={`${marker.lat}-${marker.lng}-${marker.id}`}
               position={{ lat: marker.lat, lng: marker.lng }}
-              onClick={() => {
-                setSelected(marker);
+              icon={{
+                scaledSize: new window.google.maps.Size(600, 40),
               }}
             />
           ))
         : null}
+      {currentlySelectedGroup ? (
+        <InfoWindow
+          position={initialCenter}
+          onCloseClick={() => {
+            setSelected(null);
+          }}
+        >
+          <div>
+            <h2>CSC301 Study Group</h2>
+            {/* <p>Spotted {formatRelative(selected.time, new Date())}</p> */}
+          </div>
+        </InfoWindow>
+      ) : null}
     </GoogleMap>
   ) : (
     <></>
@@ -89,7 +113,7 @@ Map.propTypes = {
     lat: PropTypes.number,
     lng: PropTypes.number,
   }),
-
+  currentlySelectedGroup: PropTypes.shape(),
   markers: PropTypes.arrayOf(
     PropTypes.shape({
       lat: PropTypes.number,
@@ -102,17 +126,22 @@ Map.propTypes = {
   restrictToOneMarker: PropTypes.bool,
   getLngLatOfNewMarker: PropTypes.func,
   disableAddingNewMarkers: PropTypes.bool,
+  markerOnClickFunc: PropTypes.func,
+  disableInfoWindows: PropTypes.bool,
 };
 Map.defaultProps = {
   initialCenter: {
     lat: 43.54,
     lng: -79.66,
   },
+  markerOnClickFunc: () => null,
   markers: [],
   initialZoom: 14,
   restrictToOneMarker: false,
   getLngLatOfNewMarker: () => {},
   disableAddingNewMarkers: false,
+  disableInfoWindows: false,
+  currentlySelectedGroup: null,
 };
 
 export default React.memo(Map);

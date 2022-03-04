@@ -19,6 +19,7 @@ import { connect } from 'react-redux';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { scroller } from 'react-scroll';
 import Group from '../../components/Group';
 import { apiURL } from '../../utils/constants';
 import { logout } from '../../actions/Auth';
@@ -67,13 +68,6 @@ function Groups({
       });
   };
 
-  // // extract all the location data needed by the google map
-  // // component
-  // useEffect(() => {
-  //   if(!groups) return;
-
-  // }, [groups]);
-
   const formatGroupDataForMapDisplay = () => {
     if (!groups) return [];
     return groups.reduce((acc, curr) => {
@@ -109,7 +103,6 @@ function Groups({
         'lng' in group.location
     );
 
-    console.log(foundGroup);
     if (!foundGroup) return undefined;
 
     return foundGroup.location;
@@ -161,6 +154,7 @@ function Groups({
             groups.map(g =>
               !viewDetailedGroupCards ? (
                 <Group
+                  id={`group-${g._id}`}
                   title={g.title}
                   restrict="UofT students"
                   availability={`${g.maxAttendees - g.curAttendees} / ${
@@ -177,6 +171,7 @@ function Groups({
                 />
               ) : (
                 <DetailedGroup
+                  id={`group-${g._id}`}
                   title={g.title}
                   restrict="UofT students"
                   availability={`${g.maxAttendees - g.curAttendees} / ${
@@ -189,6 +184,7 @@ function Groups({
                   desc={g.description}
                   onClickFunc={() => setCurrentlySelectedGroup(g._id)}
                   size="md"
+                  selected={currentlySelectedGroup === g._id}
                 />
               )
             )
@@ -219,6 +215,12 @@ function Groups({
             markers={formatGroupDataForMapDisplay()}
             initialCenter={getLocationOfGroupId(currentlySelectedGroup)}
             initialZoom={18}
+            markerOnClickFunc={groupId => {
+              setCurrentlySelectedGroup(groupId);
+            }}
+            currentlySelectedGroup={getLocationOfGroupId(
+              currentlySelectedGroup
+            )}
           />
         </Box>
       </Box>

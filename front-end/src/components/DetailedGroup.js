@@ -49,6 +49,7 @@ function DetailedGroup({
   imgAlt,
   onClickFunc,
   size,
+  selected,
 }) {
   const {
     stackSize,
@@ -63,15 +64,22 @@ function DetailedGroup({
     <Box
       p={2}
       overflow="hidden"
-      bg="none"
       as="button"
       border={0}
       textAlign="left"
       w={stackSize}
-      style={{
-        border: '1px solid var(--chakra-colors-gray-200)',
-        borderRadius: 'var(--chakra-radii-md)',
-      }}
+      style={
+        selected
+          ? {
+              border: `2px solid ${colors.green.dark}`,
+              borderRadius: 'var(--chakra-radii-md)',
+              backgroundColor: 'var(--chakra-colors-gray-100)',
+            }
+          : {
+              border: '1px solid var(--chakra-colors-gray-200)',
+              borderRadius: 'var(--chakra-radii-md)',
+            }
+      }
     >
       <Box onClick={onClickFunc}>
         <Stack
@@ -113,8 +121,13 @@ DetailedGroup.propTypes = {
   desc: PropTypes.string.isRequired,
   size: 'md' || 'lg',
   onClickFunc: PropTypes.func,
+  selected: PropTypes.bool,
 };
 
-DetailedGroup.defaultProps = { size: 'md', onClickFunc: () => null };
+DetailedGroup.defaultProps = {
+  size: 'md',
+  onClickFunc: () => null,
+  selected: false,
+};
 
 export default DetailedGroup;
