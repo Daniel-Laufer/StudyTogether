@@ -16,6 +16,7 @@ import {
   Alert,
   AlertIcon,
   AlertDescription,
+  Divider,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
@@ -190,6 +191,14 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
       });
   };
 
+  const followUser = () => {
+    const config = {
+      headers: { Authorization: `JWT ${authToken}` },
+    };
+    console.log(config);
+    return;
+  };
+
   const [edit, setEdit] = useState(false);
 
   if (authToken === null) {
@@ -359,6 +368,17 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
                   boxSize="200px"
                   alignSelf="center"
                 />
+                {userDetails && id !== userDetails.id ? (
+                  <GreenButton
+                    width="100px"
+                    style={{ fontSize: '20px' }}
+                    onClick={() => setEdit(true)}
+                    alignSelf="center"
+                  >
+                    Follow
+                  </GreenButton>
+                ) : null}
+                <Divider orientation="horizontal" />
                 <Text
                   fontSize={18}
                   as="b"
