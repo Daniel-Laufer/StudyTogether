@@ -192,11 +192,14 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
   };
 
   const followUser = () => {
+    setLoading(false);
     const config = {
       headers: { Authorization: `JWT ${authToken}` },
     };
     console.log(config);
-    return;
+    setInterval(() => {
+      setLoading(true);
+    }, 3000);
   };
 
   const [edit, setEdit] = useState(false);
@@ -368,16 +371,29 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
                   boxSize="200px"
                   alignSelf="center"
                 />
-                {userDetails && id !== userDetails.id ? (
-                  <GreenButton
-                    width="100px"
-                    style={{ fontSize: '20px' }}
-                    onClick={() => setEdit(true)}
-                    alignSelf="center"
-                  >
-                    Follow
-                  </GreenButton>
-                ) : null}
+                {userDetails && id !== userDetails.id && (
+                  <Box>
+                    {userDetails && id !== userDetails.id ? (
+                      <GreenButton
+                        width="100px"
+                        style={{ fontSize: '20px' }}
+                        onClick={followUser}
+                        alignSelf="center"
+                      >
+                        follow
+                      </GreenButton>
+                    ) : (
+                      <GreenButton
+                        width="100px"
+                        style={{ fontSize: '20px', backgroundColor: '#EE3625' }}
+                        onClick={followUser}
+                        alignSelf="center"
+                      >
+                        unfollow
+                      </GreenButton>
+                    )}
+                  </Box>
+                )}
                 <Divider orientation="horizontal" />
                 <Text
                   fontSize={18}
