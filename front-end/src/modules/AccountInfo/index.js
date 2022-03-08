@@ -41,6 +41,7 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
   });
   const [dataUpdated, setDataUpdated] = useState(false);
   const [errorOccured, setErrorOccured] = useState(false);
+  const [followed, setFollowed] = useState(false);
   const [userInfo, setUserInfo] = useState({
     firstName: 'Geralt',
     lastName: 'Stan',
@@ -56,6 +57,7 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
       { id: '0', text: 'CSC301' },
       { id: '1', text: 'CSC302' },
     ],
+    profileFollowing: [],
   });
   const [oldUserInfo, setOldUserInfo] = useState({});
   const [groups, setGroups] = useState([]);
@@ -191,15 +193,31 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
       });
   };
 
-  const followUser = () => {
-    setLoading(false);
+  const handleFollow = c => {
+    console.log(c);
+    const isFollow = true;
     const config = {
       headers: { Authorization: `JWT ${authToken}` },
     };
-    console.log(config);
-    setInterval(() => {
-      setLoading(true);
-    }, 3000);
+    const prefix = isFollow ? '' : 'un-';
+    axios
+      .patch(`${apiURL}/users/${prefix}follow/${userDetails.id}`, config)
+      .then(() => {
+        setFollowed(isFollow);
+        dispatch(updateUserDetails(updatedUserDetails));
+      })
+      .catch(err => {
+        console.log(err);
+        setErrorOccured(true);
+        if (err.response.status === 401) {
+          dispatch(logout());
+          navigate('/login');
+        }
+        setFollowed(!followed);
+        setInterval(() => {
+          setErrorOccured(false);
+        }, 3000);
+      });
   };
 
   const [edit, setEdit] = useState(false);
@@ -377,7 +395,7 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
                       <GreenButton
                         width="100px"
                         style={{ fontSize: '20px' }}
-                        onClick={followUser}
+                        onClick={handleFollow}
                         alignSelf="center"
                       >
                         follow
@@ -386,7 +404,7 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
                       <GreenButton
                         width="100px"
                         style={{ fontSize: '20px', backgroundColor: '#EE3625' }}
-                        onClick={followUser}
+                        onClick={handleFollow}
                         alignSelf="center"
                       >
                         unfollow
