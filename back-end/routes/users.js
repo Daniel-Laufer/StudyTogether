@@ -5,7 +5,7 @@ var helperUser = require('../helpers/helperUser');
 let StudygroupModel = require('../models/studygroup.model');
 var User = require('../models/user.model');
 const { body, validationResult, param } = require('express-validator');
-const { mongo, Mongoose } = require('mongoose');
+const mongoose = require('mongoose');
 
 /* Get non-sensitive user profile info */
 router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
@@ -21,7 +21,18 @@ router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
       res.status(400).json('Error: ' + err);
       return;
     });
-    res.status(200).json(usr);
+    /* Get first 10 users you have not followed - will change logic later */
+    var suggestedUsers = await User.find({
+      _id: {
+        $nin: req.user.profileFollowers,
+      },
+    })
+      .limit(10)
+      .catch(err => {
+        res.status(400).send('Err: ' + err);
+        return;
+      });
+    res.status(200).json({ ...usr, profileSuggestedUsers: suggestedUsers });
   }
   //if user is checking other profile -> provide public info
   else {
@@ -40,6 +51,7 @@ router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
       profileContactInfo: usr.profileContactInfo,
       profileInterests: usr.profileInterests,
       profileCourses: usr.profileCourses,
+      profileFollowers: usr.profileFollowers,
     });
   }
 });
@@ -239,7 +251,7 @@ router.post(
 
 router.get(
   '/follow/:id',
-  [helperUser.verifyToken, param(['id'], 'user id is missing')],
+  [helperUser.verifyToken, param('id').exists()],
   async (req, res) => {
     var err = [];
     helperUser.handleValidationResult(req, res, err);
@@ -248,8 +260,8 @@ router.get(
 
     /* begin logic */
 
-    await User.findByIdAndUpdate(req.param.id, {
-      $push: { profileFollowing: req.user.id },
+    await User.findByIdAndUpdate(req.params.id, {
+      $addToSet: { profileFollowers: req.user.id },
     }).catch(err => {
       res.status(400).send('Err: ' + err);
       return;
@@ -257,11 +269,12 @@ router.get(
 
     /* TODO: replace this with a trigger*/
     await User.findByIdAndUpdate(req.user.id, {
-      $push: { profileFollowers: req.param.id },
+      $addToSet: { profileFollowing: req.params.id },
     }).catch(err => {
       res.status(400).send('Err: ' + err);
       return;
     });
+    res.status(200).send('User followed successfully');
   }
 );
 

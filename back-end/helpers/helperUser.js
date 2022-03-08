@@ -1,5 +1,6 @@
 var jwt = require('jsonwebtoken');
 var User = require('../models/user.model');
+const { validationResult } = require('express-validator');
 
 module.exports = {
   respondJWT(user, res, successMessage) {
@@ -26,7 +27,7 @@ module.exports = {
   },
 
   /* To determine if token was verified, we check req.user is not null in the endpoint*/
-  verifyToken(req, res) {
+  verifyToken(req, res, next) {
     if (
       req.headers &&
       req.headers.authorization &&
