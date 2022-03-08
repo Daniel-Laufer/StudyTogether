@@ -249,7 +249,7 @@ router.post(
   }
 );
 
-router.get(
+router.patch(
   '/follow/:id',
   [helperUser.verifyToken, param('id').exists()],
   async (req, res) => {
