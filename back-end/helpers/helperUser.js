@@ -26,7 +26,7 @@ module.exports = {
   },
 
   /* To determine if token was verified, we check req.user is not null in the endpoint*/
-  verifyToken(req, res, next) {
+  verifyToken(req, res) {
     if (
       req.headers &&
       req.headers.authorization &&
@@ -59,6 +59,19 @@ module.exports = {
     } else {
       req.user = undefined;
       next();
+    }
+  },
+  handleValidationResult(req, res, err) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(400).json({ errors: errors.array() });
+      err.push(...errors.array().toString());
+    }
+  },
+  handleInvalidJWT(req, res, err) {
+    if (!req.user) {
+      res.status(403).send({ message: 'Invalid JWT token' });
+      err.push('Invalid JWT token');
     }
   },
 };

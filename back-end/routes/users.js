@@ -4,7 +4,8 @@ var bcrypt = require('bcrypt');
 var helperUser = require('../helpers/helperUser');
 let StudygroupModel = require('../models/studygroup.model');
 var User = require('../models/user.model');
-const { check, body, validationResult } = require('express-validator');
+const { body, validationResult, param } = require('express-validator');
+const { mongo, Mongoose } = require('mongoose');
 
 /* Get non-sensitive user profile info */
 router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
@@ -232,6 +233,34 @@ router.post(
 
       /* 3. Send JWT back to client*/
       helperUser.respondJWT(user, res, 'login was successfull');
+    });
+  }
+);
+
+router.get(
+  '/follow/:id',
+  [helperUser.verifyToken, param(['id'], 'user id is missing')],
+  async (req, res) => {
+    var err = [];
+    helperUser.handleValidationResult(req, res, err);
+    helperUser.handleInvalidJWT(req, res, err);
+    if (err.length > 0) return;
+
+    /* begin logic */
+
+    await User.findByIdAndUpdate(req.param.id, {
+      $push: { profileFollowing: req.user.id },
+    }).catch(err => {
+      res.status(400).send('Err: ' + err);
+      return;
+    });
+
+    /* TODO: replace this with a trigger*/
+    await User.findByIdAndUpdate(req.user.id, {
+      $push: { profileFollowers: req.param.id },
+    }).catch(err => {
+      res.status(400).send('Err: ' + err);
+      return;
     });
   }
 );
