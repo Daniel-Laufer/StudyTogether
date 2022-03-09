@@ -47,7 +47,11 @@ connection.once('open', () => {
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
-  res.status(401).send('Resource does not exist (T_T)7');
+  res
+    .status(404)
+    .send(
+      'Resource does not exist (T_T)7, check out the documenation for help.'
+    );
 });
 
 // error handler
