@@ -79,12 +79,12 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
     axios
       .get(`${apiURL}/users/profile/${id}`, config)
       .then(res => {
-        // console.log('1. followed ', res.data.profileFollowers);
-        // console.log(userDetails.id);
-        // console.log(
-        //   'followed : ',
-        //   res.data.profileFollowers.includes(userDetails.id)
-        // );
+        console.log('1. followed ', res.data.profileFollowers);
+        console.log(userDetails.id);
+        console.log(
+          'followed : ',
+          res.data.profileFollowers.includes(userDetails.id)
+        );
         setFollowed(res.data.profileFollowers.includes(userDetails.id));
         setOldUserInfo({
           ...res.data,
@@ -207,16 +207,15 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
   };
 
   const handleFollow = () => {
-    const isFollow = true;
+    const isFollow = followed;
     const config = {
       headers: { Authorization: `JWT ${authToken}` },
     };
-    const prefix = isFollow ? '' : 'un-';
+    const prefix = !isFollow ? '' : 'un';
     axios
       .patch(`${apiURL}/users/${prefix}follow/${id}`, {}, config)
       .then(() => {
-        setFollowed(isFollow);
-        //  dispatch(updateUserDetails(updatedUserDetails));
+        setFollowed(!isFollow);
       })
       .catch(err => {
         console.log(err);
@@ -406,23 +405,25 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
                     {!followed ? (
                       <GreenButton
                         width="100px"
-                        style={{ fontSize: '20px' }}
                         onClick={handleFollow}
                         alignSelf="center"
                       >
-                        follow
+                        Follow
                       </GreenButton>
                     ) : (
+                      //  TODO: create a new <CustomButton> that is composed by GreenButton instead of overriding GreenButton.
                       <GreenButton
                         width="100px"
-                        style={{
-                          backgroundColor: colors.green.dark,
-                        }}
                         onClick={handleFollow}
+                        style={{
+                          backgroundColor: !isHovering
+                            ? colors.green.dark
+                            : colors.red.medium,
+                        }}
                         alignSelf="center"
                         ref={hoverRef}
                       >
-                        {isHovering ? 'unfollow' : 'following'}
+                        {isHovering ? 'Unfollow' : 'Following'}
                       </GreenButton>
                     )}
                   </Box>
