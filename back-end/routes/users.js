@@ -21,18 +21,8 @@ router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
       res.status(400).json('Error: ' + err);
       return;
     });
-    /* Get first 10 users you have not followed - will change logic later */
-    var suggestedUsers = await User.find({
-      _id: {
-        $nin: req.user.profileFollowers,
-      },
-    })
-      .limit(10)
-      .catch(err => {
-        res.status(400).send('Err: ' + err);
-        return;
-      });
-    res.status(200).json({ ...usr, profileSuggestedUsers: suggestedUsers });
+
+    res.status(200).json(usr);
   }
   //if user is checking other profile -> provide public info
   else {
@@ -315,6 +305,29 @@ router.patch(
       message: 'User unfollowed successfully',
       profileFollowers: followedUser.profileFollowers,
     });
+  }
+);
+
+router.get(
+  '/profile/suggested/:limit',
+  helperUser.verifyToken,
+  async (req, res) => {
+    var err = [];
+    helperUser.handleInvalidJWT(req, res, err);
+    if (err.length > 0) return;
+
+    /* Get first 10 users you have not followed - will change logic later */
+    var suggestedUsers = await User.find({
+      _id: {
+        $nin: req.user.profileFollowers,
+      },
+    })
+      .limit(req.params.limit)
+      .catch(err => {
+        res.status(400).send('Err: ' + err);
+        return;
+      });
+    res.status(200).json({ profileSuggestedUsers: suggestedUsers });
   }
 );
 

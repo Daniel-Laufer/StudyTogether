@@ -2,6 +2,8 @@ var jwt = require('jsonwebtoken');
 var User = require('../models/user.model');
 const { validationResult } = require('express-validator');
 
+const removeProperty = (prop, { [prop]: exclProp, ...rest }) => rest;
+
 module.exports = {
   respondJWT(user, res, successMessage) {
     /* Create a token by signing the user id with the private key. */
@@ -74,5 +76,8 @@ module.exports = {
       res.status(403).send({ message: 'Invalid JWT token' });
       err.push('Invalid JWT token');
     }
+  },
+  stripSensitiveInfo(userObj) {
+    removeProperty('email', userObj);
   },
 };
