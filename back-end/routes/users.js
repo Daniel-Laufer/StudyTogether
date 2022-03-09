@@ -289,7 +289,7 @@ router.patch(
 
     /* begin logic */
 
-    await User.findByIdAndUpdate(req.params.id, {
+    var followedUser = await User.findByIdAndUpdate(req.params.id, {
       $pull: { profileFollowers: req.user.id },
     }).catch(err => {
       res.status(400).send('Err: ' + err);
@@ -297,13 +297,16 @@ router.patch(
     });
 
     /* TODO: replace this with a trigger*/
-    await User.findByIdAndUpdate(req.user.id, {
+    var usr = await User.findByIdAndUpdate(req.user.id, {
       $pull: { profileFollowing: req.params.id },
     }).catch(err => {
       res.status(400).send('Err: ' + err);
       return;
     });
-    res.status(200).send('User unfollowed successfully');
+    res.status(200).json({
+      message: 'User unfollowed successfully',
+      profileFollowers: followedUser.profileFollowers,
+    });
   }
 );
 
