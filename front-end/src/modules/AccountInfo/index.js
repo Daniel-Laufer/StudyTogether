@@ -72,19 +72,18 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
     const config = {
       headers: { Authorization: `JWT ${authToken}` },
     };
-    // setLoading({
-    //   ...loading,
-    //   user: true,
-    // });
+    setLoading({
+      ...loading,
+      user: true,
+      groups: true,
+    });
     axios
       .get(`${apiURL}/users/profile/${id}`, config)
       .then(res => {
-        // console.log('1. followed ', res.data.profileFollowers);
-        // console.log(userDetails.id);
-        // console.log(
-        //   'followed : ',
-        //   res.data.profileFollowers.includes(userDetails.id)
-        // );
+        setLoading({
+          ...loading,
+          user: false,
+        });
         setFollowed(res.data.profileFollowers.includes(userDetails.id));
         setOldUserInfo({
           ...res.data,

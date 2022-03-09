@@ -21,18 +21,7 @@ router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
       res.status(400).json('Error: ' + err);
       return;
     });
-    /* Get first 10 users you have not followed - will change logic later */
-    var suggestedUsers = await User.find({
-      _id: {
-        $nin: req.user.profileFollowers,
-      },
-    })
-      .limit(10)
-      .catch(err => {
-        res.status(400).send('Err: ' + err);
-        return;
-      });
-    res.status(200).json({ ...usr, profileSuggestedUsers: suggestedUsers });
+    res.status(200).json(usr);
   }
   //if user is checking other profile -> provide public info
   else {
@@ -55,6 +44,26 @@ router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
     });
   }
 });
+
+/* Get first (x=limit) users you have not followed */
+router.get(
+  '/recommend-users/:limit',
+  helperUser.verifyToken,
+  async (req, res) => {
+    /* TODO: Change logic to something smarter (k means clustering maybe?) */
+    var recommendedUsers = await User.find({
+      _id: {
+        $nin: req.user.profileFollowers,
+      },
+    })
+      .limit(10)
+      .catch(err => {
+        res.status(400).send('Err: ' + err);
+        return;
+      });
+    res.status(200).json({ recommended: recommendedUsers });
+  }
+);
 
 /* Update non-sensitive user profile info */
 router.patch(
@@ -94,7 +103,6 @@ router.patch(
 );
 
 //Authentication and Authorization referenced from https://www.topcoder.com/thrive/articles/authentication-and-authorization-in-express-js-api-using-jwt
-
 router.post(
   '/register',
   /* Parameter Validation */
