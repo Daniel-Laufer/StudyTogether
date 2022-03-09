@@ -9,6 +9,8 @@ import {
   Heading,
   FormControl,
   AlertDescription,
+  Text,
+  HStack,
 } from '@chakra-ui/react';
 import { connect } from 'react-redux';
 import axios from 'axios';
@@ -19,6 +21,35 @@ import { logout } from '../../actions/Auth';
 import CustomSpinner from '../../components/CustomSpinner';
 import DetailedGroup from '../../components/DetailedGroup';
 import GreenButton from '../../components/GreenButton';
+import GroupMembers from '../../components/GroupMembers';
+import * as colors from '../../utils/colors';
+
+const members = [
+  {
+    name: 'Milind Vishnoi',
+    id: '621848b2ea3535aaea4467a1',
+    imgSrc:
+      'https://faunafocus.files.wordpress.com/2021/01/rusty-spotted-cat.png?w=956&h=956&crop=1',
+  },
+  {
+    name: 'Milind Vishnoi',
+    id: '621848b2ea3535aaea4467a1',
+    imgSrc:
+      'https://faunafocus.files.wordpress.com/2021/01/rusty-spotted-cat.png?w=956&h=956&crop=1',
+  },
+  {
+    name: 'Milind Vishnoi',
+    id: '621848b2ea3535aaea4467a1',
+    imgSrc:
+      'https://img.freepik.com/free-vector/cute-cat-gaming-cartoon_138676-2969.jpg?size=338&ext=jpg',
+  },
+  {
+    name: 'Milind Vishnoi',
+    id: '621848b2ea3535aaea4467a1',
+    imgSrc:
+      'https://img.freepik.com/free-vector/cute-cat-gaming-cartoon_138676-2969.jpg?size=338&ext=jpg',
+  },
+];
 
 function GroupView({
   authToken,
@@ -137,7 +168,14 @@ function GroupView({
   };
 
   return !loading ? (
-    <Box style={{ width: '60%', margin: 'auto', marginTop: '2rem' }}>
+    <Box
+      style={{
+        width: '60%',
+        margin: 'auto',
+        marginTop: '2rem',
+        marginBottom: '2rem',
+      }}
+    >
       <Flex justify="space-between" wrap="wrap" gap="1rem">
         <Heading as="h2" size="2xl">
           {headerContent}
@@ -169,7 +207,17 @@ function GroupView({
           desc={group.description}
           size="lg"
         />
-        <div style={{ marginTop: '1rem' }}>
+        {members ? (
+          <Box width="full">
+            <Text as="b" color={colors.grey.dark} fontSize="20px" mt="0px">
+              Members
+            </Text>
+            <HStack>
+              {members && members.map(u => <GroupMembers userInfo={u} />)}
+            </HStack>
+          </Box>
+        ) : null}
+        <Box style={{ marginTop: '1rem' }}>
           {group &&
           group.attendees &&
           group.attendees.filter(g => g === userDetails.id).length === 0 ? (
@@ -218,7 +266,7 @@ function GroupView({
               <AlertDescription>The operation was successful!</AlertDescription>
             </Alert>
           ) : null}
-        </div>
+        </Box>
       </Flex>
     </Box>
   ) : (
