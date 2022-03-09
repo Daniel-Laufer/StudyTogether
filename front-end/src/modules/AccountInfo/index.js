@@ -17,6 +17,8 @@ import {
   AlertIcon,
   AlertDescription,
   Divider,
+  // Skeleton,
+  // SkeletonCircle,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
@@ -70,9 +72,20 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
     const config = {
       headers: { Authorization: `JWT ${authToken}` },
     };
+    setLoading({
+      ...loading,
+      user: true,
+    });
     axios
       .get(`${apiURL}/users/profile/${id}`, config)
       .then(res => {
+        // console.log('1. followed ', res.data.profileFollowers);
+        // console.log(userDetails.id);
+        // console.log(
+        //   'followed : ',
+        //   res.data.profileFollowers.includes(userDetails.id)
+        // );
+        setFollowed(res.data.profileFollowers.includes(userDetails.id));
         setOldUserInfo({
           ...res.data,
           profileCourses: res.data.profileCourses.map((c, index) => {
@@ -193,18 +206,17 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
       });
   };
 
-  const handleFollow = c => {
-    console.log(c);
+  const handleFollow = () => {
     const isFollow = true;
     const config = {
       headers: { Authorization: `JWT ${authToken}` },
     };
     const prefix = isFollow ? '' : 'un-';
     axios
-      .patch(`${apiURL}/users/${prefix}follow/${userDetails.id}`, config)
+      .patch(`${apiURL}/users/${prefix}follow/${id}`, {}, config)
       .then(() => {
         setFollowed(isFollow);
-        dispatch(updateUserDetails(updatedUserDetails));
+        //  dispatch(updateUserDetails(updatedUserDetails));
       })
       .catch(err => {
         console.log(err);
@@ -391,7 +403,7 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
                 />
                 {userDetails && id !== userDetails.id && (
                   <Box>
-                    {userDetails && id !== userDetails.id ? (
+                    {!followed ? (
                       <GreenButton
                         width="100px"
                         style={{ fontSize: '20px' }}
@@ -403,11 +415,11 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
                     ) : (
                       <GreenButton
                         width="100px"
-                        style={{ fontSize: '20px', backgroundColor: '#EE3625' }}
+                        style={{ fontSize: '20px' }}
                         onClick={handleFollow}
                         alignSelf="center"
                       >
-                        unfollow
+                        following
                       </GreenButton>
                     )}
                   </Box>
