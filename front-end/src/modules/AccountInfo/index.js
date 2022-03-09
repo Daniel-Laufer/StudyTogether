@@ -134,7 +134,7 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
           navigate('/login');
         }
       });
-  }, []);
+  }, [id]);
 
   const handleDelete = i => {
     setUserInfo({
