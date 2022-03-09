@@ -57,9 +57,8 @@ function Group({
     >
       <Box
         sx={{
-          fontFamily: 'Inter',
           fontSize: '16px',
-          fontWeight: 600,
+          fontWeight: 'bold',
           margin: 0,
           textAlign: 'left',
         }}

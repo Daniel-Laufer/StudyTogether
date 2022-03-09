@@ -57,6 +57,8 @@ function Map({
       JSON.stringify(markers) !== JSON.stringify(markerLocations)
     )
       setMarkers(markerLocations);
+
+    console.log(markerLocations);
   }, [markerLocations]);
 
   const addMarker = ev => {

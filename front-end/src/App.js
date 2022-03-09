@@ -20,6 +20,7 @@ import NavBar from './components/NavBar';
 import NotFoundPage from './modules/NotFoundPage';
 import AccountInfo from './modules/AccountInfo';
 import GroupView from './modules/GroupView';
+import GroupEditor from './modules/GroupEditor';
 
 const store = createStore(
   rootReducer,
@@ -58,6 +59,7 @@ function App() {
               }
             />
             <Route path="/groups/create" element={<GroupCreator />} />
+            <Route path="/groups/edit/:id" element={<GroupEditor />} />
             <Route
               path="/saved-groups"
               element={

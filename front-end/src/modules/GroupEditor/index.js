@@ -38,17 +38,13 @@ import { apiURL, userRoles } from '../../utils/constants';
 import Map from '../../components/Map';
 import GreenButton from '../../components/GreenButton';
 
-function GroupCreator({ authToken, userRole }) {
+function GroupEditor({ authToken, userRole }) {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id: groupId } = useParams();
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
-  useEffect(() => {
-    console.log(id);
-  });
 
   useEffect(() => {
     if (authToken === null) {
@@ -90,6 +86,47 @@ function GroupCreator({ authToken, userRole }) {
     location: false,
   });
   const [forceHideAlert, setForceHideAlert] = useState(false);
+
+  const getStudyGroupDetails = () => {
+    const config = {
+      headers: { Authorization: `JWT ${authToken}` },
+    };
+    // setLoading(true);
+    axios
+      .get(`${apiURL}/studygroups/${groupId}`, config)
+      .then(res => {
+        const startDateTime = new Date(res.data.startDateTime);
+        const endDateTime = new Date(res.data.endDateTime);
+        const newState = {
+          title: res.data.title,
+          image: res.data.imageUrl,
+          phone: res.data.phone,
+          date: startDateTime,
+          startTime: `${startDateTime.getHours()}:${startDateTime.getMinutes()}`,
+          endTime: `${endDateTime.getHours()}:${endDateTime.getMinutes()}`,
+          description: res.data.description,
+          tags: res.data.tags.reduce((acc, curr) => {
+            acc.push({ id: (Math.random() * 1000).toString(16), text: curr });
+            return acc;
+          }, []),
+          locationLat: res.data.location.lat,
+          locationLng: res.data.location.lng,
+          currAttendees: res.data.curAttendees,
+          maxAttendees: res.data.maxAttendees,
+        };
+        console.log(res.data);
+        setState({ ...state, ...newState });
+      })
+      .catch(err => {
+        // setLoading(false);
+        if (err.response.status === 401) {
+          // dispatch(logout());
+          navigate('/login');
+        }
+      });
+  };
+
+  useEffect(() => getStudyGroupDetails(), []);
 
   const handleChange = event => {
     const { value, name } = event.target;
@@ -355,32 +392,20 @@ function GroupCreator({ authToken, userRole }) {
                     />
                   </div>
                 </HStack>
+
                 <HStack>
                   <span style={{ marginRight: '1rem' }}>
-                    Curent number of attendees{' '}
+                    Current number of attendees{' '}
                   </span>
-                  <NumberInput name="currAttendees" value={state.currAttendees}>
+                  <NumberInput
+                    disabled
+                    name="currAttendees"
+                    value={state.currAttendees}
+                  >
                     <NumberInputField />
                     <NumberInputStepper>
-                      <NumberIncrementStepper
-                        onClick={() =>
-                          setState({
-                            ...state,
-                            currAttendees: Math.min(
-                              state.currAttendees + 1,
-                              100
-                            ),
-                          })
-                        }
-                      />
-                      <NumberDecrementStepper
-                        onClick={() =>
-                          setState({
-                            ...state,
-                            currAttendees: Math.max(state.currAttendees - 1, 1),
-                          })
-                        }
-                      />
+                      <NumberIncrementStepper onClick={() => null} />
+                      <NumberDecrementStepper onClick={() => null} />
                     </NumberInputStepper>
                   </NumberInput>
                 </HStack>
@@ -404,13 +429,17 @@ function GroupCreator({ authToken, userRole }) {
                         onClick={() =>
                           setState({
                             ...state,
-                            maxAttendees: Math.max(state.maxAttendees - 1, 2),
+                            maxAttendees: Math.max(
+                              state.maxAttendees - 1,
+                              state.currAttendees + 1
+                            ),
                           })
                         }
                       />
                     </NumberInputStepper>
                   </NumberInput>
                 </HStack>
+
                 <HStack gap="1rem">
                   <span style={{ width: '80px' }}>Date </span>
                   <div
@@ -609,7 +638,23 @@ function GroupCreator({ authToken, userRole }) {
               border: errors.location ? 'solid 3px crimson' : 'none',
             }}
           >
-            <Map restrictToOneMarker getLngLatOfNewMarker={setLocation} />
+            <Map
+              restrictToOneMarker
+              getLngLatOfNewMarker={setLocation}
+              initialCenter={{ lat: state.locationLat, lng: state.locationLng }}
+              markers={
+                state.locationLat && state.locationLng
+                  ? [
+                      {
+                        id: groupId,
+                        metaData: null,
+                        lat: state.locationLat,
+                        lng: state.locationLng,
+                      },
+                    ]
+                  : []
+              }
+            />
           </Box>
         </>
       )}
@@ -638,15 +683,15 @@ const TimePickerWrapper = styled.div`
   }
 `;
 
-GroupCreator.propTypes = {
+GroupEditor.propTypes = {
   authToken: PropTypes.string,
   userRole: PropTypes.string,
 };
 
-GroupCreator.defaultProps = { authToken: '', userRole: '' };
+GroupEditor.defaultProps = { authToken: '', userRole: '' };
 
 export default connect(state => ({
   // eslint-disable-next-line no-undef
   authToken: state.Auth.authToken || localStorage.getItem('authToken'),
   userRole: localStorage.getItem('role'),
-}))(GroupCreator);
+}))(GroupEditor);
