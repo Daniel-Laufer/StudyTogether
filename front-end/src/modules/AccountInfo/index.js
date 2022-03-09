@@ -17,8 +17,6 @@ import {
   AlertIcon,
   AlertDescription,
   Divider,
-  // Skeleton,
-  // SkeletonCircle,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
@@ -32,10 +30,12 @@ import defUserImage from '../../assets/images/defuser.jpeg';
 import GreenButton from '../../components/GreenButton';
 import DetailedGroup from '../../components/DetailedGroup';
 import { logout, updateUserDetails } from '../../actions/Auth';
+import useHover from '../../hooks/useHover';
 import * as colors from '../../utils/colors';
 
 function AccountInfo({ authToken, userDetails, dispatch }) {
   const navigate = useNavigate();
+  const [hoverRef, isHovering] = useHover();
   const { id } = useParams();
   const [loading, setLoading] = useState({
     groups: false,
@@ -415,11 +415,14 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
                     ) : (
                       <GreenButton
                         width="100px"
-                        style={{ fontSize: '20px' }}
+                        style={{
+                          backgroundColor: colors.green.dark,
+                        }}
                         onClick={handleFollow}
                         alignSelf="center"
+                        ref={hoverRef}
                       >
-                        following
+                        {isHovering ? 'unfollow' : 'following'}
                       </GreenButton>
                     )}
                   </Box>
