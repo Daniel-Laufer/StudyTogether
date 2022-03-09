@@ -306,7 +306,7 @@ router.post(
 );
 
 router.patch(
-  '/follow/:id',
+  '/profile/follow/:id',
   [helperUser.verifyToken, param('id').exists()],
   async (req, res) => {
     var err = [];
@@ -343,7 +343,7 @@ router.patch(
 );
 
 router.patch(
-  '/unfollow/:id',
+  '/profile/unfollow/:id',
   [helperUser.verifyToken, param('id').exists()],
   async (req, res) => {
     var err = [];
