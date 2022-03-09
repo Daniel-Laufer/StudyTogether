@@ -260,21 +260,29 @@ router.patch(
 
     /* begin logic */
 
-    await User.findByIdAndUpdate(req.params.id, {
-      $addToSet: { profileFollowers: req.user.id },
-    }).catch(err => {
+    var followedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      { $addToSet: { profileFollowers: req.user.id } },
+      { new: true }
+    ).catch(err => {
       res.status(400).send('Err: ' + err);
       return;
     });
 
     /* TODO: replace this with a trigger*/
-    await User.findByIdAndUpdate(req.user.id, {
-      $addToSet: { profileFollowing: req.params.id },
-    }).catch(err => {
+    await User.findByIdAndUpdate(
+      req.user.id,
+      { $addToSet: { profileFollowing: req.params.id } },
+      { new: true }
+    ).catch(err => {
       res.status(400).send('Err: ' + err);
       return;
     });
-    res.status(200).send('User followed successfully');
+
+    res.status(200).json({
+      message: 'User followed successfully',
+      profileFollowers: followedUser.profileFollowers,
+    });
   }
 );
 
@@ -297,7 +305,7 @@ router.patch(
     });
 
     /* TODO: replace this with a trigger*/
-    var usr = await User.findByIdAndUpdate(req.user.id, {
+    await User.findByIdAndUpdate(req.user.id, {
       $pull: { profileFollowing: req.params.id },
     }).catch(err => {
       res.status(400).send('Err: ' + err);
