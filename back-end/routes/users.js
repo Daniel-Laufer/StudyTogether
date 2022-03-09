@@ -278,4 +278,33 @@ router.patch(
   }
 );
 
+router.patch(
+  '/unfollow/:id',
+  [helperUser.verifyToken, param('id').exists()],
+  async (req, res) => {
+    var err = [];
+    helperUser.handleValidationResult(req, res, err);
+    helperUser.handleInvalidJWT(req, res, err);
+    if (err.length > 0) return;
+
+    /* begin logic */
+
+    await User.findByIdAndUpdate(req.params.id, {
+      $pull: { profileFollowers: req.user.id },
+    }).catch(err => {
+      res.status(400).send('Err: ' + err);
+      return;
+    });
+
+    /* TODO: replace this with a trigger*/
+    await User.findByIdAndUpdate(req.user.id, {
+      $pull: { profileFollowing: req.params.id },
+    }).catch(err => {
+      res.status(400).send('Err: ' + err);
+      return;
+    });
+    res.status(200).send('User unfollowed successfully');
+  }
+);
+
 module.exports = router;
