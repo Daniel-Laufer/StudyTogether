@@ -37,8 +37,9 @@ import * as colors from '../../utils/colors';
 import { apiURL, userRoles } from '../../utils/constants';
 import Map from '../../components/Map';
 import GreenButton from '../../components/GreenButton';
+import { logout } from '../../actions/Auth';
 
-function GroupEditor({ authToken, userRole }) {
+function GroupEditor({ authToken, userRole, dispatch }) {
   const navigate = useNavigate();
   const { id: groupId } = useParams();
 
@@ -91,6 +92,7 @@ function GroupEditor({ authToken, userRole }) {
     const config = {
       headers: { Authorization: `JWT ${authToken}` },
     };
+    console.log(config);
     // setLoading(true);
     axios
       .get(`${apiURL}/studygroups/${groupId}`, config)
@@ -120,7 +122,7 @@ function GroupEditor({ authToken, userRole }) {
       .catch(err => {
         // setLoading(false);
         if (err.response.status === 401) {
-          // dispatch(logout());
+          dispatch(logout());
           navigate('/login');
         }
       });
@@ -271,12 +273,16 @@ function GroupEditor({ authToken, userRole }) {
         headers: { Authorization: `JWT ${authToken}` },
       };
       axios
-        .post(`${apiURL}/studygroups/create`, body, config)
+        .post(`${apiURL}/studygroups/edit/${groupId}`, body, config)
         .then(res => {
           navigate('/');
         })
         .catch(err => {
           console.log(err);
+          if (err.response.status === 401) {
+            dispatch(logout());
+            navigate('/login');
+          }
         });
     }
   };
@@ -686,6 +692,7 @@ const TimePickerWrapper = styled.div`
 GroupEditor.propTypes = {
   authToken: PropTypes.string,
   userRole: PropTypes.string,
+  dispatch: PropTypes.func.isRequired,
 };
 
 GroupEditor.defaultProps = { authToken: '', userRole: '' };
