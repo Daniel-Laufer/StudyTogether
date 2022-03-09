@@ -92,7 +92,6 @@ function GroupEditor({ authToken, userRole, dispatch }) {
     const config = {
       headers: { Authorization: `JWT ${authToken}` },
     };
-    console.log(config);
     // setLoading(true);
     axios
       .get(`${apiURL}/studygroups/${groupId}`, config)
@@ -273,7 +272,7 @@ function GroupEditor({ authToken, userRole, dispatch }) {
         headers: { Authorization: `JWT ${authToken}` },
       };
       axios
-        .post(`${apiURL}/studygroups/edit/${groupId}`, body, config)
+        .patch(`${apiURL}/studygroups/edit/${groupId}`, body, config)
         .then(res => {
           navigate('/');
         })
