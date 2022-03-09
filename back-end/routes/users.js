@@ -21,7 +21,6 @@ router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
       res.status(400).json('Error: ' + err);
       return;
     });
-
     res.status(200).json(usr);
   }
   //if user is checking other profile -> provide public info
@@ -41,10 +40,79 @@ router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
       profileContactInfo: usr.profileContactInfo,
       profileInterests: usr.profileInterests,
       profileCourses: usr.profileCourses,
-      profileFollowers: usr.profileFollowers,
     });
   }
 });
+
+/* Get first (x=limit) users you have not followed */
+router.get(
+  '/recommend-users/:limit',
+  helperUser.verifyToken,
+  async (req, res) => {
+    /* TODO: Change logic to something smarter (k means clustering maybe?) */
+    var recommendedUsers = await User.find({
+      _id: {
+        $nin: req.user.profileFollowers,
+      },
+    })
+      .limit(10)
+      .catch(err => {
+        res.status(400).send('Err: ' + err);
+        return;
+      });
+    res.status(200).json({ recommended: recommendedUsers });
+  }
+);
+
+router.get(
+  '/profile/:id/followers',
+  helperUser.verifyToken,
+  async (req, res) => {
+    var usr = req.user;
+
+    if (req.user.id !== req.params.id) {
+      usr = await User.findById(req.params.id).catch(err => {
+        res.status(400).send('Err: ' + err);
+        return;
+      });
+    }
+
+    var followers = await User.find({
+      _id: {
+        $in: usr.profileFollowers,
+      },
+    }).catch(err => {
+      res.status(400).send('Err: ' + err);
+      return;
+    });
+    res.status(200).json({ followers: followers });
+  }
+);
+
+router.get(
+  '/profile/:id/following',
+  helperUser.verifyToken,
+  async (req, res) => {
+    var usr = req.user;
+
+    if (req.user.id !== req.params.id) {
+      usr = await User.findById(req.params.id).catch(err => {
+        res.status(400).send('Err: ' + err);
+        return;
+      });
+    }
+
+    var following = await User.find({
+      _id: {
+        $in: usr.profileFollowing,
+      },
+    }).catch(err => {
+      res.status(400).send('Err: ' + err);
+      return;
+    });
+    res.status(200).json({ following: following });
+  }
+);
 
 /* Update non-sensitive user profile info */
 router.patch(
@@ -84,7 +152,6 @@ router.patch(
 );
 
 //Authentication and Authorization referenced from https://www.topcoder.com/thrive/articles/authentication-and-authorization-in-express-js-api-using-jwt
-
 router.post(
   '/register',
   /* Parameter Validation */
@@ -307,28 +374,4 @@ router.patch(
     });
   }
 );
-
-router.get(
-  '/profile/suggested/:limit',
-  helperUser.verifyToken,
-  async (req, res) => {
-    var err = [];
-    helperUser.handleInvalidJWT(req, res, err);
-    if (err.length > 0) return;
-
-    /* Get first 10 users you have not followed - will change logic later */
-    var suggestedUsers = await User.find({
-      _id: {
-        $nin: req.user.profileFollowers,
-      },
-    })
-      .limit(req.params.limit)
-      .catch(err => {
-        res.status(400).send('Err: ' + err);
-        return;
-      });
-    res.status(200).json({ profileSuggestedUsers: suggestedUsers });
-  }
-);
-
 module.exports = router;
