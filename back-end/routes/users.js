@@ -30,6 +30,7 @@ router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
       return;
     });
 
+    /* TODO: update the query above to exclude sensitive info instead of doing this mess :< (should be like recommend api)*/
     res.status(200).json({
       firstName: usr.firstName,
       lastName: usr.lastName,
@@ -46,15 +47,15 @@ router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
 
 /* Get first (x=limit) users you have not followed */
 router.get(
-  '/recommend-users/:limit',
+  '/profile/recommend/:limit',
   helperUser.verifyToken,
   async (req, res) => {
-    /* TODO: Change logic to something smarter (k means clustering maybe?) */
-    var recommendedUsers = await User.find({
-      _id: {
-        $nin: req.user.profileFollowers,
-      },
-    })
+    /* TODO1: Change logic to something smarter (k means clustering maybe?) */
+    /* TODO2: Create an ORM helper to reuse the query below */
+    var recommendedUsers = await User.find(
+      { _id: { $nin: req.user.profileFollowers } },
+      { password: 0, created: 0, email: 0 }
+    )
       .limit(10)
       .catch(err => {
         res.status(400).send('Err: ' + err);
@@ -77,11 +78,10 @@ router.get(
       });
     }
 
-    var followers = await User.find({
-      _id: {
-        $in: usr.profileFollowers,
-      },
-    }).catch(err => {
+    var followers = await User.find(
+      { _id: { $in: usr.profileFollowers } },
+      { password: 0, created: 0, email: 0 } //  Exclude these values from the returned document
+    ).catch(err => {
       res.status(400).send('Err: ' + err);
       return;
     });
@@ -102,11 +102,10 @@ router.get(
       });
     }
 
-    var following = await User.find({
-      _id: {
-        $in: usr.profileFollowing,
-      },
-    }).catch(err => {
+    var following = await User.find(
+      { _id: { $in: usr.profileFollowing } },
+      { password: 0, created: 0, email: 0 } //  Exclude these values from the returned document
+    ).catch(err => {
       res.status(400).send('Err: ' + err);
       return;
     });
@@ -354,9 +353,11 @@ router.patch(
 
     /* begin logic */
 
-    var followedUser = await User.findByIdAndUpdate(req.params.id, {
-      $pull: { profileFollowers: req.user.id },
-    }).catch(err => {
+    var followedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      { $pull: { profileFollowers: req.user.id } },
+      { new: true }
+    ).catch(err => {
       res.status(400).send('Err: ' + err);
       return;
     });
