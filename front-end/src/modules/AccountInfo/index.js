@@ -223,7 +223,7 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
     if (isFollow) onUnfollowClose();
     const prefix = !isFollow ? '' : 'un';
     axios
-      .patch(`${apiURL}/users/${prefix}follow/${id}`, {}, config)
+      .patch(`${apiURL}/users/profile/${prefix}follow/${id}`, {}, config)
       .then(() => {
         setFollowed(!isFollow);
       })
