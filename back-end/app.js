@@ -50,7 +50,7 @@ app.use(function (req, res, next) {
   res
     .status(404)
     .send(
-      'Resource does not exist (T_T)7, check out the documenation for help.'
+      'Resource does not exist (T_T)7. Check out the documentation for help.'
     );
 });
 

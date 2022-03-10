@@ -147,7 +147,7 @@ describe('User Tests', function () {
     it('user1 followes user2', function (done) {
       chai
         .request(app)
-        .patch(`/users/follow/${user2Id}`)
+        .patch(`/users/profile/follow/${user2Id}`)
         .set('Content-Type', 'application/json')
         .set('Authorization', `JWT ${token}`)
         .end(function (err, res) {
@@ -157,18 +157,17 @@ describe('User Tests', function () {
           done();
         });
     });
-    // it('user-1 unfollowes user-2', function (done) {
-    //   chai
-    //     .request(app)
-    //     .patch(`/users/unfollow/${user2Id}`)
-    //     .set('Content-Type', 'application/json')
-    //     .set('Authorization', `JWT ${token}`)
-    //     .end(function (err, res) {
-    //       console.log(res.body);
-    //       expect(res).to.have.status(200);
-    //       expect(res.body.profileFollowers).to.not.contain(user2Id); //user1 is no longer a follower of user2
-    //       done();
-    //     });
-    // });
+    it('user-1 unfollowes user-2', function (done) {
+      chai
+        .request(app)
+        .patch(`/users/profile/unfollow/${user2Id}`)
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `JWT ${token}`)
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          expect(res.body.profileFollowers).to.not.contain(userId); //user1 is no longer a follower of user2
+          done();
+        });
+    });
   });
 });
