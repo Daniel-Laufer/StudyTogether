@@ -10,6 +10,8 @@ import {
   Heading,
   FormControl,
   AlertDescription,
+  Text,
+  HStack,
 } from '@chakra-ui/react';
 import { connect } from 'react-redux';
 import dateFormat from 'dateformat';
@@ -22,6 +24,7 @@ import { logout } from '../../actions/Auth';
 import CustomSpinner from '../../components/CustomSpinner';
 import DetailedGroup from '../../components/DetailedGroup';
 import GreenButton from '../../components/GreenButton';
+import GroupMembers from '../../components/GroupMembers';
 
 function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
   const navigate = useNavigate();
@@ -179,7 +182,14 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
   };
 
   return !loading ? (
-    <Box style={{ width: '60%', margin: 'auto', marginTop: '2rem' }}>
+    <Box
+      style={{
+        width: '60%',
+        margin: 'auto',
+        marginTop: '2rem',
+        marginBottom: '2rem',
+      }}
+    >
       <Flex justify="space-between" wrap="wrap" gap="1rem">
         <Heading as="h2" size="2xl">
           {group.title}
@@ -213,19 +223,21 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
           desc={group.description}
           size="lg"
         />
-        <div style={{ marginTop: '1rem' }}>
-          {group && group.hostId === userDetails.id ? (
-            <GreenButton
-              style={{ backgroundColor: colors.blue.medium }}
-              size="md"
-              width="400px"
-              onClick={() => navigate(`/groups/edit/${id}`)}
-            >
-              Edit
-            </GreenButton>
-          ) : group &&
-            group.attendees &&
-            group.attendees.filter(g => g === userDetails.id).length === 0 ? (
+        {group.attendees && group.attendees.length > 0 ? (
+          <Box width="full">
+            <Text as="b" color={colors.grey.dark} fontSize="20px" mt="0px">
+              Members
+            </Text>
+            <HStack>
+              {group.attendees &&
+                group.attendees.map(u => <GroupMembers userInfo={u} />)}
+            </HStack>
+          </Box>
+        ) : null}
+        <Box style={{ marginTop: '1rem' }}>
+          {group &&
+          group.attendees &&
+          group.attendees.filter(g => g.id === userDetails.id).length === 0 ? (
             <GreenButton
               colorScheme="teal"
               size="md"
@@ -272,7 +284,7 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
               <AlertDescription>The operation was successful!</AlertDescription>
             </Alert>
           ) : null}
-        </div>
+        </Box>
       </Flex>
     </Box>
   ) : (
