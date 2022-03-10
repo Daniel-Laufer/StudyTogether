@@ -17,6 +17,13 @@ import {
   AlertIcon,
   AlertDescription,
   Divider,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
+  Button,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
@@ -35,6 +42,9 @@ import * as colors from '../../utils/colors';
 
 function AccountInfo({ authToken, userDetails, dispatch }) {
   const navigate = useNavigate();
+  const [unfollowIsOpen, setUnfollowIsOpen] = React.useState(false);
+  const onUnfollowClose = () => setUnfollowIsOpen(false);
+  const unfollowCancelRef = React.useRef();
   const [hoverRef, isHovering] = useHover();
   const { id } = useParams();
   const [loading, setLoading] = useState({
@@ -210,6 +220,7 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
     const config = {
       headers: { Authorization: `JWT ${authToken}` },
     };
+    if (isFollow) onUnfollowClose();
     const prefix = !isFollow ? '' : 'un';
     axios
       .patch(`${apiURL}/users/${prefix}follow/${id}`, {}, config)
@@ -413,7 +424,7 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
                       //  TODO: create a new <CustomButton> that is composed by GreenButton instead of overriding GreenButton.
                       <GreenButton
                         width="100px"
-                        onClick={handleFollow}
+                        onClick={() => setUnfollowIsOpen(true)}
                         style={{
                           backgroundColor: !isHovering
                             ? colors.green.dark
@@ -427,6 +438,36 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
                     )}
                   </Box>
                 )}
+                <AlertDialog
+                  isOpen={unfollowIsOpen}
+                  leastDestructiveRef={unfollowCancelRef}
+                  onClose={onUnfollowClose}
+                >
+                  <AlertDialogOverlay>
+                    <AlertDialogContent>
+                      <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                        {`Unfollow ${userDetails.firstName} ?`}
+                      </AlertDialogHeader>
+
+                      <AlertDialogBody>
+                        Their activity will no longer show up in your
+                        notification hub. You can still view their profile.
+                      </AlertDialogBody>
+
+                      <AlertDialogFooter>
+                        <Button
+                          ref={unfollowCancelRef}
+                          onClick={onUnfollowClose}
+                        >
+                          Cancel
+                        </Button>
+                        <Button colorScheme="red" onClick={handleFollow} ml={3}>
+                          Unfollow
+                        </Button>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialogOverlay>
+                </AlertDialog>
                 <Divider orientation="horizontal" />
                 <Text
                   fontSize={18}

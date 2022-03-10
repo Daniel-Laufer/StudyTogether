@@ -161,7 +161,7 @@
         }
       }
     },
-    "/users/profile/ufollow/{id}": {
+    "/users/profile/unfollow/{id}": {
       "patch": {
         "tags": ["User"],
         "summary": "undoes the actions of the follow endpoint",
