@@ -446,7 +446,7 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
                   <AlertDialogOverlay>
                     <AlertDialogContent>
                       <AlertDialogHeader fontSize="lg" fontWeight="bold">
-                        {`Unfollow ${userDetails.firstName} ?`}
+                        {`Unfollow ${userInfo.firstName} ?`}
                       </AlertDialogHeader>
 
                       <AlertDialogBody>
