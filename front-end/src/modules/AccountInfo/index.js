@@ -450,8 +450,8 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
                       </AlertDialogHeader>
 
                       <AlertDialogBody>
-                        Their activity will no longer show up in your
-                        notification hub. You can still view their profile.
+                        You will no longer receive notifications about this
+                        user&apos;s activity.
                       </AlertDialogBody>
 
                       <AlertDialogFooter>
