@@ -1,4 +1,4 @@
-import { Box, Stack, VStack, Text, Image, Tag } from '@chakra-ui/react';
+import { Box, Stack, VStack, Text, Image, Tag, HStack } from '@chakra-ui/react';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
@@ -26,17 +26,28 @@ const diffSize = size =>
         imgAlign: ['center', 'center', 'left'],
       };
 
-function CustomText(fontSize, noOfLines, text) {
+function CustomText(fontSize, noOfLines, titles, text) {
   return (
-    <Text
-      as="b"
-      color={colors.grey.dark}
-      fontSize={fontSize}
-      mt="0px"
-      noOfLines={noOfLines}
-    >
-      {text}
-    </Text>
+    <HStack>
+      <Text
+        fontWeight="bold"
+        color={colors.grey.dark}
+        fontSize={fontSize}
+        mt="0px"
+        noOfLines={noOfLines}
+      >
+        {titles}
+      </Text>
+      <Text
+        fontWeight="normal"
+        color={colors.grey.dark}
+        fontSize={fontSize}
+        mt="0px"
+        noOfLines={noOfLines}
+      >
+        {text}
+      </Text>
+    </HStack>
   );
 }
 
@@ -96,12 +107,14 @@ function DetailedGroup({
         </Tag>
       ) : null}
       <VStack justifyContent="center" spacing={vstackSpacing} align="left">
-        {CustomText(fontSize, noOfLines, `Title: ${title}`)}
-        {CustomText(fontSize, noOfLines, `Restriction: ${restrict}`)}
-        {CustomText(fontSize, noOfLines, `Availability: ${availability}`)}
-        {CustomText(fontSize, noOfLines, `When: ${when}`)}
-        {CustomText(fontSize, noOfLines, `Hosted by: ${host}`)}
-        {CustomText(fontSize, noOfLines, `Description: ${desc}`)}
+        {title && CustomText(fontSize, noOfLines, `Title: ${title}`)}
+        {CustomText(fontSize, noOfLines, 'Restriction:', `${restrict}`)}
+        {CustomText(fontSize, noOfLines, 'Availability:', `${availability}`)}
+        {CustomText(fontSize, noOfLines, 'When:', `${when}`)}
+        {/* need to subtract dates and format them */}
+        {CustomText(fontSize, noOfLines, 'Duration:', `${when}`)}
+        {CustomText(fontSize, noOfLines, 'Hosted by:', `${host}`)}
+        {CustomText(fontSize, noOfLines, 'Description:', `${desc}`)}
       </VStack>
     </Stack>
   );

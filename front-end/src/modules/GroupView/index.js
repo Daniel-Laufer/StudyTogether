@@ -12,6 +12,7 @@ import {
   AlertDescription,
 } from '@chakra-ui/react';
 import { connect } from 'react-redux';
+import dateFormat from 'dateformat';
 import axios from 'axios';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
@@ -22,17 +23,12 @@ import CustomSpinner from '../../components/CustomSpinner';
 import DetailedGroup from '../../components/DetailedGroup';
 import GreenButton from '../../components/GreenButton';
 
-function GroupView({
-  authToken,
-  dispatch,
-  studyGroupsEndPoint,
-  headerContent,
-  userDetails,
-}) {
+function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
   const navigate = useNavigate();
   const { id } = useParams();
   const location = useLocation();
   const [group, setGroup] = useState({});
+  const [groupOwner, setGroupOwner] = useState({});
   const [loading, setLoading] = useState(false);
   const [errorOccured, setErrorOccured] = useState(false);
   const [successOccured, setSuccessOccured] = useState(false);
@@ -43,7 +39,30 @@ function GroupView({
     }
   }, [authToken]);
 
-  const getSelectedStudyGroup = () => {
+  const getGroupOwnerCallbackA = (hostId, config) => {
+    console.log(`===> ${hostId}`);
+    if (hostId) {
+      setLoading(true);
+      axios
+        .get(`${apiURL}/users/profile/${hostId}`, config)
+        .then(res => {
+          setLoading(false);
+          setGroupOwner(res.data);
+          // console.log(`======> ${res}`);
+          // console.log(`======> ${res.data.firstName}, ${groupOwner.firstName}`);
+        })
+        .catch(err => {
+          setLoading(false);
+          // TODO: error checking
+          if (err.response.status === 401) {
+            dispatch(logout());
+            navigate('/login');
+          }
+        });
+    }
+  };
+
+  const getSelectedStudyGroup = getGroupOwnerCallback => {
     const config = {
       headers: { Authorization: `JWT ${authToken}` },
     };
@@ -53,19 +72,40 @@ function GroupView({
       .then(res => {
         setLoading(false);
         setGroup(res.data);
+        getGroupOwnerCallback(res.data.hostId, config);
       })
       .catch(err => {
         setLoading(false);
+        // TODO: error checking
         if (err.response.status === 401) {
           dispatch(logout());
           navigate('/login');
         }
       });
+
+    // console.log(group.hostId);
+
+    // setGroupOwner(res.data);
+    // axios
+    //   .get(`${apiURL}/users/profile/${res.data.hostId}`, config)
+    //   .then(res => {
+    //     setLoading(false);
+    //     console.log(res.data);
+    //     // setGroupOwner(res.data);
+    //     // console.log(groupOwner.firstName);
+    //   })
+    //   .catch(err => {
+    //     setLoading(false);
+    //     if (err.response.status === 401) {
+    //       dispatch(logout());
+    //       navigate('/login');
+    //     }
+    //   });
   };
 
   // on component mount, retrieve all the saved study groups
   useEffect(() => {
-    getSelectedStudyGroup();
+    getSelectedStudyGroup(getGroupOwnerCallbackA);
   }, [location.pathname]);
 
   if (authToken === null) {
@@ -142,7 +182,7 @@ function GroupView({
     <Box style={{ width: '60%', margin: 'auto', marginTop: '2rem' }}>
       <Flex justify="space-between" wrap="wrap" gap="1rem">
         <Heading as="h2" size="2xl">
-          {headerContent}
+          {group.title}
         </Heading>
         <FormControl
           style={{ width: 'auto' }}
@@ -159,15 +199,17 @@ function GroupView({
         }}
       >
         <DetailedGroup
-          title={group.title}
           restrict={group.tags}
           availability={`${group.maxAttendees - group.curAttendees} / ${
             group.maxAttendees
           }`}
           imgAlt="Study group image"
           img={group.imageUrl}
-          when={group.time}
-          host={`${group.hostFirstName} ${group.hostLastName}`}
+          when={dateFormat(
+            group.startDateTime,
+            'dddd, mmmm dS, yyyy, h:MM:ss TT'
+          )}
+          host={`${groupOwner.firstName} ${groupOwner.lastName}`}
           desc={group.description}
           size="lg"
         />
@@ -242,7 +284,6 @@ GroupView.propTypes = {
   authToken: PropTypes.string,
   dispatch: PropTypes.func.isRequired,
   studyGroupsEndPoint: PropTypes.string,
-  headerContent: PropTypes.string,
   userDetails: {
     id: PropTypes.string,
     email: PropTypes.string,
@@ -254,7 +295,6 @@ GroupView.propTypes = {
 GroupView.defaultProps = {
   authToken: '',
   studyGroupsEndPoint: 'studygroups',
-  headerContent: 'Additonal Study Group Information',
   userDetails: {
     id: '',
     email: '',
