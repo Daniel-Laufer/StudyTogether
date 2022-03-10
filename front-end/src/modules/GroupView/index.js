@@ -24,33 +24,6 @@ import GreenButton from '../../components/GreenButton';
 import GroupMembers from '../../components/GroupMembers';
 import * as colors from '../../utils/colors';
 
-const members = [
-  {
-    name: 'Milind Vishnoi',
-    id: '621848b2ea3535aaea4467a1',
-    imgSrc:
-      'https://faunafocus.files.wordpress.com/2021/01/rusty-spotted-cat.png?w=956&h=956&crop=1',
-  },
-  {
-    name: 'Milind Vishnoi',
-    id: '621848b2ea3535aaea4467a1',
-    imgSrc:
-      'https://faunafocus.files.wordpress.com/2021/01/rusty-spotted-cat.png?w=956&h=956&crop=1',
-  },
-  {
-    name: 'Milind Vishnoi',
-    id: '621848b2ea3535aaea4467a1',
-    imgSrc:
-      'https://img.freepik.com/free-vector/cute-cat-gaming-cartoon_138676-2969.jpg?size=338&ext=jpg',
-  },
-  {
-    name: 'Milind Vishnoi',
-    id: '621848b2ea3535aaea4467a1',
-    imgSrc:
-      'https://img.freepik.com/free-vector/cute-cat-gaming-cartoon_138676-2969.jpg?size=338&ext=jpg',
-  },
-];
-
 function GroupView({
   authToken,
   dispatch,
@@ -207,20 +180,21 @@ function GroupView({
           desc={group.description}
           size="lg"
         />
-        {members ? (
+        {group.attendees && group.attendees.length > 0 ? (
           <Box width="full">
             <Text as="b" color={colors.grey.dark} fontSize="20px" mt="0px">
               Members
             </Text>
             <HStack>
-              {members && members.map(u => <GroupMembers userInfo={u} />)}
+              {group.attendees &&
+                group.attendees.map(u => <GroupMembers userInfo={u} />)}
             </HStack>
           </Box>
         ) : null}
         <Box style={{ marginTop: '1rem' }}>
           {group &&
           group.attendees &&
-          group.attendees.filter(g => g === userDetails.id).length === 0 ? (
+          group.attendees.filter(g => g.id === userDetails.id).length === 0 ? (
             <GreenButton
               colorScheme="teal"
               size="md"
