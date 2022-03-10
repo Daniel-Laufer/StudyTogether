@@ -66,6 +66,16 @@ const userSchema = new Schema(
     profileContactInfo: { type: String, default: '', required: false },
     profileInterests: { type: String, default: '', required: false },
     profileCourses: { type: [String], default: [], required: false },
+    profileFollowing: {
+      type: [mongoose.Types.ObjectId],
+      default: [],
+      required: false,
+    },
+    profileFollowers: {
+      type: [mongoose.Types.ObjectId],
+      default: [],
+      required: false,
+    },
   },
   { collection: 'users' }
 );
