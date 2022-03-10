@@ -391,14 +391,22 @@ router.post('/attend/:id', helperUser.verifyToken, (req, res) => {
         return;
       }
 
+      studygroup.attendees.push({
+        id: req.user.id,
+        name: `${req.user.firstName} ${req.user.lastName}`,
+        imgSrc: req.user.profileImage,
+      });
+
       studygroup.curAttendees++;
-      studygroup.attendees.push(req.user);
       studygroup.save();
       req.user.registeredStudygroups.push(studygroup);
       req.user.save();
       res.status(200).json(studygroup);
     })
-    .catch(() => res.status(404).json('Error: Invalid study group id'));
+    .catch(err => {
+      console.log(err);
+      res.status(404).json('Error: Invalid study group id');
+    });
 });
 
 /* (11) Leave a study group given an id */
