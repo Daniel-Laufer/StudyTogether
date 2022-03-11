@@ -1,21 +1,15 @@
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable no-unused-vars */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, forwardRef } from 'react';
 import { Image, Box, Flex, Button } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 import * as colors from '../utils/colors';
 
-function GreenButton({
-  text,
-  width,
-  height,
-  onClick,
-  isLoading,
-  children,
-  style,
-  isDisabled,
-}) {
-  return (
+const GreenButton = forwardRef(
+  (
+    { text, width, height, onClick, isLoading, children, style, isDisabled },
+    ref
+  ) => (
     <Button
       onClick={onClick}
       {...(width ? { width } : {})}
@@ -34,11 +28,12 @@ function GreenButton({
         boxShadow: `0 0 1px 2px ${colors.green.dark}, 0 1px 1px rgba(0, 0, 0, .15)`,
       }}
       isDisabled={isDisabled}
+      ref={ref}
     >
       {children}
     </Button>
-  );
-}
+  )
+);
 
 GreenButton.propTypes = {
   text: PropTypes.string,
