@@ -6,7 +6,6 @@ import {
   Box,
   Flex,
   Alert,
-  Center,
   AlertIcon,
   Heading,
   FormControl,
@@ -236,61 +235,59 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
         />
 
         <Box width="full">
-          <Center>
-            <Box style={{ marginTop: '1rem' }}>
-              {group &&
-              group.attendees &&
-              group.attendees.filter(g => g.id === userDetails.id).length ===
-                0 ? (
-                <GreenButton
-                  colorScheme="teal"
-                  size="md"
-                  width="400px"
-                  isDisabled={group.maxAttendees === group.curAttendees}
-                  onClick={handleRegister}
-                >
-                  Register
-                </GreenButton>
-              ) : (
-                <GreenButton
-                  style={{ backgroundColor: '#EE3625' }}
-                  size="md"
-                  width="400px"
-                  onClick={handleCancel}
-                >
-                  Leave
-                </GreenButton>
-              )}
-              {errorOccured ? (
-                <Alert
-                  style={{
-                    width: '100%',
-                  }}
-                  status="error"
-                  mt={5}
-                >
-                  <AlertIcon />
-                  <AlertDescription>
-                    Could not perform the operation successfully. Please reload!
-                  </AlertDescription>
-                </Alert>
-              ) : null}
-              {successOccured ? (
-                <Alert
-                  style={{
-                    width: '100%',
-                  }}
-                  status="success"
-                  mt={5}
-                >
-                  <AlertIcon />
-                  <AlertDescription>
-                    The operation was successful!
-                  </AlertDescription>
-                </Alert>
-              ) : null}
-            </Box>
-          </Center>
+          <Box style={{ marginTop: '1rem' }}>
+            {group &&
+            group.attendees &&
+            group.attendees.filter(g => g.id === userDetails.id).length ===
+              0 ? (
+              <GreenButton
+                colorScheme="teal"
+                size="md"
+                width="400px"
+                isDisabled={group.maxAttendees === group.curAttendees}
+                onClick={handleRegister}
+              >
+                Register
+              </GreenButton>
+            ) : (
+              <GreenButton
+                style={{ backgroundColor: '#EE3625' }}
+                size="md"
+                width="400px"
+                onClick={handleCancel}
+              >
+                Leave
+              </GreenButton>
+            )}
+            {errorOccured ? (
+              <Alert
+                style={{
+                  width: '100%',
+                }}
+                status="error"
+                mt={5}
+              >
+                <AlertIcon />
+                <AlertDescription>
+                  Could not perform the operation successfully. Please reload!
+                </AlertDescription>
+              </Alert>
+            ) : null}
+            {successOccured ? (
+              <Alert
+                style={{
+                  width: '100%',
+                }}
+                status="success"
+                mt={5}
+              >
+                <AlertIcon />
+                <AlertDescription>
+                  The operation was successful!
+                </AlertDescription>
+              </Alert>
+            ) : null}
+          </Box>
         </Box>
 
         {group.attendees && group.attendees.length > 0 ? (
