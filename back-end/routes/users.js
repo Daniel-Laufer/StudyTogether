@@ -4,6 +4,7 @@ var bcrypt = require('bcrypt');
 var helperUser = require('../helpers/helperUser');
 let StudygroupModel = require('../models/studygroup.model');
 var User = require('../models/user.model');
+var tarequest = require('../models/taverify.model');
 const { check, body, validationResult } = require('express-validator');
 
 /* Get non-sensitive user profile info */
@@ -110,10 +111,21 @@ router.post(
       lastName: req.body.lastName,
       email: req.body.email,
       username: req.body.username ?? null,
-      role: req.body.role,
       verified: false,
       password: bcrypt.hashSync(req.body.password, saltRounds),
     });
+
+    if (req.body.role == 'TA') {
+      var newrequest = new tarequest({
+        userid: newUser._id,
+        firstname: newUser.firstName,
+        lastname: newUser.lastName,
+      });
+      newUser.role = 'Student';
+      newrequest.save().catch(err => res.status(500).json('Error: ' + err));
+    } else {
+      newUser.role = req.body.role;
+    }
 
     newUser
       .save()

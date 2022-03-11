@@ -1,0 +1,10 @@
+body
+  form(action='/admin/login', method='POST')
+    p
+      | email: 
+      input(type='text' name='email' value='') 
+      br
+      |          password: 
+      input(type='text' name='password' value='')
+    input(type='submit' value='Submit')
+body=errors

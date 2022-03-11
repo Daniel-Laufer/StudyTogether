@@ -1,0 +1,15 @@
+html
+  head
+    title= title
+  body
+    h1= message
+    a(class='button' href=url + `/users`) refresh
+    ul 
+        each val in users 
+            body= val.firstName + " " + val.lastName + " "
+            if val.banned 
+                a(class='button' href=url + `/unban/${val.id}`) unban
+            else
+                a(class='button' href=url + `/ban/${val.id}`) Ban
+            br
+

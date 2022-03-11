@@ -1,0 +1,20 @@
+html
+  head
+    title= title
+  body
+    h1= message
+    br
+    a(class='button' href=url + `/index`) menu
+    br
+    a(class='button' href=url + `/requests`) refresh
+
+    ul 
+        each val in requests 
+            form(action=`/admin/verify/${val.id}`, method='POST')
+                p
+                |
+                body= val.firstname + " " + val.lastname + ", "+ val.userid
+                | 
+                input(type='submit' name='accept' value='accept') 
+                |          
+                input(type='submit' name='reject' value='reject')

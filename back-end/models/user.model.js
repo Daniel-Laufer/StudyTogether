@@ -15,6 +15,11 @@ const userSchema = new Schema(
     userName: {
       type: String,
     },
+    banned: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
     email: {
       type: String,
       unique: [true, 'email already exists in database.'],

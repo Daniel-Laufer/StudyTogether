@@ -1,6 +1,7 @@
 var jwt = require('jsonwebtoken');
 var User = require('../models/user.model');
-
+var tarequest = require('../models/taverify.model');
+const adminurl = 'http://localhost:8000/admin';
 module.exports = {
   respondJWT(user, res, successMessage) {
     /* Create a token by signing the user id with the private key. */
@@ -60,5 +61,40 @@ module.exports = {
       req.user = undefined;
       next();
     }
+  },
+
+  async renderusers(req, res) {
+    var users = await User.find({});
+    var list = [];
+    for (x in users) {
+      list.push(users[x].firstName + ' ' + users[x].lastName + ' ');
+    }
+    res.render('users', {
+      title: 'Users',
+      message: 'Manage users',
+      url: adminurl,
+      users: users,
+    });
+  },
+  async renderrequests(req, res) {
+    var requests = await tarequest.find({});
+    var list = [];
+    for (x in requests) {
+      list.push(requests[x].firstName + ' ' + requests[x].lastName + ' ');
+    }
+    res.render('requests', {
+      title: 'Requests',
+      message: 'Manage TA verification requests',
+      url: adminurl,
+      requests: requests,
+    });
+  },
+  renderadminlogin(req, res, err, code) {
+    res.status(code).render('login', {
+      title: 'Login',
+      url: adminurl,
+      errors: err,
+    });
+    console.log(res);
   },
 };
