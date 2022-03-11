@@ -56,6 +56,8 @@ function DetailedGroup({
   restrict,
   availability,
   when,
+  durationHours,
+  durationMins,
   host,
   desc,
   img,
@@ -112,7 +114,12 @@ function DetailedGroup({
         {CustomText(fontSize, noOfLines, 'Availability:', `${availability}`)}
         {CustomText(fontSize, noOfLines, 'When:', `${when}`)}
         {/* need to subtract dates and format them */}
-        {CustomText(fontSize, noOfLines, 'Duration:', `${when}`)}
+        {CustomText(
+          fontSize,
+          noOfLines,
+          'Duration:',
+          `${durationHours} hour(s) ${durationMins} min(s)`
+        )}
         {CustomText(fontSize, noOfLines, 'Hosted by:', `${host}`)}
         {CustomText(fontSize, noOfLines, 'Description:', `${desc}`)}
       </VStack>
@@ -163,6 +170,8 @@ DetailedGroup.propTypes = {
   availability: PropTypes.string.isRequired,
   host: PropTypes.string.isRequired,
   when: PropTypes.string.isRequired,
+  durationHours: PropTypes.string.isRequired,
+  durationMins: PropTypes.string.isRequired,
   desc: PropTypes.string.isRequired,
   size: 'md' || 'lg',
   onClickFunc: PropTypes.func,

@@ -6,6 +6,7 @@ import {
   Box,
   Flex,
   Alert,
+  Center,
   AlertIcon,
   Heading,
   FormControl,
@@ -14,7 +15,7 @@ import {
   HStack,
 } from '@chakra-ui/react';
 import { connect } from 'react-redux';
-import dateFormat from 'dateformat';
+import moment from 'moment';
 import axios from 'axios';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
@@ -181,6 +182,15 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
       });
   };
 
+  const dateDiffHours = moment(group.endDateTime).diff(
+    moment(group.startDateTime),
+    'hours'
+  );
+
+  const dateDiffMins = moment(group.endDateTime)
+    .subtract(dateDiffHours, 'hours')
+    .diff(moment(group.startDateTime), 'minutes');
+
   return !loading ? (
     <Box
       style={{
@@ -215,16 +225,73 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
           }`}
           imgAlt="Study group image"
           img={group.imageUrl}
-          when={dateFormat(
-            group.startDateTime,
-            'dddd, mmmm dS, yyyy, h:MM:ss TT'
+          when={moment(group.startDateTime).format(
+            'dddd, MMM DD, yyyy HH:mm a'
           )}
+          durationHours={dateDiffHours}
+          durationMins={dateDiffMins}
           host={`${groupOwner.firstName} ${groupOwner.lastName}`}
           desc={group.description}
           size="lg"
         />
         {group.attendees && group.attendees.length > 0 ? (
           <Box width="full">
+            <Center>
+              <Box style={{ marginTop: '1rem' }}>
+                {group &&
+                group.attendees &&
+                group.attendees.filter(g => g.id === userDetails.id).length ===
+                  0 ? (
+                  <GreenButton
+                    colorScheme="teal"
+                    size="md"
+                    width="400px"
+                    isDisabled={group.maxAttendees === group.curAttendees}
+                    onClick={handleRegister}
+                  >
+                    Register
+                  </GreenButton>
+                ) : (
+                  <GreenButton
+                    style={{ backgroundColor: '#EE3625' }}
+                    size="md"
+                    width="400px"
+                    onClick={handleCancel}
+                  >
+                    Leave
+                  </GreenButton>
+                )}
+                {errorOccured ? (
+                  <Alert
+                    style={{
+                      width: '100%',
+                    }}
+                    status="error"
+                    mt={5}
+                  >
+                    <AlertIcon />
+                    <AlertDescription>
+                      Could not perform the operation successfully. Please
+                      reload!
+                    </AlertDescription>
+                  </Alert>
+                ) : null}
+                {successOccured ? (
+                  <Alert
+                    style={{
+                      width: '100%',
+                    }}
+                    status="success"
+                    mt={5}
+                  >
+                    <AlertIcon />
+                    <AlertDescription>
+                      The operation was successful!
+                    </AlertDescription>
+                  </Alert>
+                ) : null}
+              </Box>
+            </Center>
             <Text as="b" color={colors.grey.dark} fontSize="20px" mt="0px">
               Members
             </Text>
@@ -234,57 +301,6 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
             </HStack>
           </Box>
         ) : null}
-        <Box style={{ marginTop: '1rem' }}>
-          {group &&
-          group.attendees &&
-          group.attendees.filter(g => g.id === userDetails.id).length === 0 ? (
-            <GreenButton
-              colorScheme="teal"
-              size="md"
-              width="400px"
-              isDisabled={group.maxAttendees === group.curAttendees}
-              onClick={handleRegister}
-            >
-              Register
-            </GreenButton>
-          ) : (
-            <GreenButton
-              style={{ backgroundColor: '#EE3625' }}
-              size="md"
-              width="400px"
-              onClick={handleCancel}
-            >
-              Leave
-            </GreenButton>
-          )}
-
-          {errorOccured ? (
-            <Alert
-              style={{
-                width: '100%',
-              }}
-              status="error"
-              mt={5}
-            >
-              <AlertIcon />
-              <AlertDescription>
-                Could not perform the operation successfully. Please reload!
-              </AlertDescription>
-            </Alert>
-          ) : null}
-          {successOccured ? (
-            <Alert
-              style={{
-                width: '100%',
-              }}
-              status="success"
-              mt={5}
-            >
-              <AlertIcon />
-              <AlertDescription>The operation was successful!</AlertDescription>
-            </Alert>
-          ) : null}
-        </Box>
       </Flex>
     </Box>
   ) : (
