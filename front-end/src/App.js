@@ -6,7 +6,6 @@ import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import { ChakraProvider, theme } from '@chakra-ui/react';
-
 import rootReducer from './reducers/root';
 import LandingPage from './modules/LandingPage/index';
 import Groups from './modules/Groups/index';
@@ -20,6 +19,7 @@ import NavBar from './components/NavBar';
 import NotFoundPage from './modules/NotFoundPage';
 import AccountInfo from './modules/AccountInfo';
 import GroupView from './modules/GroupView';
+import CustomCalendar from './modules/CustomCalendar';
 
 const store = createStore(
   rootReducer,
@@ -70,6 +70,7 @@ function App() {
             />
             <Route path="/groups/:id" element={<GroupView />} />
             <Route path="/user/:id" element={<AccountInfo />} />
+            <Route path="/cal" element={<CustomCalendar />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </BrowserRouter>
