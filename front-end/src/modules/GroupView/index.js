@@ -262,7 +262,7 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
             {errorOccured ? (
               <Alert
                 style={{
-                  width: '100%',
+                  width: '400px',
                 }}
                 status="error"
                 mt={5}
@@ -276,7 +276,7 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
             {successOccured ? (
               <Alert
                 style={{
-                  width: '100%',
+                  width: '400px',
                 }}
                 status="success"
                 mt={5}
