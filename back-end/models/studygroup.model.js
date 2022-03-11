@@ -19,6 +19,20 @@ const studygroupSchema = new Schema(
     tags: { type: [String], required: true },
     official: { type: Boolean, required: true },
 
+    // Recurring
+    recurring: {
+      type: String,
+      enum: ['N/A', 'weekly', 'bi-weekly'],
+      default: 'N/A',
+      required: true,
+    },
+    recurringFinalDateTime: {
+      type: Date,
+      required: function () {
+        return this.recurring !== 'N/A';
+      },
+    },
+
     //Status
     canceledAt: { type: Date, default: undefined, required: false }, //TLL index for deleting a group after canceling. Not meant to be parsed in the frontend.
     canceled: { type: Boolean, default: false, required: false },
