@@ -3,9 +3,26 @@ html
     title= title
   body
     h1= message
-    a(class='button' href=url + '/users') Users 
-    br
-    a(class='button' href=url + '/groups') Groups
-    br
-    a(class='button' href=url + '/requests') Requests
+    form(action=`/admin/users`, method='POST')
+      p
+      |
+      input(type='hidden' name='token' value=token)
+      |
+      input(type='submit' name='accept' value='Users')  
+    
+    form(action=`/admin/requests`, method='POST')
+      p
+      |
+      input(type='hidden' name='token' value=token)
+      |
+      input(type='submit' name='accept' value='Requests') 
+    
+    form(action=`/admin/groups`, method='POST')
+      p
+      |
+      input(type='hidden' name='token' value=token)
+      |
+      input(type='submit' name='accept' value='Groups') 
+
+    
 

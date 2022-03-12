@@ -13,6 +13,14 @@ router.get('/', (req, res) => {
   res.render('login', '');
 });
 
+router.post('/', helperUser.verifyTokenInBody, (req, res) => {
+  if (req.user) {
+    res.render('index', { token: req.body.token });
+  } else {
+    res.render('login', '');
+  }
+});
+
 router.post(
   '/login',
   body('email').exists().bail().notEmpty().bail().isEmail(),
@@ -57,16 +65,22 @@ router.post(
       );
       res.status(200).set('token', token).render('index', {
         title: 'Admin view',
+        message: 'Manage system',
         url: adminurl,
         errors: err,
         token: token,
+        userid: user.id,
       });
     });
   }
 );
 
-router.post('/verify/:id', async (req, res) => {
-  console.log(req.body);
+router.post('/verify/:id', helperUser.verifyTokenInBody, async (req, res) => {
+  if (!req.user) {
+    res.status(401).render('login', { message: 'Please login again' });
+    return;
+  }
+
   if (req.body.reject) {
     taverify.findByIdAndDelete(request._id).catch(err =>
       res
@@ -99,15 +113,27 @@ router.post('/verify/:id', async (req, res) => {
   helperUser.renderrequests(req, res);
 });
 
-router.get('/users', async (req, res) => {
+router.post('/users', helperUser.verifyTokenInBody, async (req, res) => {
+  if (!req.user) {
+    res.status(401).render('login', { message: 'Please login again' });
+    return;
+  }
   helperUser.renderusers(req, res);
 });
 
-router.get('/requests', async (req, res) => {
+router.post('/requests', helperUser.verifyTokenInBody, async (req, res) => {
+  if (!req.user) {
+    res.status(401).render('login', { message: 'Please login again' });
+    return;
+  }
   helperUser.renderrequests(req, res);
 });
 
-router.get('/ban/:id', async (req, res) => {
+router.post('/ban/:id', helperUser.verifyTokenInBody, async (req, res) => {
+  if (!req.user) {
+    res.status(401).render('login', { message: 'Please login again' });
+    return;
+  }
   let personid = req.params.id;
   var person = await user.findById(personid);
   person.banned = true;
@@ -116,7 +142,11 @@ router.get('/ban/:id', async (req, res) => {
   helperUser.renderusers(req, res);
 });
 
-router.get('/unban/:id', async (req, res) => {
+router.post('/unban/:id', helperUser.verifyTokenInBody, async (req, res) => {
+  if (!req.user) {
+    res.status(401).render('login', { message: 'Please login again' });
+    return;
+  }
   let personid = req.params.id;
   var person = await user.findById(personid);
   person.banned = false;

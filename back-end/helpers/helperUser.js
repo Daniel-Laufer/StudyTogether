@@ -62,6 +62,38 @@ module.exports = {
       next();
     }
   },
+  verifyTokenInBody(req, res, next) {
+    console.log(req.body);
+    if (req.body.token) {
+      jwt.verify(
+        req.body.token,
+        process.env.JWT_SECRET,
+        function (err, decode) {
+          if (err) {
+            req.user = undefined;
+            console.log(err);
+            next();
+          }
+
+          User.findOne({
+            _id: decode.id, //this is the id we originally encoded with our JWT_SECRET
+          }).exec((err, user) => {
+            if (err) {
+              res.status(500).send({
+                message: err,
+              });
+            } else {
+              req.user = user;
+              next();
+            }
+          });
+        }
+      );
+    } else {
+      req.user = undefined;
+      next();
+    }
+  },
 
   async renderusers(req, res) {
     var users = await User.find({});
@@ -74,6 +106,7 @@ module.exports = {
       message: 'Manage users',
       url: adminurl,
       users: users,
+      token: req.body.token,
     });
   },
   async renderrequests(req, res) {
@@ -87,6 +120,7 @@ module.exports = {
       message: 'Manage TA verification requests',
       url: adminurl,
       requests: requests,
+      token: req.body.token,
     });
   },
   renderadminlogin(req, res, err, code) {
