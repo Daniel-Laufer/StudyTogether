@@ -27,18 +27,14 @@ router.get('/saved', helperUser.verifyToken, async (req, res) => {
     return;
   }
 
-  var response = [];
-  var promises = [];
-  req.user.savedStudygroups.forEach(groupId => {
-    promises.push(
-      StudygroupModel.findById(groupId.toString()).then(studygroup => {
-        if (studygroup) response.push(studygroup);
-      })
-    );
+  StudygroupModel.find({
+    _id: {
+      $in: req.user.savedStudygroups,
+    },
+  }).exec((err, savedStudygroups) => {
+    if (err) res.status(400).send({ message: err });
+    res.status(200).json(savedStudygroups);
   });
-
-  /* based on https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all  */
-  Promise.all(promises).then(() => res.status(200).json(response));
 });
 
 /* (3) Get all studygroups the current logged in user is registered for */
@@ -49,18 +45,14 @@ router.get('/registered', helperUser.verifyToken, async (req, res) => {
     return;
   }
 
-  var response = [];
-  var promises = [];
-  req.user.registeredStudygroups.forEach(groupId => {
-    promises.push(
-      StudygroupModel.findById(groupId.toString()).then(studygroup => {
-        if (studygroup) response.push(studygroup);
-      })
-    );
+  StudygroupModel.find({
+    _id: {
+      $in: req.user.registeredStudygroups,
+    },
+  }).exec((err, registeredStudygroups) => {
+    if (err) res.status(400).send({ message: err });
+    res.status(200).json(registeredStudygroups);
   });
-
-  /* based on https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all  */
-  Promise.all(promises).then(() => res.status(200).json(response));
 });
 
 /* (4) Get an individual study group by ID*/
