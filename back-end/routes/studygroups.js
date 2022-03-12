@@ -384,21 +384,36 @@ router.post('/attend/:id', helperUser.verifyToken, (req, res) => {
   const groupId = req.params.id;
   StudygroupModel.findById(groupId)
     .then(studygroup => {
-      if (studygroup.attendees.includes(req.user.id)) {
+      const attendee = {
+        id: req.user.id,
+        name: `${req.user.firstName} ${req.user.lastName}`,
+        imgSrc: req.user.profileImage,
+      };
+
+      if (studygroup.attendees.filter(user => user.id == req.user.id).length) {
         res
           .status(400)
           .send({ message: 'User already attends this study group' });
         return;
       }
 
+      if (studygroup.curAttendees >= studygroup.maxAttendees) {
+        res.status(400).send({ message: 'Study group is already full' });
+        return;
+      }
+
+      studygroup.attendees.push(attendee);
+
       studygroup.curAttendees++;
-      studygroup.attendees.push(req.user);
       studygroup.save();
       req.user.registeredStudygroups.push(studygroup);
       req.user.save();
       res.status(200).json(studygroup);
     })
-    .catch(() => res.status(404).json('Error: Invalid study group id'));
+    .catch(err => {
+      console.log(err);
+      res.status(404).json('Error: Invalid study group id');
+    });
 });
 
 /* (11) Leave a study group given an id */
@@ -412,11 +427,27 @@ router.patch('/leave/:id', helperUser.verifyToken, (req, res) => {
   const groupId = req.params.id;
   StudygroupModel.findById(groupId)
     .then(studygroup => {
-      var userIndex = studygroup.attendees.indexOf(req.user.id);
+      const studyArr = studygroup.attendees.filter(
+        user => user.id == req.user.id
+      );
+      if (!studyArr.length) {
+        res
+          .status(400)
+          .send({ message: 'User does not attend this study group' });
+        return;
+      }
+
+      var userIndex = studygroup.attendees.indexOf(studyArr[0]);
+
       if (userIndex == -1) {
         res
           .status(400)
           .send({ message: 'User does not attend this study group' });
+        return;
+      }
+
+      if (studygroup.curAttendees <= 0) {
+        res.status(400).send({ message: 'Study group is empty' });
         return;
       }
 

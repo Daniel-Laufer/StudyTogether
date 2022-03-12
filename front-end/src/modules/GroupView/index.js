@@ -9,6 +9,8 @@ import {
   Heading,
   FormControl,
   AlertDescription,
+  Text,
+  HStack,
 } from '@chakra-ui/react';
 import { connect } from 'react-redux';
 import axios from 'axios';
@@ -19,6 +21,8 @@ import { logout } from '../../actions/Auth';
 import CustomSpinner from '../../components/CustomSpinner';
 import DetailedGroup from '../../components/DetailedGroup';
 import GreenButton from '../../components/GreenButton';
+import GroupMembers from '../../components/GroupMembers';
+import * as colors from '../../utils/colors';
 
 function GroupView({
   authToken,
@@ -89,7 +93,7 @@ function GroupView({
         setLoading(false);
         setInterval(() => {
           setSuccessOccured(false);
-        }, 3000);
+        }, 4000);
       })
       .catch(err => {
         setLoading(false);
@@ -102,7 +106,7 @@ function GroupView({
         }
         setInterval(() => {
           setErrorOccured(false);
-        }, 3000);
+        }, 4000);
       });
   };
 
@@ -119,7 +123,7 @@ function GroupView({
         setLoading(false);
         setInterval(() => {
           setSuccessOccured(false);
-        }, 3000);
+        }, 4000);
       })
       .catch(err => {
         setLoading(false);
@@ -132,12 +136,19 @@ function GroupView({
         }
         setInterval(() => {
           setErrorOccured(false);
-        }, 3000);
+        }, 4000);
       });
   };
 
   return !loading ? (
-    <Box style={{ width: '60%', margin: 'auto', marginTop: '2rem' }}>
+    <Box
+      style={{
+        width: '60%',
+        margin: 'auto',
+        marginTop: '2rem',
+        marginBottom: '2rem',
+      }}
+    >
       <Flex justify="space-between" wrap="wrap" gap="1rem">
         <Heading as="h2" size="2xl">
           {headerContent}
@@ -169,10 +180,11 @@ function GroupView({
           desc={group.description}
           size="lg"
         />
-        <div style={{ marginTop: '1rem' }}>
+
+        <Box style={{ marginTop: '1rem' }}>
           {group &&
           group.attendees &&
-          group.attendees.filter(g => g === userDetails.id).length === 0 ? (
+          group.attendees.filter(g => g.id === userDetails.id).length === 0 ? (
             <GreenButton
               colorScheme="teal"
               size="md"
@@ -192,33 +204,44 @@ function GroupView({
               Leave
             </GreenButton>
           )}
-          {errorOccured ? (
-            <Alert
-              style={{
-                width: '100%',
-              }}
-              status="error"
-              mt={5}
-            >
-              <AlertIcon />
-              <AlertDescription>
-                Could not perform the operation successfully. Please reload!
-              </AlertDescription>
-            </Alert>
-          ) : null}
-          {successOccured ? (
-            <Alert
-              style={{
-                width: '100%',
-              }}
-              status="success"
-              mt={5}
-            >
-              <AlertIcon />
-              <AlertDescription>The operation was successful!</AlertDescription>
-            </Alert>
-          ) : null}
-        </div>
+        </Box>
+        {group.attendees && group.attendees.length > 0 ? (
+          <Box width="full">
+            <Text as="b" color={colors.grey.dark} fontSize="20px" mt="0px">
+              Members
+            </Text>
+            <HStack>
+              {group.attendees &&
+                group.attendees.map(u => <GroupMembers userInfo={u} />)}
+            </HStack>
+          </Box>
+        ) : null}
+        {errorOccured ? (
+          <Alert
+            style={{
+              width: '100%',
+            }}
+            status="error"
+            mt={5}
+          >
+            <AlertIcon />
+            <AlertDescription>
+              Could not perform the operation successfully. Please reload!
+            </AlertDescription>
+          </Alert>
+        ) : null}
+        {successOccured ? (
+          <Alert
+            style={{
+              width: '100%',
+            }}
+            status="success"
+            mt={5}
+          >
+            <AlertIcon />
+            <AlertDescription>The operation was successful!</AlertDescription>
+          </Alert>
+        ) : null}
       </Flex>
     </Box>
   ) : (
