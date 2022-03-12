@@ -93,7 +93,7 @@ function GroupView({
         setLoading(false);
         setInterval(() => {
           setSuccessOccured(false);
-        }, 3000);
+        }, 4000);
       })
       .catch(err => {
         setLoading(false);
@@ -106,7 +106,7 @@ function GroupView({
         }
         setInterval(() => {
           setErrorOccured(false);
-        }, 3000);
+        }, 4000);
       });
   };
 
@@ -123,7 +123,7 @@ function GroupView({
         setLoading(false);
         setInterval(() => {
           setSuccessOccured(false);
-        }, 3000);
+        }, 4000);
       })
       .catch(err => {
         setLoading(false);
@@ -136,7 +136,7 @@ function GroupView({
         }
         setInterval(() => {
           setErrorOccured(false);
-        }, 3000);
+        }, 4000);
       });
   };
 
@@ -180,17 +180,7 @@ function GroupView({
           desc={group.description}
           size="lg"
         />
-        {group.attendees && group.attendees.length > 0 ? (
-          <Box width="full">
-            <Text as="b" color={colors.grey.dark} fontSize="20px" mt="0px">
-              Members
-            </Text>
-            <HStack>
-              {group.attendees &&
-                group.attendees.map(u => <GroupMembers userInfo={u} />)}
-            </HStack>
-          </Box>
-        ) : null}
+
         <Box style={{ marginTop: '1rem' }}>
           {group &&
           group.attendees &&
@@ -214,33 +204,44 @@ function GroupView({
               Leave
             </GreenButton>
           )}
-          {errorOccured ? (
-            <Alert
-              style={{
-                width: '100%',
-              }}
-              status="error"
-              mt={5}
-            >
-              <AlertIcon />
-              <AlertDescription>
-                Could not perform the operation successfully. Please reload!
-              </AlertDescription>
-            </Alert>
-          ) : null}
-          {successOccured ? (
-            <Alert
-              style={{
-                width: '100%',
-              }}
-              status="success"
-              mt={5}
-            >
-              <AlertIcon />
-              <AlertDescription>The operation was successful!</AlertDescription>
-            </Alert>
-          ) : null}
         </Box>
+        {group.attendees && group.attendees.length > 0 ? (
+          <Box width="full">
+            <Text as="b" color={colors.grey.dark} fontSize="20px" mt="0px">
+              Members
+            </Text>
+            <HStack>
+              {group.attendees &&
+                group.attendees.map(u => <GroupMembers userInfo={u} />)}
+            </HStack>
+          </Box>
+        ) : null}
+        {errorOccured ? (
+          <Alert
+            style={{
+              width: '100%',
+            }}
+            status="error"
+            mt={5}
+          >
+            <AlertIcon />
+            <AlertDescription>
+              Could not perform the operation successfully. Please reload!
+            </AlertDescription>
+          </Alert>
+        ) : null}
+        {successOccured ? (
+          <Alert
+            style={{
+              width: '100%',
+            }}
+            status="success"
+            mt={5}
+          >
+            <AlertIcon />
+            <AlertDescription>The operation was successful!</AlertDescription>
+          </Alert>
+        ) : null}
       </Flex>
     </Box>
   ) : (
