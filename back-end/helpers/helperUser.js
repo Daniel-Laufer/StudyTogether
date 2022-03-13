@@ -134,7 +134,7 @@ module.exports = {
       url: adminurl,
       errors: err,
     });
-
+  },
   handleValidationResult(req, res, err) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -164,6 +164,5 @@ module.exports = {
     var users = await User.find({
       _id: { $in: usersId },
     }).catch(err => errors.push('Err: ' + err));
-
   },
 };
