@@ -63,7 +63,6 @@ module.exports = {
     }
   },
   verifyTokenInBody(req, res, next) {
-    console.log(req.body);
     if (req.body.token) {
       jwt.verify(
         req.body.token,
@@ -129,6 +128,5 @@ module.exports = {
       url: adminurl,
       errors: err,
     });
-    console.log(res);
   },
 };

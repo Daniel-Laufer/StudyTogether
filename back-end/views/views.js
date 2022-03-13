@@ -1,6 +1,5 @@
 var express = require('express');
 var jwt = require('jsonwebtoken');
-const user = require('../models/user.model');
 var router = express.Router();
 var bcrypt = require('bcrypt');
 const { check, body, validationResult } = require('express-validator');
@@ -8,11 +7,15 @@ const adminurl = 'http://localhost:8000/admin';
 
 var helperUser = require('../helpers/helperUser');
 const taverify = require('../models/taverify.model');
+const User = require('../models/user.model');
 
-router.get('/', (req, res) => {
-  res.render('login', '');
+router.get('/', helperUser.verifyTokenInBody, (req, res) => {
+  if (req.user) {
+    res.render('index', { token: req.body.token });
+  } else {
+    res.render('login', '');
+  }
 });
-
 router.post('/', helperUser.verifyTokenInBody, (req, res) => {
   if (req.user) {
     res.render('index', { token: req.body.token });
@@ -25,7 +28,7 @@ router.post(
   '/login',
   body('email').exists().bail().notEmpty().bail().isEmail(),
   body('password').exists().notEmpty(),
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       let err = JSON.stringify({ errors: errors.array() });
@@ -33,12 +36,11 @@ router.post(
       helperUser.renderadminlogin(req, res, err, 400);
       return;
     }
-    console.log(req.body.email);
-    user.findOne({ email: req.body.email }).exec((err, user) => {
+    User.findOne({ email: req.body.email }).exec((err, admin) => {
       if (err) {
         helperUser.renderadminlogin(req, res, err, 500);
         return;
-      } else if (!user) {
+      } else if (!admin) {
         helperUser.renderadminlogin(req, res, 'Admin not found!', 404);
         return;
       }
@@ -46,20 +48,20 @@ router.post(
       /* 2. Vaidating password */
       var passwordIsCorrect = bcrypt.compareSync(
         req.body.password,
-        user.password
+        admin.password
       );
       if (!passwordIsCorrect) {
         helperUser.renderadminlogin(req, res, 'Password invalid', 401);
         return;
       }
 
-      if (user.role != 'Admin') {
+      if (admin.role != 'Admin') {
         helperUser.renderadminlogin(req, res, 'Must be an admin', 401);
         return;
       }
       /* 3. Send JWT back to client*/
       var token = jwt.sign(
-        { id: user._id, date: Date.now },
+        { id: admin._id, date: Date.now },
         process.env.JWT_SECRET,
         { expiresIn: 3600 } // token expires every 60 mins
       );
@@ -69,7 +71,7 @@ router.post(
         url: adminurl,
         errors: err,
         token: token,
-        userid: user.id,
+        userid: admin.id,
       });
     });
   }
@@ -94,7 +96,7 @@ router.post('/verify/:id', helperUser.verifyTokenInBody, async (req, res) => {
     );
   } else if (req.body.accept) {
     let request = await taverify.findById(req.params.id);
-    let person = await user.findById(request.userid);
+    let person = await User.findById(request.userid);
 
     person.role = 'TA';
     request.delete();
@@ -135,10 +137,9 @@ router.post('/ban/:id', helperUser.verifyTokenInBody, async (req, res) => {
     return;
   }
   let personid = req.params.id;
-  var person = await user.findById(personid);
+  var person = await User.findById(personid);
   person.banned = true;
   person.save().catch(err => res.status(500).json(err));
-  console.log('deleting ' + person.firstName);
   helperUser.renderusers(req, res);
 });
 
@@ -148,10 +149,9 @@ router.post('/unban/:id', helperUser.verifyTokenInBody, async (req, res) => {
     return;
   }
   let personid = req.params.id;
-  var person = await user.findById(personid);
+  var person = await User.findById(personid);
   person.banned = false;
   person.save().catch(err => res.status(500).json(err));
-  console.log('restoring ' + person.firstName);
   helperUser.renderusers(req, res);
 });
 
