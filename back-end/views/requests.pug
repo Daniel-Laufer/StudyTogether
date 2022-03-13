@@ -1,0 +1,33 @@
+html
+  head
+    title= title
+  body
+    h1= message
+    br
+    form(action=url, method='POST')
+      p
+      |
+      input(type='hidden' name='token' value=token)
+      |
+      input(type='submit' name='menu' value='menu') 
+    form(action=url + '/requests', method='POST')
+      p
+      |
+      input(type='hidden' name='token' value=token)
+      |
+      input(type='submit' name='refresh' value='refresh') 
+    
+
+    ul 
+        each val in requests 
+            form(action=`/admin/verify/${val.id}`, method='POST')
+                p
+                |
+                body= val.firstname + " " + val.lastname + ", "+ val.userid
+                | 
+                input(type='submit' name='accept' value='accept') 
+                |          
+                input(type='submit' name='reject' value='reject')
+                |
+                input(type='hidden' name='token' value=token)
+                

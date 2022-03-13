@@ -17,6 +17,10 @@
     {
       "name": "Password Recovery",
       "description": "Everything Password Recovery related"
+    },
+    {
+      "name": "Admin",
+      "description": "Everything Admin related"
     }
   ],
   "paths": {
@@ -119,6 +123,166 @@
             "schema": {
               "$ref": "#/definitions/PublicProfile"
             }
+          },
+          "400": {
+            "description": "Invalid parameter(s) supplied"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/users/profile/follow/{id}": {
+      "patch": {
+        "tags": ["User"],
+        "summary": "Adds the requesting user as a follower if user {id}. It also adds updates the following list of the requesting user",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "format is 'JWT ' followed by the token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "User identifier",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Invalid parameter(s) supplied"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/users/profile/unfollow/{id}": {
+      "patch": {
+        "tags": ["User"],
+        "summary": "undoes the actions of the follow endpoint",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "format is 'JWT ' followed by the token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "User identifier",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Invalid parameter(s) supplied"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/users/profile/{id}/followers": {
+      "get": {
+        "tags": ["User"],
+        "summary": "Returns followers of user {id}",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "format is 'JWT ' followed by the token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "User identifier",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Invalid parameter(s) supplied"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/users/profile/{id}/following": {
+      "get": {
+        "tags": ["User"],
+        "summary": "Returns users who {id} followes.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "format is 'JWT ' followed by the token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "User identifier",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Invalid parameter(s) supplied"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/users/profile/recommend/{limit}": {
+      "get": {
+        "tags": ["User"],
+        "summary": "Returns a list of users the requester has not followed. The amount of users in this list is bound by {limit}",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "format is 'JWT ' followed by the token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "User identifier",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
           },
           "400": {
             "description": "Invalid parameter(s) supplied"
@@ -572,7 +736,7 @@
             "in": "body",
             "description": "whether the study group is an offical office hours session",
             "required": true,
-            "type": "boolean"
+            "type": "bool"
           },
           {
             "name": "tags",
@@ -858,6 +1022,223 @@
           },
           "500": {
             "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/admin/login": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Logs in an admin",
+        "parameters": [
+          {
+            "name": "credentials",
+            "in": "body",
+            "description": "The user name for login",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/credentials"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "headers": {
+              "token": {
+                "type": "string",
+                "description": "JWT token for the user"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid username or password"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "404": {
+            "description": "User was not found in records"
+          },
+          "401": {
+            "description": "Password was invalid or non admin"
+          }
+        }
+      }
+    },
+    "/admin/verify/{id}": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Accept or reject a TA verification request",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "body",
+            "description": "the authentication token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of request to address",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Accept",
+            "in": "body",
+            "description": "True if request to be accepted",
+            "required": true,
+            "type": "bool"
+          },
+          {
+            "name": "Reject",
+            "in": "body",
+            "description": "True if request to be rejected",
+            "required": true,
+            "type": "bool"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "401": {
+            "description": "Invalid JWT token"
+          }
+        }
+      }
+    },
+    "/admin/unban/{id}": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Unbans a user",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "body",
+            "description": "the authentication token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of user to unban",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "401": {
+            "description": "Invalid JWT token"
+          }
+        }
+      }
+    },
+    "/admin/ban/{id}": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Bans a user",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "body",
+            "description": "the authentication token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of user to ban",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "401": {
+            "description": "Password was invalid or non admin"
+          }
+        }
+      }
+    },
+    "/admin/users": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Displays list of users",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "body",
+            "description": "the authentication token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "headers": {
+              "token": {
+                "type": "string",
+                "description": "JWT token for the user"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "401": {
+            "description": "Invalid JWT token"
+          }
+        }
+      }
+    },
+    "/admin/requests": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Displays list of active TA requests",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "body",
+            "description": "the authentication token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "headers": {
+              "token": {
+                "type": "string",
+                "description": "JWT token for the user"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "401": {
+            "description": "Invalid JWT Token"
           }
         }
       }
