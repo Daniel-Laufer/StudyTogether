@@ -13,3 +13,7 @@ export const grey = {
   medium: '#9797A1',
   dark: '#595962',
 };
+
+export const red = {
+  medium: '#E53E3E',
+};

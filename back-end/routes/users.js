@@ -4,8 +4,11 @@ var bcrypt = require('bcrypt');
 var helperUser = require('../helpers/helperUser');
 let StudygroupModel = require('../models/studygroup.model');
 var User = require('../models/user.model');
+
 var tarequest = require('../models/taverify.model');
-const { check, body, validationResult } = require('express-validator');
+const { check, body, validationResult, param } = require('express-validator');
+const mongoose = require('mongoose');
+
 
 /* Get non-sensitive user profile info */
 router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
@@ -30,6 +33,7 @@ router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
       return;
     });
 
+    /* TODO: update the query above to exclude sensitive info instead of doing this mess :< (should be like recommend api)*/
     res.status(200).json({
       firstName: usr.firstName,
       lastName: usr.lastName,
@@ -40,9 +44,78 @@ router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
       profileContactInfo: usr.profileContactInfo,
       profileInterests: usr.profileInterests,
       profileCourses: usr.profileCourses,
+      profileFollowers: usr.profileFollowers,
     });
   }
 });
+
+/* Get first (x=limit) users you have not followed */
+router.get(
+  '/profile/recommend/:limit',
+  helperUser.verifyToken,
+  async (req, res) => {
+    /* TODO1: Change logic to something smarter (k means clustering maybe?) */
+    /* TODO2: Create an ORM helper to reuse the query below */
+    var recommendedUsers = await User.find(
+      { _id: { $nin: req.user.profileFollowers } },
+      { password: 0, created: 0, email: 0 }
+    )
+      .limit(10)
+      .catch(err => {
+        res.status(400).send('Err: ' + err);
+        return;
+      });
+    res.status(200).json({ recommended: recommendedUsers });
+  }
+);
+
+router.get(
+  '/profile/:id/followers',
+  helperUser.verifyToken,
+  async (req, res) => {
+    var usr = req.user;
+
+    if (req.user.id !== req.params.id) {
+      usr = await User.findById(req.params.id).catch(err => {
+        res.status(400).send('Err: ' + err);
+        return;
+      });
+    }
+
+    var followers = await User.find(
+      { _id: { $in: usr.profileFollowers } },
+      { password: 0, created: 0, email: 0 } //  Exclude these values from the returned document
+    ).catch(err => {
+      res.status(400).send('Err: ' + err);
+      return;
+    });
+    res.status(200).json({ followers: followers });
+  }
+);
+
+router.get(
+  '/profile/:id/following',
+  helperUser.verifyToken,
+  async (req, res) => {
+    var usr = req.user;
+
+    if (req.user.id !== req.params.id) {
+      usr = await User.findById(req.params.id).catch(err => {
+        res.status(400).send('Err: ' + err);
+        return;
+      });
+    }
+
+    var following = await User.find(
+      { _id: { $in: usr.profileFollowing } },
+      { password: 0, created: 0, email: 0 } //  Exclude these values from the returned document
+    ).catch(err => {
+      res.status(400).send('Err: ' + err);
+      return;
+    });
+    res.status(200).json({ following: following });
+  }
+);
 
 /* Update non-sensitive user profile info */
 router.patch(
@@ -82,7 +155,6 @@ router.patch(
 );
 
 //Authentication and Authorization referenced from https://www.topcoder.com/thrive/articles/authentication-and-authorization-in-express-js-api-using-jwt
-
 router.post(
   '/register',
   /* Parameter Validation */
@@ -248,4 +320,74 @@ router.post(
   }
 );
 
+router.patch(
+  '/profile/follow/:id',
+  [helperUser.verifyToken, param('id').exists()],
+  async (req, res) => {
+    var err = [];
+    helperUser.handleValidationResult(req, res, err);
+    helperUser.handleInvalidJWT(req, res, err);
+    if (err.length > 0) return;
+
+    /* begin logic */
+
+    var followedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      { $addToSet: { profileFollowers: req.user.id } },
+      { new: true }
+    ).catch(err => {
+      res.status(400).send('Err: ' + err);
+      return;
+    });
+
+    /* TODO: replace this with a trigger*/
+    await User.findByIdAndUpdate(
+      req.user.id,
+      { $addToSet: { profileFollowing: req.params.id } },
+      { new: true }
+    ).catch(err => {
+      res.status(400).send('Err: ' + err);
+      return;
+    });
+
+    res.status(200).json({
+      message: 'User followed successfully',
+      profileFollowers: followedUser.profileFollowers,
+    });
+  }
+);
+
+router.patch(
+  '/profile/unfollow/:id',
+  [helperUser.verifyToken, param('id').exists()],
+  async (req, res) => {
+    var err = [];
+    helperUser.handleValidationResult(req, res, err);
+    helperUser.handleInvalidJWT(req, res, err);
+    if (err.length > 0) return;
+
+    /* begin logic */
+
+    var followedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      { $pull: { profileFollowers: req.user.id } },
+      { new: true }
+    ).catch(err => {
+      res.status(400).send('Err: ' + err);
+      return;
+    });
+
+    /* TODO: replace this with a trigger*/
+    await User.findByIdAndUpdate(req.user.id, {
+      $pull: { profileFollowing: req.params.id },
+    }).catch(err => {
+      res.status(400).send('Err: ' + err);
+      return;
+    });
+    res.status(200).json({
+      message: 'User unfollowed successfully',
+      profileFollowers: followedUser.profileFollowers,
+    });
+  }
+);
 module.exports = router;

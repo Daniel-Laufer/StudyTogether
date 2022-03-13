@@ -16,6 +16,14 @@ import {
   Alert,
   AlertIcon,
   AlertDescription,
+  Divider,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
+  Button,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
@@ -29,10 +37,15 @@ import defUserImage from '../../assets/images/defuser.jpeg';
 import GreenButton from '../../components/GreenButton';
 import DetailedGroup from '../../components/DetailedGroup';
 import { logout, updateUserDetails } from '../../actions/Auth';
+import useHover from '../../hooks/useHover';
 import * as colors from '../../utils/colors';
 
 function AccountInfo({ authToken, userDetails, dispatch }) {
   const navigate = useNavigate();
+  const [unfollowIsOpen, setUnfollowIsOpen] = React.useState(false);
+  const onUnfollowClose = () => setUnfollowIsOpen(false);
+  const unfollowCancelRef = React.useRef();
+  const [hoverRef, isHovering] = useHover();
   const { id } = useParams();
   const [loading, setLoading] = useState({
     groups: false,
@@ -40,6 +53,7 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
   });
   const [dataUpdated, setDataUpdated] = useState(false);
   const [errorOccured, setErrorOccured] = useState(false);
+  const [followed, setFollowed] = useState(false);
   const [userInfo, setUserInfo] = useState({
     firstName: 'Geralt',
     lastName: 'Stan',
@@ -55,6 +69,7 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
       { id: '0', text: 'CSC301' },
       { id: '1', text: 'CSC302' },
     ],
+    profileFollowing: [],
   });
   const [oldUserInfo, setOldUserInfo] = useState({});
   const [groups, setGroups] = useState([]);
@@ -67,9 +82,19 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
     const config = {
       headers: { Authorization: `JWT ${authToken}` },
     };
+    setLoading({
+      ...loading,
+      user: true,
+      groups: true,
+    });
     axios
       .get(`${apiURL}/users/profile/${id}`, config)
       .then(res => {
+        setLoading({
+          ...loading,
+          user: false,
+        });
+        setFollowed(res.data.profileFollowers.includes(userDetails.id));
         setOldUserInfo({
           ...res.data,
           profileCourses: res.data.profileCourses.map((c, index) => {
@@ -119,7 +144,7 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
           navigate('/login');
         }
       });
-  }, []);
+  }, [id]);
 
   const handleDelete = i => {
     setUserInfo({
@@ -184,6 +209,32 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
           navigate('/login');
         }
         setUserInfo(oldUserInfo);
+        setInterval(() => {
+          setErrorOccured(false);
+        }, 3000);
+      });
+  };
+
+  const handleFollow = () => {
+    const isFollow = followed;
+    const config = {
+      headers: { Authorization: `JWT ${authToken}` },
+    };
+    if (isFollow) onUnfollowClose();
+    const prefix = !isFollow ? '' : 'un';
+    axios
+      .patch(`${apiURL}/users/profile/${prefix}follow/${id}`, {}, config)
+      .then(() => {
+        setFollowed(!isFollow);
+      })
+      .catch(err => {
+        console.log(err);
+        setErrorOccured(true);
+        if (err.response.status === 401) {
+          dispatch(logout());
+          navigate('/login');
+        }
+        setFollowed(!followed);
         setInterval(() => {
           setErrorOccured(false);
         }, 3000);
@@ -359,6 +410,65 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
                   boxSize="200px"
                   alignSelf="center"
                 />
+                {userDetails && id !== userDetails.id && (
+                  <Box>
+                    {!followed ? (
+                      <GreenButton
+                        width="100px"
+                        onClick={handleFollow}
+                        alignSelf="center"
+                      >
+                        Follow
+                      </GreenButton>
+                    ) : (
+                      //  TODO: create a new <CustomButton> that is composed by GreenButton instead of overriding GreenButton.
+                      <GreenButton
+                        width="100px"
+                        onClick={() => setUnfollowIsOpen(true)}
+                        style={{
+                          backgroundColor: !isHovering
+                            ? colors.green.dark
+                            : colors.red.medium,
+                        }}
+                        alignSelf="center"
+                        ref={hoverRef}
+                      >
+                        {isHovering ? 'Unfollow' : 'Following'}
+                      </GreenButton>
+                    )}
+                  </Box>
+                )}
+                <AlertDialog
+                  isOpen={unfollowIsOpen}
+                  leastDestructiveRef={unfollowCancelRef}
+                  onClose={onUnfollowClose}
+                >
+                  <AlertDialogOverlay>
+                    <AlertDialogContent>
+                      <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                        {`Unfollow ${userInfo.firstName} ?`}
+                      </AlertDialogHeader>
+
+                      <AlertDialogBody>
+                        You will no longer receive notifications about this
+                        user&apos;s activity.
+                      </AlertDialogBody>
+
+                      <AlertDialogFooter>
+                        <Button
+                          ref={unfollowCancelRef}
+                          onClick={onUnfollowClose}
+                        >
+                          Cancel
+                        </Button>
+                        <Button colorScheme="red" onClick={handleFollow} ml={3}>
+                          Unfollow
+                        </Button>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialogOverlay>
+                </AlertDialog>
+                <Divider orientation="horizontal" />
                 <Text
                   fontSize={18}
                   as="b"
