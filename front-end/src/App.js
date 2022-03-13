@@ -21,6 +21,7 @@ import NotFoundPage from './modules/NotFoundPage';
 import AccountInfo from './modules/AccountInfo';
 import GroupView from './modules/GroupView';
 import GroupEditor from './modules/GroupEditor';
+import About from './modules/About';
 
 const store = createStore(
   rootReducer,
@@ -35,6 +36,7 @@ function App() {
           <NavBar />
           <Routes>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/about" element={<About />} />
             <Route
               path="/dashboard"
               element={

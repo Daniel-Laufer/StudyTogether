@@ -1,4 +1,4 @@
-import { Box, Stack, VStack, Text, Image, Tag } from '@chakra-ui/react';
+import { Box, Stack, VStack, Text, Image, Tag, Flex } from '@chakra-ui/react';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
@@ -72,29 +72,34 @@ function DetailedGroup({
       align="left"
       wrap
     >
-      <Image
-        src={img}
-        width={imgWidth}
-        alt={imgAlt}
-        borderRadius="lg"
-        mr={imgMr}
-        alignSelf={imgAlign}
-      />
-      {status.cancelled ? (
-        <Tag colorScheme="red" m={0}>
-          Cancelled
-        </Tag>
-      ) : null}
-      {status.reschedule ? (
-        <Tag colorScheme="yellow" m={0}>
-          Rescheduled
-        </Tag>
-      ) : null}
-      {status.full ? (
-        <Tag colorScheme="green" m={0}>
-          Full
-        </Tag>
-      ) : null}
+      <VStack>
+        <Image
+          src={img}
+          width={imgWidth}
+          alt={imgAlt}
+          borderRadius="lg"
+          mr={imgMr}
+          alignSelf={imgAlign}
+        />
+        <Flex justify="flex-start" gap="5px">
+          {status.cancelled ? (
+            <Tag colorScheme="red" m={0}>
+              Cancelled
+            </Tag>
+          ) : null}
+          {status.reschedule ? (
+            <Tag colorScheme="yellow" m={0}>
+              Rescheduled
+            </Tag>
+          ) : null}
+          {status.full ? (
+            <Tag colorScheme="green" m={0}>
+              Full
+            </Tag>
+          ) : null}
+        </Flex>
+      </VStack>
+
       <VStack justifyContent="center" spacing={vstackSpacing} align="left">
         {CustomText(fontSize, noOfLines, `Title: ${title}`)}
         {CustomText(fontSize, noOfLines, `Restriction: ${restrict}`)}
