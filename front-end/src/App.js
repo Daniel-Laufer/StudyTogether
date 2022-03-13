@@ -32,7 +32,7 @@ function App() {
   return (
     <Provider store={store}>
       <ChakraProvider theme={theme}>
-        <BrowserRouter>
+        <BrowserRouter style={{ height: '100vh' }}>
           <NavBar />
           <Routes>
             <Route path="/" element={<LandingPage />} />

@@ -38,14 +38,14 @@ function About({ dispatch }) {
   }, []);
 
   return (
-    <>
+    <div style={{ height: '100%', position: 'relative' }}>
       <Fade cascade duration={500}>
         <SectionOneContainer id="landing-page-section-1">
           <Text
             fontSize="6xl"
             fontWeight={700}
             align="center"
-            style={{ marginTop: '100px' }}
+            style={{ paddingTop: '100px' }}
           >
             Our Team
           </Text>
@@ -104,24 +104,31 @@ function About({ dispatch }) {
           </Flex>
         </SectionOneContainer>
       </Fade>
-
-      <CustomFooter>
-        <Image
-          src={studyTogetherFullLogo}
-          style={{
-            position: 'absolute',
-            bottom: '20px',
-            left: '20px',
-            height: '40px',
-          }}
-        />
-      </CustomFooter>
-    </>
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '0px',
+          width: '100%',
+          height: '100px',
+        }}
+      >
+        <CustomFooter style={{ position: 'relative' }}>
+          <Image
+            src={studyTogetherFullLogo}
+            style={{
+              position: 'absolute',
+              bottom: '20px',
+              left: '20px',
+              height: '40px',
+            }}
+          />
+        </CustomFooter>
+      </div>
+    </div>
   );
 }
 
 const SectionOneContainer = styled.section`
-  height: 75vh;
   width: 100%;
 `;
 
