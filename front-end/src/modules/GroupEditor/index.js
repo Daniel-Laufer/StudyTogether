@@ -98,6 +98,11 @@ function GroupEditor({ authToken, userRole, dispatch }) {
       .then(res => {
         const startDateTime = new Date(res.data.startDateTime);
         const endDateTime = new Date(res.data.endDateTime);
+
+        const reccFindalDate = res.data.recurringFinalDateTime
+          ? new Date(res.data.recurringFinalDateTime)
+          : null;
+
         const newState = {
           title: res.data.title,
           image: res.data.imageUrl,
@@ -114,13 +119,15 @@ function GroupEditor({ authToken, userRole, dispatch }) {
           locationLng: res.data.location.lng,
           currAttendees: res.data.curAttendees,
           maxAttendees: res.data.maxAttendees,
+          recurring: res.data.recurring || 'N/A',
+          finalDate: reccFindalDate || new Date(),
         };
         console.log(res.data);
         setState({ ...state, ...newState });
       })
       .catch(err => {
-        // setLoading(false);
-        if (err.response.status === 401) {
+        console.log(err);
+        if (err.response && err.response.status === 401) {
           dispatch(logout());
           navigate('/login');
         }
@@ -274,7 +281,7 @@ function GroupEditor({ authToken, userRole, dispatch }) {
       axios
         .patch(`${apiURL}/studygroups/edit/${groupId}`, body, config)
         .then(res => {
-          navigate('/');
+          navigate('/groups');
         })
         .catch(err => {
           console.log(err);
@@ -336,7 +343,7 @@ function GroupEditor({ authToken, userRole, dispatch }) {
               align="stretch"
             >
               <Heading as="h2" size="2xl">
-                Create a Group
+                Edit your study group
               </Heading>
               <Flex justify="center" width="100%">
                 {!imageUrlValid(state.image) ? (
@@ -515,6 +522,7 @@ function GroupEditor({ authToken, userRole, dispatch }) {
                     isInvalid={errors.role}
                     placeholder=""
                     onChange={handleChange}
+                    value={state.recurring}
                   >
                     <option value="N/A">N/A</option>
                     <option value="weekly">weekly</option>
@@ -617,7 +625,7 @@ function GroupEditor({ authToken, userRole, dispatch }) {
                   }}
                   // isLoading={authState.loading || false}
                 >
-                  Create Group
+                  Update Group
                 </GreenButton>
                 {!forceHideAlert && Object.values(errors).some(item => item) && (
                   <Alert status="error" style={{ paddingRight: '2rem' }}>

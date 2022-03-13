@@ -58,7 +58,7 @@ function Map({
     )
       setMarkers(markerLocations);
 
-    console.log(markerLocations);
+    // console.log(markerLocations);
   }, [markerLocations]);
 
   const addMarker = ev => {

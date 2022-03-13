@@ -236,7 +236,7 @@ function GroupCreator({ authToken, userRole }) {
       axios
         .post(`${apiURL}/studygroups/create`, body, config)
         .then(res => {
-          navigate('/');
+          navigate('/groups');
         })
         .catch(err => {
           console.log(err);
