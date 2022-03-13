@@ -1,0 +1,28 @@
+html
+  head
+    title= title
+  body
+    h1= message
+    form(action=`/admin/users`, method='POST')
+      p
+      |
+      input(type='hidden' name='token' value=token)
+      |
+      input(type='submit' name='accept' value='Users')  
+    
+    form(action=`/admin/requests`, method='POST')
+      p
+      |
+      input(type='hidden' name='token' value=token)
+      |
+      input(type='submit' name='accept' value='Requests') 
+    
+    form(action=`/admin/groups`, method='POST')
+      p
+      |
+      input(type='hidden' name='token' value=token)
+      |
+      input(type='submit' name='accept' value='Groups') 
+
+    
+
