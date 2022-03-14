@@ -74,7 +74,7 @@ function NavBar({ authToken, dispatch, userDetails }) {
             Groups
           </Text>
           <Text
-            onClick={authToken ? () => navigate('/about') : null}
+            onClick={navigate('/about')}
             style={{
               fontWeight: 'bold',
               cursor: 'pointer',
