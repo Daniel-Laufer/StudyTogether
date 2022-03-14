@@ -1,4 +1,4 @@
-import { Box, Stack, VStack, Text, Image, Tag, HStack } from '@chakra-ui/react';
+import { Box, Stack, VStack, Text, Image, Tag } from '@chakra-ui/react';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
@@ -9,7 +9,6 @@ const diffSize = size =>
   size === 'lg'
     ? {
         stackSize: '100%',
-        imgWidth: ['300px', '350px', '400px'],
         vstackSpacing: '1.5rem',
         fontSize: '20px',
         noOfLines: '',
@@ -18,7 +17,6 @@ const diffSize = size =>
       }
     : {
         stackSize: { base: '300px', md: '400px' },
-        imgWidth: '150px',
         vstackSpacing: '6px',
         fontSize: '12px',
         noOfLines: '1',
@@ -28,26 +26,18 @@ const diffSize = size =>
 
 function CustomText(fontSize, noOfLines, titles, text) {
   return (
-    <HStack>
-      <Text
-        fontWeight="bold"
-        color={colors.grey.dark}
-        fontSize={fontSize}
-        mt="0px"
-        noOfLines={noOfLines}
-      >
-        {titles}
-      </Text>
-      <Text
-        fontWeight="normal"
-        color={colors.grey.dark}
-        fontSize={fontSize}
-        mt="0px"
-        noOfLines={noOfLines}
-      >
+    <Text
+      fontWeight="bold"
+      color={colors.grey.dark}
+      fontSize={fontSize}
+      mt="0px"
+      noOfLines={noOfLines}
+    >
+      {`${titles} `}
+      <Text as="span" fontWeight="normal">
         {text}
       </Text>
-    </HStack>
+    </Text>
   );
 }
 
@@ -68,15 +58,8 @@ function DetailedGroup({
   selected,
   status,
 }) {
-  const {
-    stackSize,
-    imgWidth,
-    vstackSpacing,
-    fontSize,
-    noOfLines,
-    imgMr,
-    imgAlign,
-  } = diffSize(size);
+  const { stackSize, vstackSpacing, fontSize, noOfLines, imgMr, imgAlign } =
+    diffSize(size);
 
   const groupView = (
     <Stack
@@ -87,7 +70,7 @@ function DetailedGroup({
     >
       <Image
         src={img}
-        width={imgWidth}
+        width="50%"
         alt={imgAlt}
         borderRadius="lg"
         mr={imgMr}
@@ -113,7 +96,6 @@ function DetailedGroup({
         {CustomText(fontSize, noOfLines, 'Restriction:', `${restrict}`)}
         {CustomText(fontSize, noOfLines, 'Availability:', `${availability}`)}
         {CustomText(fontSize, noOfLines, 'When:', `${when}`)}
-        {/* need to subtract dates and format them */}
         {CustomText(
           fontSize,
           noOfLines,

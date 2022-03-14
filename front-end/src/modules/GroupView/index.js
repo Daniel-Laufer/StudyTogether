@@ -243,7 +243,7 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
               <GreenButton
                 colorScheme="teal"
                 size="md"
-                width="400px"
+                width="50%"
                 isDisabled={group.maxAttendees === group.curAttendees}
                 onClick={handleRegister}
               >
@@ -253,7 +253,7 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
               <GreenButton
                 style={{ backgroundColor: '#EE3625' }}
                 size="md"
-                width="400px"
+                width="50%"
                 onClick={handleCancel}
               >
                 Leave
@@ -262,7 +262,7 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
             {errorOccured ? (
               <Alert
                 style={{
-                  width: '400px',
+                  width: '50%',
                 }}
                 status="error"
                 mt={5}
@@ -276,7 +276,7 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
             {successOccured ? (
               <Alert
                 style={{
-                  width: '400px',
+                  width: '50%',
                 }}
                 status="success"
                 mt={5}
