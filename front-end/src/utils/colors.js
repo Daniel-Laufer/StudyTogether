@@ -17,6 +17,7 @@ export const grey = {
 export const blue = {
   medium: '#3182ce',
 };
+
 export const red = {
   medium: '#E53E3E',
 };
