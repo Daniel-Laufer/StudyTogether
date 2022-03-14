@@ -45,7 +45,7 @@ function About({ dispatch }) {
             fontSize="6xl"
             fontWeight={700}
             align="center"
-            style={{ paddingTop: '100px' }}
+            style={{ paddingTop: '30px' }}
           >
             Our Team
           </Text>
