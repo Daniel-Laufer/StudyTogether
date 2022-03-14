@@ -34,7 +34,7 @@ server.on('listening', onListening);
 /**
  * mount socket.io server on the http server
  */
-const { handleSocketIntegration } = require('../helpers/helperSocketio');
+const { handleSocketIntegration } = require('../helpers/helperNotification');
 handleSocketIntegration(server);
 
 /**

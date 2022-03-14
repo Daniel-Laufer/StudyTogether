@@ -148,21 +148,4 @@ module.exports = {
       err.push('Invalid JWT token');
     }
   },
-  stripSensitiveInfo(userObj) {
-    var sensInfo = [
-      'email',
-      'password',
-      'verified',
-      'created',
-      'savedStudygroups',
-    ];
-    sensInfo.forEach(elem => {
-      userObj = removeProperty(elem, userObj);
-    });
-  },
-  async getUserDetailsNonSens(usersId, errors) {
-    var users = await User.find({
-      _id: { $in: usersId },
-    }).catch(err => errors.push('Err: ' + err));
-  },
 };
