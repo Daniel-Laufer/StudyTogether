@@ -49,6 +49,7 @@ function DetailedGroup({
   durationHours,
   durationMins,
   host,
+  hostId,
   desc,
   img,
   imgAlt,
@@ -98,7 +99,6 @@ function DetailedGroup({
 
       <VStack justifyContent="center" spacing={vstackSpacing} align="left">
         {title && CustomText(fontSize, noOfLines, `Title: ${title}`)}
-        {CustomText(fontSize, noOfLines, 'Restriction:', `${restrict}`)}
         {CustomText(fontSize, noOfLines, 'Availability:', `${availability}`)}
         {CustomText(fontSize, noOfLines, 'When:', `${when}`)}
         {CustomText(
@@ -107,8 +107,11 @@ function DetailedGroup({
           'Duration:',
           `${durationHours} hour(s) ${durationMins} min(s)`
         )}
-        {CustomText(fontSize, noOfLines, 'Hosted by:', `${host}`)}
+        <Link to={`/user/${hostId}`}>
+          {CustomText(fontSize, noOfLines, 'Hosted by:', `${host}`)}
+        </Link>
         {CustomText(fontSize, noOfLines, 'Description:', `${desc}`)}
+        {CustomText(fontSize, noOfLines, 'Tags:', `${restrict}`)}
       </VStack>
     </Stack>
   );
@@ -156,6 +159,7 @@ DetailedGroup.propTypes = {
   restrict: PropTypes.string.isRequired,
   availability: PropTypes.string.isRequired,
   host: PropTypes.string.isRequired,
+  hostId: PropTypes.string.isRequired,
   when: PropTypes.string.isRequired,
   durationHours: PropTypes.string.isRequired,
   durationMins: PropTypes.string.isRequired,

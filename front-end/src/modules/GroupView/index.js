@@ -32,6 +32,7 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
   const location = useLocation();
   const [group, setGroup] = useState({});
   const [groupOwner, setGroupOwner] = useState({});
+  const [groupOwnerId, setGroupOwnerId] = useState({});
   const [loading, setLoading] = useState(false);
   const [errorOccured, setErrorOccured] = useState(false);
   const [successOccured, setSuccessOccured] = useState(false);
@@ -42,8 +43,7 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
     }
   }, [authToken]);
 
-  const getGroupOwnerCallbackA = (hostId, config) => {
-    console.log(`===> ${hostId}`);
+  const groupOwnerCallback = (hostId, config) => {
     if (hostId) {
       setLoading(true);
       axios
@@ -51,12 +51,10 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
         .then(res => {
           setLoading(false);
           setGroupOwner(res.data);
-          // console.log(`======> ${res}`);
-          // console.log(`======> ${res.data.firstName}, ${groupOwner.firstName}`);
+          setGroupOwnerId(hostId);
         })
         .catch(err => {
           setLoading(false);
-          // TODO: error checking
           if (err.response.status === 401) {
             dispatch(logout());
             navigate('/login');
@@ -79,36 +77,16 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
       })
       .catch(err => {
         setLoading(false);
-        // TODO: error checking
         if (err.response.status === 401) {
           dispatch(logout());
           navigate('/login');
         }
       });
-
-    // console.log(group.hostId);
-
-    // setGroupOwner(res.data);
-    // axios
-    //   .get(`${apiURL}/users/profile/${res.data.hostId}`, config)
-    //   .then(res => {
-    //     setLoading(false);
-    //     console.log(res.data);
-    //     // setGroupOwner(res.data);
-    //     // console.log(groupOwner.firstName);
-    //   })
-    //   .catch(err => {
-    //     setLoading(false);
-    //     if (err.response.status === 401) {
-    //       dispatch(logout());
-    //       navigate('/login');
-    //     }
-    //   });
   };
 
   // on component mount, retrieve all the saved study groups
   useEffect(() => {
-    getSelectedStudyGroup(getGroupOwnerCallbackA);
+    getSelectedStudyGroup(groupOwnerCallback);
   }, [location.pathname]);
 
   if (authToken === null) {
@@ -230,6 +208,7 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
           durationHours={dateDiffHours}
           durationMins={dateDiffMins}
           host={`${groupOwner.firstName} ${groupOwner.lastName}`}
+          hostId={groupOwnerId}
           desc={group.description}
           size="lg"
         />
@@ -241,7 +220,7 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
                 style={{ backgroundColor: colors.blue.medium }}
                 size="md"
                 width="50%"
-                maxWidth="400px"
+                maxWidth="380px"
                 onClick={() => navigate(`/groups/edit/${id}`)}
               >
                 Edit
@@ -283,7 +262,7 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
               >
                 <AlertIcon />
                 <AlertDescription>
-                  Could not perform the operation successfully. Please reload!
+                  Could not perform this operation successfully. Please reload!
                 </AlertDescription>
               </Alert>
             ) : null}
@@ -299,7 +278,7 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
               >
                 <AlertIcon />
                 <AlertDescription>
-                  The operation was successful!
+                  This operation was successful!
                 </AlertDescription>
               </Alert>
             ) : null}
