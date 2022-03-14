@@ -236,14 +236,25 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
 
         <Box width="full">
           <Box style={{ marginTop: '1rem' }}>
-            {group &&
-            group.attendees &&
-            group.attendees.filter(g => g.id === userDetails.id).length ===
-              0 ? (
+            {group && group.hostId === userDetails.id ? (
+              <GreenButton
+                style={{ backgroundColor: colors.blue.medium }}
+                size="md"
+                width="50%"
+                maxWidth="400px"
+                onClick={() => navigate(`/groups/edit/${id}`)}
+              >
+                Edit
+              </GreenButton>
+            ) : group &&
+              group.attendees &&
+              group.attendees.filter(g => g.id === userDetails.id).length ===
+                0 ? (
               <GreenButton
                 colorScheme="teal"
                 size="md"
-                width="45%"
+                width="50%"
+                maxWidth="400px"
                 isDisabled={group.maxAttendees === group.curAttendees}
                 onClick={handleRegister}
               >
@@ -253,7 +264,8 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
               <GreenButton
                 style={{ backgroundColor: '#EE3625' }}
                 size="md"
-                width="45%"
+                width="50%"
+                maxWidth="400px"
                 onClick={handleCancel}
               >
                 Leave
@@ -262,7 +274,9 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
             {errorOccured ? (
               <Alert
                 style={{
-                  width: '45%',
+                  width: '50%',
+                  maxWidth: '400px',
+                  minWidth: '200px',
                 }}
                 status="error"
                 mt={5}
@@ -276,7 +290,9 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
             {successOccured ? (
               <Alert
                 style={{
-                  width: '45%',
+                  width: '50%',
+                  maxWidth: '400px',
+                  minWidth: '200px',
                 }}
                 status="success"
                 mt={5}
