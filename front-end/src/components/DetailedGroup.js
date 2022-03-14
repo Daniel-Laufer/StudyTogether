@@ -24,17 +24,32 @@ const diffSize = size =>
         imgAlign: ['center', 'center', 'left'],
       };
 
-function CustomText(fontSize, noOfLines, titles, text) {
+function CustomText(fontSize, noOfLines, title, text, isLink) {
   return (
     <Text
       fontWeight="bold"
       color={colors.grey.dark}
       fontSize={fontSize}
       mt="0px"
+      maxWidth="500px"
       noOfLines={noOfLines}
     >
-      {`${titles} `}
-      <Text as="span" fontWeight="normal">
+      {`${title} `}
+      <Text
+        as="span"
+        fontWeight="normal"
+        wordBreak="break-word"
+        style={
+          isLink
+            ? {
+                color: colors.green.medium,
+                textDecoration: 'underline',
+              }
+            : {
+                color: colors.grey.dark,
+              }
+        }
+      >
         {text}
       </Text>
     </Text>
@@ -71,6 +86,8 @@ function DetailedGroup({
     >
       <VStack>
         <Image
+          paddingTop="5%"
+          paddingBottom="5%"
           src={img}
           width="400px"
           alt={imgAlt}
@@ -98,20 +115,27 @@ function DetailedGroup({
       </VStack>
 
       <VStack justifyContent="center" spacing={vstackSpacing} align="left">
-        {title && CustomText(fontSize, noOfLines, `Title: ${title}`)}
-        {CustomText(fontSize, noOfLines, 'Availability:', `${availability}`)}
-        {CustomText(fontSize, noOfLines, 'When:', `${when}`)}
+        {title && CustomText(fontSize, noOfLines, `Title: ${title}`, false)}
+        {CustomText(
+          fontSize,
+          noOfLines,
+          'Availability:',
+          `${availability}`,
+          false
+        )}
+        {CustomText(fontSize, noOfLines, 'When:', `${when}`, false)}
         {CustomText(
           fontSize,
           noOfLines,
           'Duration:',
-          `${durationHours} hour(s) ${durationMins} min(s)`
+          `${durationHours} hour(s) ${durationMins} min(s)`,
+          false
         )}
         <Link to={`/user/${hostId}`}>
-          {CustomText(fontSize, noOfLines, 'Hosted by:', `${host}`)}
+          {CustomText(fontSize, noOfLines, 'Hosted by:', `${host}`, true)}
         </Link>
-        {CustomText(fontSize, noOfLines, 'Description:', `${desc}`)}
-        {CustomText(fontSize, noOfLines, 'Tags:', `${restrict}`)}
+        {CustomText(fontSize, noOfLines, 'Description:', `${desc}`, false)}
+        {CustomText(fontSize, noOfLines, 'Tags:', `${restrict}`, false)}
       </VStack>
     </Stack>
   );
