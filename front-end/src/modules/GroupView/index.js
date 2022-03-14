@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 /* eslint-disable no-undef */
 /* eslint-disable no-underscore-dangle */
 import React, { useEffect, useState } from 'react';
@@ -17,12 +18,12 @@ import axios from 'axios';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { apiURL } from '../../utils/constants';
+import * as colors from '../../utils/colors';
 import { logout } from '../../actions/Auth';
 import CustomSpinner from '../../components/CustomSpinner';
 import DetailedGroup from '../../components/DetailedGroup';
 import GreenButton from '../../components/GreenButton';
 import GroupMembers from '../../components/GroupMembers';
-import * as colors from '../../utils/colors';
 
 function GroupView({
   authToken,
@@ -182,9 +183,19 @@ function GroupView({
         />
 
         <Box style={{ marginTop: '1rem' }}>
-          {group &&
-          group.attendees &&
-          group.attendees.filter(g => g.id === userDetails.id).length === 0 ? (
+          {group && group.hostId === userDetails.id ? (
+            <GreenButton
+              style={{ backgroundColor: colors.blue.medium }}
+              size="md"
+              width="400px"
+              onClick={() => navigate(`/groups/edit/${id}`)}
+            >
+              Edit
+            </GreenButton>
+          ) : group &&
+            group.attendees &&
+            group.attendees.filter(g => g.id === userDetails.id).length ===
+              0 ? (
             <GreenButton
               colorScheme="teal"
               size="md"

@@ -90,7 +90,14 @@ router.post(
   body('maxAttendees').notEmpty(),
   body('tags').exists().bail().isArray().bail().notEmpty(),
   body('recurring').notEmpty(),
-  body('finalDate').notEmpty(),
+  body('finalDate')
+    .notEmpty()
+    .if(
+      body('recurring').equals('weekly') ||
+        body('recurring').equals('bi-weekly')
+    )
+    .notEmpty(),
+
   (req, res) => {
     // checking if user is authenticated
     if (!req.user) {
@@ -144,7 +151,12 @@ router.post(
         tags: req.body.tags,
         seriesId: seriesId,
         official: req.body.official,
+        recurring: req.body.recurring,
       });
+
+      if (req.body.recurring != 'N/A')
+        studygroup.recurringFinalDateTime = finalDate;
+
       studygroup.save().catch(err => res.status(400).json('Error: ' + err));
 
       newSeries.studyGroups.push(studygroup._id);
@@ -217,6 +229,7 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
           tags: req.body.tags,
           seriesId: seriesId,
           official: req.body.official,
+          recurring: req.body.recurring,
         });
         session.save().catch(err => res.status(400).json('Error: ' + err));
       }
@@ -250,9 +263,15 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
     if (isRescheduled)
       Object.assign(studyGroup, {
         ...req.body,
+        ...{ recurringFinalDateTime: req.body.finalDate },
         ...{ rescheduled: isRescheduled },
       });
-    else Object.assign(studyGroup, req.body);
+    else
+      Object.assign(studyGroup, {
+        ...req.body,
+        ...{ recurringFinalDateTime: req.body.finalDate },
+      });
+
     studyGroup.save().catch(err => res.status(400).json('Error: ' + err));
   }
   try {
