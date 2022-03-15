@@ -23,6 +23,7 @@ import genericUser from '../assets/images/cat-pfp.jpeg';
 import GreenButton from './GreenButton';
 import * as colors from '../utils/colors';
 import useOutsideAlerter from '../hooks/useOutsideAlerter';
+import NotificationBell from './NotificationBell';
 
 function NavBar({ authToken, dispatch, userDetails }) {
   const navigate = useNavigate();
@@ -96,7 +97,8 @@ function NavBar({ authToken, dispatch, userDetails }) {
         >
           {authToken !== null ? (
             <div ref={navbarUserMenuRef}>
-              <img
+              <NotificationBell />
+              {/* <img
                 onClick={() => {
                   setIsUserProfileMenuOpen(!isUserProfileMenuOpen);
                 }}
@@ -106,10 +108,11 @@ function NavBar({ authToken, dispatch, userDetails }) {
                   width: '35px',
                   borderRadius: '50%',
                   cursor: 'pointer',
+                  border: 'green solid 0.5px',
                 }}
                 src={genericUser}
                 alt="user profile"
-              />
+              /> */}
               <div
                 style={{
                   position: 'absolute',

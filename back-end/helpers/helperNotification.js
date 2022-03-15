@@ -1,6 +1,6 @@
-const Sockets = require('../helpers/Sockets');
+const Sockets = require('../helpers/SocketStore');
 const userORM = require('../models/user.model');
-var socketsSingleton = Sockets.getInstance();
+var socketStore = Sockets.getInstance();
 
 var io = null;
 const config = {
@@ -15,8 +15,8 @@ const onConnection = () => {
   io.on('connection', socket => {
     var userID = socket.handshake.headers.userid;
     console.log(`user ${userID} connected`);
-    if (userID && !(userID in socketsSingleton.sockets)) {
-      socketsSingleton.sockets[userID] = socket;
+    if (userID && !(userID in socketStore.sockets)) {
+      socketStore.sockets[userID] = socket;
 
       //TODO: join users to all their groups
       var errors = [];
@@ -38,9 +38,9 @@ const attendGroups = async (userID, errors) => {
   });
 
   const groupIDs = usr.registeredStudygroups.map(s => s.toString());
-  // console.log(groupIDs);
-  if (userID in socketsSingleton.sockets) {
-    const socket = socketsSingleton.sockets[userID];
+  console.log(groupIDs);
+  if (userID in socketStore.sockets) {
+    const socket = socketStore.sockets[userID];
     await socket.join(groupIDs);
     console.log(socket.rooms);
   } else {
@@ -54,8 +54,8 @@ const attendGroups = async (userID, errors) => {
  * @description Join the rooms associated with each followed user
  */
 const followUsers = (userID, followedUserIDs) => {
-  if (userID in socketsSingleton.sockets) {
-    const socket = socketsSingleton.sockets[userID];
+  if (userID in socketStore.sockets) {
+    const socket = socketStore.sockets[userID];
     socket.join(followedUserIDs);
   } else {
     errors.push('User was not found!');

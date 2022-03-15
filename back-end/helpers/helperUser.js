@@ -5,8 +5,6 @@ var tarequest = require('../models/taverify.model');
 const adminurl = 'http://localhost:8000/admin';
 const { validationResult } = require('express-validator');
 
-const removeProperty = (prop, { [prop]: exclProp, ...rest }) => rest;
-
 module.exports = {
   respondJWT(user, res, successMessage) {
     /* Create a token by signing the user id with the private key. */
@@ -68,6 +66,7 @@ module.exports = {
     }
   },
 
+  /* TODO: Use the methods in helperAdmin.js instead of the ones below */
   verifyTokenInBody(req, res, next) {
     if (req.body.token) {
       jwt.verify(
@@ -99,7 +98,6 @@ module.exports = {
       next();
     }
   },
-
   async renderusers(req, res) {
     var users = await User.find({});
     var list = [];
