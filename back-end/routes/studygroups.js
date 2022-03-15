@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 let StudygroupModel = require('../models/studygroup.model');
 let studyGroupSeriesModel = require('../models/studygroupseries.model');
+let UserModel = require('../models/user.model');
 var helperUser = require('../helpers/helperUser');
 const { body, validationResult } = require('express-validator');
 const mongoose = require('mongoose');
@@ -184,12 +185,20 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
 
   const editAll = req.body.editAll;
 
-  const studyGroup = await StudygroupModel.findById(groupId).catch(err =>
-    res.status(400).json('Error: ' + err)
+  const studyGroup = await StudygroupModel.findById(groupId).catch(
+    err => err => {
+      res.status(400).json('Error: ' + err);
+      return;
+    }
   );
+  let groups_changed =
+    'Some of the groups you are a part of have been rescheduled or cancelled:\n';
+  let emailList = [];
   if (editAll) {
     var seriesId = new mongoose.Types.ObjectId(studyGroup.seriesId);
+
     const series = await studyGroupSeriesModel.findById(seriesId);
+    console.log(series);
     let numDays;
     if (req.body.recurring == 'weekly') {
       numDays = 7;
@@ -206,13 +215,28 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
       var session;
       if (i < series.studyGroups.length) {
         session = await StudygroupModel.findById(series.studyGroups[i]).catch(
-          err => res.status(400).json('Error: ' + err)
+          err => {
+            res.status(400).json('Error: ' + err);
+            return;
+          }
         );
+        groups_changed += `${session.title} from ${session.startDateTime} till ${session.endDateTime} has become: `;
 
+        for (let i = 0; i < session.attendees.length; i++) {
+          let person = await UserModel.findById(session.attendees[i].id);
+          if (!emailList.find(element => element == person.email)) {
+            emailList.push(person.email);
+          }
+        }
         Object.assign(session, req.body);
         session.startDateTime = newStart;
         session.endDateTime = newEnd;
-        session.save().catch(err => res.status(400).json('Error: ' + err));
+        groups_changed += `${session.title} from ${session.startDateTime} till ${session.endDateTime}\n`;
+        console.log(session);
+        session.save().catch(err => {
+          res.status(400).json('Error: ' + err);
+          return;
+        });
       } else {
         //var id = mongoose.Types.ObjectId(req.body.hostId); jsut for back end only testing
         session = new StudygroupModel({
@@ -231,7 +255,13 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
           official: req.body.official,
           recurring: req.body.recurring,
         });
-        session.save().catch(err => res.status(400).json('Error: ' + err));
+        if (req.body.recurring != 'N/A')
+          session.recurringFinalDateTime = req.body.finalDate;
+
+        session.save().catch(err => {
+          res.status(400).json('Error: ' + err);
+          return;
+        });
       }
 
       newStudyGroupsList.push(session._id);
@@ -245,15 +275,33 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
           element => element.toString() == series.studyGroups[i].toString()
         )
       ) {
-        await StudygroupModel.findByIdAndDelete(series.studyGroups[i]).catch(
-          err => res.status(400).json('Error: ' + err)
+        group = await StudygroupModel.findById(series.studyGroups[i]).catch(
+          err => {
+            res.status(400).json('Error: ' + err);
+            return;
+          }
         );
+        groups_changed += `${group.title} at ${group.startDateTime} till ${group.endDateTime} has been cancelled\n`;
+        group.delete();
       }
     }
     series.recurring = req.body.recurring;
     series.studyGroups = newStudyGroupsList;
-    series.save().catch(err => res.status(400).json('Error: ' + err));
+    series.save().catch(err => {
+      res.status(400).json('Error: ' + err);
+      return;
+    });
   } else {
+    groups_changed += `
+      ${studyGroup.title} from
+      ${studyGroup.startDateTime} till
+      ${studyGroup.endDateTime} has become: \n`;
+
+    for (let i = 0; i < studyGroup.attendees.length; i++) {
+      let person = await UserModel.findById(studyGroup.attendees[i].id);
+
+      emailList.push(person.email);
+    }
     /* TODO: Notify users once postponed (after notification feature is added) */
     var isRescheduled =
       (new Date(req.body.startDateTime).getTime() ??
@@ -271,14 +319,22 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
         ...req.body,
         ...{ recurringFinalDateTime: req.body.finalDate },
       });
+    groups_changed += `
+      ${studyGroup.title} from
+      ${studyGroup.startDateTime} till
+      ${studyGroup.endDateTime}\n`;
+    studyGroup.save().catch(err => {
+      res.status(400).json('Error: ' + err);
+      return;
+    });
+  }
+  if (emailList.length > 0) {
+    console.log(emailList);
+    let subject = 'Study group details have changed or been cancelled';
+    helperUser.sendEmail(emailList, subject, groups_changed);
+  }
 
-    studyGroup.save().catch(err => res.status(400).json('Error: ' + err));
-  }
-  try {
-    res.status(200).json(studyGroup);
-  } catch (err) {
-    console.log(err);
-  }
+  res.status(200).json(studyGroup);
 });
 
 /* (7) Deleting a study group by id */

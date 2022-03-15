@@ -4,6 +4,7 @@ var User = require('../models/user.model');
 var tarequest = require('../models/taverify.model');
 const adminurl = 'http://localhost:8000/admin';
 const { validationResult } = require('express-validator');
+var nodemailer = require('nodemailer');
 
 const removeProperty = (prop, { [prop]: exclProp, ...rest }) => rest;
 
@@ -164,5 +165,26 @@ module.exports = {
     var users = await User.find({
       _id: { $in: usersId },
     }).catch(err => errors.push('Err: ' + err));
+  },
+
+  //rec_email can be list or single user
+  async sendEmail(rec_email, subject, message) {
+    let password = process.env.password;
+    console.log(password);
+    let transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'studtogtest@gmail.com',
+        pass: password,
+      },
+      secure: true,
+    });
+    let msg = await transporter.sendMail({
+      from: 'studtogtest@gmail.com', // sender address
+      to: `${rec_email}`, // list of receivers
+      subject: subject,
+      text: message,
+    });
+    await transporter.sendMail(msg);
   },
 };

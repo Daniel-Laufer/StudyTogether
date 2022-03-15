@@ -1,19 +1,16 @@
 var express = require('express');
 var crypto = require('crypto');
 var bcrypt = require('bcrypt');
-var nodemailer = require('nodemailer');
 
 var router = express.Router();
 let user = require('../models/user.model');
 let Token = require('../models/token.model');
 const { body, validationResult } = require('express-validator');
+const helperUser = require('../helpers/helperUser');
 const resetURL = 'http://localhost:3000/reset-password'; //to be replaced with the proper frontend page
-
-let password = process.env.password;
 
 router.post('/', body('email').notEmpty(), async function (req, res) {
   const errors = validationResult(req);
-  console.log('here');
   if (!errors.isEmpty()) {
     res.status(400).json({ errors: errors.array() });
     return;
@@ -31,8 +28,6 @@ router.post('/', body('email').notEmpty(), async function (req, res) {
   var salt = await bcrypt.genSalt(saltRounds);
   let resetToken = crypto.randomBytes(32).toString('hex');
   const hash = await bcrypt.hash(resetToken, salt);
-  console.log('compare' + bcrypt.compareSync(resetToken, hash));
-  console.log(resetToken);
   await new Token({
     email: email,
     token: hash,
@@ -42,22 +37,11 @@ router.post('/', body('email').notEmpty(), async function (req, res) {
   // end of code taken from
 
   //email code taken from https://nodemailer.com/about/
-  let transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: 'studtogtest@gmail.com',
-      pass: password,
-    },
-    secure: true,
-  });
-  let msg = await transporter.sendMail({
-    from: 'studtogtest@gmail.com', // sender address
-    to: `${email}`, // list of receivers
-    subject: 'Password Reset Request',
-    text: `Click this link to reset your password: ${link}`,
-  });
-  await transporter.sendMail(msg);
-
+  helperUser.sendEmail(
+    email,
+    'Password reset request',
+    `Click this link to reset your password: ${link}`
+  );
   res.send('email sent\nemail: ' + email + '\nlink: ' + link);
 });
 

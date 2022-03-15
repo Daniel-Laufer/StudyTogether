@@ -70,6 +70,7 @@ function GroupEditor({ authToken, userRole, dispatch }) {
     finalDate: new Date(),
     recurring: 'N/A',
     official: false,
+    editAll: false,
   });
 
   const [errors, setErrors] = useState({
@@ -265,6 +266,7 @@ function GroupEditor({ authToken, userRole, dispatch }) {
         recurring: state.recurring,
         official: state.official,
         description: state.description,
+        editAll: state.editAll,
         location: {
           lat: state.locationLat,
           lng: state.locationLng,
@@ -515,44 +517,56 @@ function GroupEditor({ authToken, userRole, dispatch }) {
                   </TimePickerWrapper>
                 </Flex>
                 <HStack>
-                  <span style={{ marginRight: '1rem' }}>Recurring: </span>
-                  <Select
-                    className="custom-select"
-                    name="recurring"
-                    isInvalid={errors.role}
-                    placeholder=""
-                    onChange={handleChange}
-                    value={state.recurring}
-                  >
-                    <option value="N/A">N/A</option>
-                    <option value="weekly">weekly</option>
-                    <option value="bi-weekly">bi-weekly</option>
-                  </Select>
-                  {state.recurring !== 'N/A' && (
-                    <span style={{ width: '425px', marginLeft: '1rem' }}>
-                      Final session date:{' '}
-                    </span>
-                  )}
-                  {state.recurring !== 'N/A' && (
-                    <div
-                      style={{
-                        border: errors.finalDate
-                          ? 'solid 2px crimson'
-                          : 'solid 1px var(--chakra-colors-gray-200)',
-                        borderRadius: 'var(--chakra-radii-md)',
-                        padding: '2px',
-                      }}
-                    >
-                      <DatePicker
-                        name="finalDate"
-                        selected={state.finalDate}
-                        onChange={finalDate => {
-                          setState({ ...state, finalDate });
-                        }}
-                      />
-                    </div>
-                  )}
+                  <span>Edit all recurring groups:</span>
+                  <Checkbox
+                    name="editAll"
+                    checked={state.editAll}
+                    onChange={editAll => {
+                      setState({ ...state, editAll: !state.editAll });
+                    }}
+                  />
                 </HStack>
+                {state.editAll && (
+                  <HStack>
+                    <span style={{ marginRight: '1rem' }}>Recurring: </span>
+                    <Select
+                      className="custom-select"
+                      name="recurring"
+                      isInvalid={errors.role}
+                      placeholder=""
+                      onChange={handleChange}
+                      value={state.recurring}
+                    >
+                      <option value="N/A">N/A</option>
+                      <option value="weekly">weekly</option>
+                      <option value="bi-weekly">bi-weekly</option>
+                    </Select>
+                    {state.recurring !== 'N/A' && (
+                      <span style={{ width: '425px', marginLeft: '1rem' }}>
+                        Final session date:{' '}
+                      </span>
+                    )}
+                    {state.recurring !== 'N/A' && (
+                      <div
+                        style={{
+                          border: errors.finalDate
+                            ? 'solid 2px crimson'
+                            : 'solid 1px var(--chakra-colors-gray-200)',
+                          borderRadius: 'var(--chakra-radii-md)',
+                          padding: '2px',
+                        }}
+                      >
+                        <DatePicker
+                          name="finalDate"
+                          selected={state.finalDate}
+                          onChange={finalDate => {
+                            setState({ ...state, finalDate });
+                          }}
+                        />
+                      </div>
+                    )}
+                  </HStack>
+                )}
                 {userRole && userRole === 'TA' && (
                   <HStack>
                     <span>Designate as office hours:</span>
