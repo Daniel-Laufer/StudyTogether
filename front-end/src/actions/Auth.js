@@ -27,12 +27,6 @@ export function login(userDetails) {
         dispatch({ type: REGISTRATION_SUCCESS });
         dispatch({ type: SAVE_AUTH_DETAILS, ...res.data });
 
-        const socket = io('http://localhost:8000');
-        console.log('Login_req');
-        socket.on('notification', () => {
-          alert('You got new notification!');
-        });
-
         if (userDetails.rememberUser) {
           window.localStorage.setItem(
             'userDetails',
@@ -42,6 +36,15 @@ export function login(userDetails) {
           // window.localStorage.setItem('userDetails', res.data.token);
         }
         window.localStorage.setItem('role', res.data.user.role);
+        const socket = io('http://localhost:8000', {
+          extraHeaders: {
+            userid: res.data.user.id,
+          },
+        });
+        console.log('Login_req', res.data.user.id);
+        socket.on('group-change', () => {
+          alert('You got new notification! :');
+        });
       })
       .catch(err => {
         let errMessage = err.toString();

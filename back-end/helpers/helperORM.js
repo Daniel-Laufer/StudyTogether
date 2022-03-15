@@ -1,5 +1,4 @@
 const userORM = require('../models/user.model');
-const notifyORM = require('../models/notification.model');
 
 module.exports = {
   async fetchUser(userId, allowSensitiveInfo) {

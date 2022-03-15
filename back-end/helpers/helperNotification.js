@@ -1,3 +1,7 @@
+const Sockets = require('../helpers/Sockets');
+const userORM = require('../models/user.model');
+var socketsSingleton = Sockets.getInstance();
+
 var io = null;
 const config = {
   cors: {
@@ -9,30 +13,64 @@ const config = {
 /* Event handlers */
 const onConnection = () => {
   io.on('connection', socket => {
-    console.log('a user connected');
-    //TODO: save the socket and the associated user (e.g redis).
+    var userID = socket.handshake.headers.userid;
+    console.log(`user ${userID} connected`);
+    if (userID && !(userID in socketsSingleton.sockets)) {
+      socketsSingleton.sockets[userID] = socket;
+
+      //TODO: join users to all their groups
+      var errors = [];
+      attendGroups(userID, errors);
+    }
   });
 };
 
-/* emit actions */
+/**
+ *
+ * @param {string} userID
+ * @param {array} errors
+ * @description Join the rooms associated with each study group the user is registered to
+ */
+const attendGroups = async (userID, errors) => {
+  const usr = await userORM.findById(userID).catch(err => {
+    errors.push(err);
+    return;
+  });
+
+  const groupIDs = usr.registeredStudygroups.map(s => s.toString());
+  // console.log(groupIDs);
+  if (userID in socketsSingleton.sockets) {
+    const socket = socketsSingleton.sockets[userID];
+    await socket.join(groupIDs);
+    console.log(socket.rooms);
+  } else {
+    errors.push('User was not found!');
+  }
+};
+/**
+ *
+ * @param {string} userID
+ * @param {array} followedUserIDs
+ * @description Join the rooms associated with each followed user
+ */
+const followUsers = (userID, followedUserIDs) => {
+  if (userID in socketsSingleton.sockets) {
+    const socket = socketsSingleton.sockets[userID];
+    socket.join(followedUserIDs);
+  } else {
+    errors.push('User was not found!');
+  }
+};
 
 module.exports = {
   handleSocketIntegration(server) {
-    const { Server } = require('socket.io');
+    const { Server, Socket } = require('socket.io');
     io = new Server(server, config);
     onConnection();
   },
-  attendGroup(userID, groupID) {
-    //1. Find the socket associated with the userID
-    const socket = null;
-    socket.join(groupID);
-  },
-  followUser(userID, followedUserID) {
-    //1. Find the socket associated with the userID
-    const socket = null;
-    socket.join(followedUserID);
-  },
-  emitGroupUpdated(groupID, groupTitle) {
+
+  /* emit actions */
+  emitGroupUpdated(groupID, groupTitle, action) {
     const titlePreview = groupTitle.substring(0, 10);
     var message = '';
     switch (action) {
@@ -49,7 +87,9 @@ module.exports = {
         console.log(`Err: action does not exist`);
         return;
     }
-    io.to(groupID).emit('group-change', message);
+    console.log(`Checking ${groupID} with the message ${message}`);
+    io.emit('group-change', message);
+    // io.to(groupID).emit('group-change', message);
   },
   emitFollowedUpdates(followedUserID, followedUserName, action) {
     var message = '';

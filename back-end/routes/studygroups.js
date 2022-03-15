@@ -5,8 +5,7 @@ let studyGroupSeriesModel = require('../models/studygroupseries.model');
 var helperUser = require('../helpers/helperUser');
 const { body, validationResult } = require('express-validator');
 const mongoose = require('mongoose');
-const studygroup = require('../models/studygroup.model');
-
+const { emitGroupUpdated } = require('../helpers/helperNotification');
 /* (1) Get all study groups*/
 router.get('/', helperUser.verifyToken, (req, res) => {
   // checking if user is authenticated
@@ -72,8 +71,15 @@ router.get('/:id', helperUser.verifyToken, (req, res) => {
   }
   const groupId = req.params.id;
   StudygroupModel.findById(groupId)
-    .then(studygroup => res.status(200).json(studygroup))
-    .catch(err => res.status(400).json('Error: ' + err));
+    .then(studygroup => {
+      emitGroupUpdated(groupId, studygroup.title, 'edit');
+      res.status(200).json(studygroup);
+      return;
+    })
+    .catch(err => {
+      console.log('Error: ' + err);
+      res.status(400).json('Error: ' + err);
+    });
 });
 
 /* (5) Catching a post request with url ./create */
