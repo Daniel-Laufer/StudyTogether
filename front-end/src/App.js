@@ -20,6 +20,8 @@ import NotFoundPage from './modules/NotFoundPage';
 import AccountInfo from './modules/AccountInfo';
 import GroupView from './modules/GroupView';
 import CustomCalendar from './modules/CustomCalendar';
+import GroupEditor from './modules/GroupEditor';
+import About from './modules/About';
 
 const store = createStore(
   rootReducer,
@@ -30,10 +32,11 @@ function App() {
   return (
     <Provider store={store}>
       <ChakraProvider theme={theme}>
-        <BrowserRouter>
+        <BrowserRouter style={{ height: '100vh' }}>
           <NavBar />
           <Routes>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/about" element={<About />} />
             <Route
               path="/dashboard"
               element={
@@ -58,6 +61,7 @@ function App() {
               }
             />
             <Route path="/groups/create" element={<GroupCreator />} />
+            <Route path="/groups/edit/:id" element={<GroupEditor />} />
             <Route
               path="/saved-groups"
               element={

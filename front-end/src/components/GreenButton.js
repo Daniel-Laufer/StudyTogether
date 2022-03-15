@@ -7,12 +7,23 @@ import * as colors from '../utils/colors';
 
 const GreenButton = forwardRef(
   (
-    { text, width, height, onClick, isLoading, children, style, isDisabled },
+    {
+      text,
+      width,
+      height,
+      onClick,
+      isLoading,
+      children,
+      style,
+      isDisabled,
+      maxWidth,
+    },
     ref
   ) => (
     <Button
       onClick={onClick}
       {...(width ? { width } : {})}
+      {...(maxWidth ? { maxWidth } : {})}
       {...(height ? { height } : {})}
       colorScheme="green"
       bg={colors.green.dark}
@@ -38,6 +49,7 @@ const GreenButton = forwardRef(
 GreenButton.propTypes = {
   text: PropTypes.string,
   width: PropTypes.string,
+  maxWidth: PropTypes.string,
   height: PropTypes.string,
   onClick: PropTypes.func,
   isLoading: PropTypes.bool,
@@ -51,6 +63,7 @@ GreenButton.propTypes = {
 GreenButton.defaultProps = {
   text: 'Button',
   width: null,
+  maxWidth: null,
   height: null,
   onClick: () => null,
   isLoading: false,

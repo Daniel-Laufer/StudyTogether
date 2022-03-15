@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 /* eslint-disable no-undef */
 /* eslint-disable no-underscore-dangle */
 import React, { useEffect, useState } from 'react';
@@ -9,28 +10,29 @@ import {
   Heading,
   FormControl,
   AlertDescription,
+  Text,
+  HStack,
 } from '@chakra-ui/react';
 import { connect } from 'react-redux';
+import moment from 'moment';
 import axios from 'axios';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { apiURL } from '../../utils/constants';
+import * as colors from '../../utils/colors';
 import { logout } from '../../actions/Auth';
 import CustomSpinner from '../../components/CustomSpinner';
 import DetailedGroup from '../../components/DetailedGroup';
 import GreenButton from '../../components/GreenButton';
+import GroupMembers from '../../components/GroupMembers';
 
-function GroupView({
-  authToken,
-  dispatch,
-  studyGroupsEndPoint,
-  headerContent,
-  userDetails,
-}) {
+function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
   const navigate = useNavigate();
   const { id } = useParams();
   const location = useLocation();
   const [group, setGroup] = useState({});
+  const [groupOwner, setGroupOwner] = useState({});
+  const [groupOwnerId, setGroupOwnerId] = useState({});
   const [loading, setLoading] = useState(false);
   const [errorOccured, setErrorOccured] = useState(false);
   const [successOccured, setSuccessOccured] = useState(false);
@@ -41,7 +43,27 @@ function GroupView({
     }
   }, [authToken]);
 
-  const getSelectedStudyGroup = () => {
+  const groupOwnerCallback = (hostId, config) => {
+    if (hostId) {
+      setLoading(true);
+      axios
+        .get(`${apiURL}/users/profile/${hostId}`, config)
+        .then(res => {
+          setLoading(false);
+          setGroupOwner(res.data);
+          setGroupOwnerId(hostId);
+        })
+        .catch(err => {
+          setLoading(false);
+          if (err.response.status === 401) {
+            dispatch(logout());
+            navigate('/login');
+          }
+        });
+    }
+  };
+
+  const getSelectedStudyGroup = getGroupOwnerCallback => {
     const config = {
       headers: { Authorization: `JWT ${authToken}` },
     };
@@ -51,6 +73,7 @@ function GroupView({
       .then(res => {
         setLoading(false);
         setGroup(res.data);
+        getGroupOwnerCallback(res.data.hostId, config);
       })
       .catch(err => {
         setLoading(false);
@@ -63,7 +86,7 @@ function GroupView({
 
   // on component mount, retrieve all the saved study groups
   useEffect(() => {
-    getSelectedStudyGroup();
+    getSelectedStudyGroup(groupOwnerCallback);
   }, [location.pathname]);
 
   if (authToken === null) {
@@ -89,7 +112,7 @@ function GroupView({
         setLoading(false);
         setInterval(() => {
           setSuccessOccured(false);
-        }, 3000);
+        }, 4000);
       })
       .catch(err => {
         setLoading(false);
@@ -102,7 +125,7 @@ function GroupView({
         }
         setInterval(() => {
           setErrorOccured(false);
-        }, 3000);
+        }, 4000);
       });
   };
 
@@ -119,7 +142,7 @@ function GroupView({
         setLoading(false);
         setInterval(() => {
           setSuccessOccured(false);
-        }, 3000);
+        }, 4000);
       })
       .catch(err => {
         setLoading(false);
@@ -132,15 +155,31 @@ function GroupView({
         }
         setInterval(() => {
           setErrorOccured(false);
-        }, 3000);
+        }, 4000);
       });
   };
 
+  const dateDiffHours = moment(group.endDateTime).diff(
+    moment(group.startDateTime),
+    'hours'
+  );
+
+  const dateDiffMins = moment(group.endDateTime)
+    .subtract(dateDiffHours, 'hours')
+    .diff(moment(group.startDateTime), 'minutes');
+
   return !loading ? (
-    <Box style={{ width: '60%', margin: 'auto', marginTop: '2rem' }}>
+    <Box
+      style={{
+        width: '60%',
+        margin: 'auto',
+        marginTop: '2rem',
+        marginBottom: '2rem',
+      }}
+    >
       <Flex justify="space-between" wrap="wrap" gap="1rem">
         <Heading as="h2" size="2xl">
-          {headerContent}
+          {group.title}
         </Heading>
         <FormControl
           style={{ width: 'auto' }}
@@ -157,68 +196,106 @@ function GroupView({
         }}
       >
         <DetailedGroup
-          title={group.title}
           restrict={group.tags}
           availability={`${group.maxAttendees - group.curAttendees} / ${
             group.maxAttendees
           }`}
           imgAlt="Study group image"
           img={group.imageUrl}
-          when={group.time}
-          host={`${group.hostFirstName} ${group.hostLastName}`}
+          when={moment(group.startDateTime).format(
+            'dddd, MMM DD, yyyy HH:mm a'
+          )}
+          durationHours={dateDiffHours}
+          durationMins={dateDiffMins}
+          host={`${groupOwner.firstName} ${groupOwner.lastName}`}
+          hostId={groupOwnerId}
           desc={group.description}
           size="lg"
         />
-        <div style={{ marginTop: '1rem' }}>
-          {group &&
-          group.attendees &&
-          group.attendees.filter(g => g === userDetails.id).length === 0 ? (
-            <GreenButton
-              colorScheme="teal"
-              size="md"
-              width="400px"
-              isDisabled={group.maxAttendees === group.curAttendees}
-              onClick={handleRegister}
-            >
-              Register
-            </GreenButton>
-          ) : (
-            <GreenButton
-              style={{ backgroundColor: '#EE3625' }}
-              size="md"
-              width="400px"
-              onClick={handleCancel}
-            >
-              Leave
-            </GreenButton>
-          )}
-          {errorOccured ? (
-            <Alert
-              style={{
-                width: '100%',
-              }}
-              status="error"
-              mt={5}
-            >
-              <AlertIcon />
-              <AlertDescription>
-                Could not perform the operation successfully. Please reload!
-              </AlertDescription>
-            </Alert>
-          ) : null}
-          {successOccured ? (
-            <Alert
-              style={{
-                width: '100%',
-              }}
-              status="success"
-              mt={5}
-            >
-              <AlertIcon />
-              <AlertDescription>The operation was successful!</AlertDescription>
-            </Alert>
-          ) : null}
-        </div>
+
+        <Box width="full">
+          <Box style={{ marginTop: '1rem' }}>
+            {group && group.hostId === userDetails.id ? (
+              <GreenButton
+                style={{ backgroundColor: colors.blue.medium }}
+                size="md"
+                width="50%"
+                maxWidth="380px"
+                onClick={() => navigate(`/groups/edit/${id}`)}
+              >
+                Edit
+              </GreenButton>
+            ) : group &&
+              group.attendees &&
+              group.attendees.filter(g => g.id === userDetails.id).length ===
+                0 ? (
+              <GreenButton
+                colorScheme="teal"
+                size="md"
+                width="50%"
+                maxWidth="400px"
+                isDisabled={group.maxAttendees === group.curAttendees}
+                onClick={handleRegister}
+              >
+                Register
+              </GreenButton>
+            ) : (
+              <GreenButton
+                style={{ backgroundColor: '#EE3625' }}
+                size="md"
+                width="50%"
+                maxWidth="400px"
+                onClick={handleCancel}
+              >
+                Leave
+              </GreenButton>
+            )}
+            {errorOccured ? (
+              <Alert
+                style={{
+                  width: '50%',
+                  maxWidth: '400px',
+                  minWidth: '200px',
+                }}
+                status="error"
+                mt={5}
+              >
+                <AlertIcon />
+                <AlertDescription>
+                  Could not perform this operation successfully. Please reload!
+                </AlertDescription>
+              </Alert>
+            ) : null}
+            {successOccured ? (
+              <Alert
+                style={{
+                  width: '50%',
+                  maxWidth: '400px',
+                  minWidth: '200px',
+                }}
+                status="success"
+                mt={5}
+              >
+                <AlertIcon />
+                <AlertDescription>
+                  This operation was successful!
+                </AlertDescription>
+              </Alert>
+            ) : null}
+          </Box>
+        </Box>
+
+        {group.attendees && group.attendees.length > 0 ? (
+          <Box width="full">
+            <Text as="b" color={colors.grey.dark} fontSize="20px" mt="0px">
+              Members
+            </Text>
+            <HStack>
+              {group.attendees &&
+                group.attendees.map(u => <GroupMembers userInfo={u} />)}
+            </HStack>
+          </Box>
+        ) : null}
       </Flex>
     </Box>
   ) : (
@@ -230,7 +307,6 @@ GroupView.propTypes = {
   authToken: PropTypes.string,
   dispatch: PropTypes.func.isRequired,
   studyGroupsEndPoint: PropTypes.string,
-  headerContent: PropTypes.string,
   userDetails: {
     id: PropTypes.string,
     email: PropTypes.string,
@@ -242,7 +318,6 @@ GroupView.propTypes = {
 GroupView.defaultProps = {
   authToken: '',
   studyGroupsEndPoint: 'studygroups',
-  headerContent: 'Additonal Study Group Information',
   userDetails: {
     id: '',
     email: '',

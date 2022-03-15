@@ -1,4 +1,4 @@
-import { Box, Stack, VStack, Text, Image, Tag } from '@chakra-ui/react';
+import { Box, Stack, VStack, Text, Image, Tag, Flex } from '@chakra-ui/react';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
@@ -9,7 +9,6 @@ const diffSize = size =>
   size === 'lg'
     ? {
         stackSize: '100%',
-        imgWidth: ['300px', '350px', '400px'],
         vstackSpacing: '1.5rem',
         fontSize: '20px',
         noOfLines: '',
@@ -18,7 +17,6 @@ const diffSize = size =>
       }
     : {
         stackSize: { base: '300px', md: '400px' },
-        imgWidth: '150px',
         vstackSpacing: '6px',
         fontSize: '12px',
         noOfLines: '1',
@@ -26,16 +24,34 @@ const diffSize = size =>
         imgAlign: ['center', 'center', 'left'],
       };
 
-function CustomText(fontSize, noOfLines, text) {
+function CustomText(fontSize, noOfLines, title, text, isLink) {
   return (
     <Text
-      as="b"
+      fontWeight="bold"
       color={colors.grey.dark}
       fontSize={fontSize}
       mt="0px"
+      maxWidth="500px"
       noOfLines={noOfLines}
     >
-      {text}
+      {`${title} `}
+      <Text
+        as="span"
+        fontWeight="normal"
+        wordBreak="break-word"
+        style={
+          isLink
+            ? {
+                color: colors.green.medium,
+                textDecoration: 'underline',
+              }
+            : {
+                color: colors.grey.dark,
+              }
+        }
+      >
+        {text}
+      </Text>
     </Text>
   );
 }
@@ -45,7 +61,10 @@ function DetailedGroup({
   restrict,
   availability,
   when,
+  durationHours,
+  durationMins,
   host,
+  hostId,
   desc,
   img,
   imgAlt,
@@ -55,15 +74,8 @@ function DetailedGroup({
   selected,
   status,
 }) {
-  const {
-    stackSize,
-    imgWidth,
-    vstackSpacing,
-    fontSize,
-    noOfLines,
-    imgMr,
-    imgAlign,
-  } = diffSize(size);
+  const { stackSize, vstackSpacing, fontSize, noOfLines, imgMr, imgAlign } =
+    diffSize(size);
 
   const groupView = (
     <Stack
@@ -72,36 +84,58 @@ function DetailedGroup({
       align="left"
       wrap
     >
-      <Image
-        src={img}
-        width={imgWidth}
-        alt={imgAlt}
-        borderRadius="lg"
-        mr={imgMr}
-        alignSelf={imgAlign}
-      />
-      {status.cancelled ? (
-        <Tag colorScheme="red" m={0}>
-          Cancelled
-        </Tag>
-      ) : null}
-      {status.reschedule ? (
-        <Tag colorScheme="yellow" m={0}>
-          Rescheduled
-        </Tag>
-      ) : null}
-      {status.full ? (
-        <Tag colorScheme="green" m={0}>
-          Full
-        </Tag>
-      ) : null}
+      <VStack>
+        <Image
+          paddingTop="5%"
+          paddingBottom="5%"
+          src={img}
+          width="400px"
+          alt={imgAlt}
+          borderRadius="lg"
+          mr={imgMr}
+          alignSelf={imgAlign}
+        />
+        <Flex justify="flex-start" gap="5px">
+          {status.cancelled ? (
+            <Tag colorScheme="red" m={0}>
+              Cancelled
+            </Tag>
+          ) : null}
+          {status.reschedule ? (
+            <Tag colorScheme="yellow" m={0}>
+              Rescheduled
+            </Tag>
+          ) : null}
+          {status.full ? (
+            <Tag colorScheme="green" m={0}>
+              Full
+            </Tag>
+          ) : null}
+        </Flex>
+      </VStack>
+
       <VStack justifyContent="center" spacing={vstackSpacing} align="left">
-        {CustomText(fontSize, noOfLines, `Title: ${title}`)}
-        {CustomText(fontSize, noOfLines, `Restriction: ${restrict}`)}
-        {CustomText(fontSize, noOfLines, `Availability: ${availability}`)}
-        {CustomText(fontSize, noOfLines, `When: ${when}`)}
-        {CustomText(fontSize, noOfLines, `Hosted by: ${host}`)}
-        {CustomText(fontSize, noOfLines, `Description: ${desc}`)}
+        {title && CustomText(fontSize, noOfLines, `Title: ${title}`, false)}
+        {CustomText(
+          fontSize,
+          noOfLines,
+          'Availability:',
+          `${availability}`,
+          false
+        )}
+        {CustomText(fontSize, noOfLines, 'When:', `${when}`, false)}
+        {CustomText(
+          fontSize,
+          noOfLines,
+          'Duration:',
+          `${durationHours} hour(s) ${durationMins} min(s)`,
+          false
+        )}
+        <Link to={`/user/${hostId}`}>
+          {CustomText(fontSize, noOfLines, 'Hosted by:', `${host}`, true)}
+        </Link>
+        {CustomText(fontSize, noOfLines, 'Description:', `${desc}`, false)}
+        {CustomText(fontSize, noOfLines, 'Tags:', `${restrict}`, false)}
       </VStack>
     </Stack>
   );
@@ -149,7 +183,10 @@ DetailedGroup.propTypes = {
   restrict: PropTypes.string.isRequired,
   availability: PropTypes.string.isRequired,
   host: PropTypes.string.isRequired,
+  hostId: PropTypes.string.isRequired,
   when: PropTypes.string.isRequired,
+  durationHours: PropTypes.string.isRequired,
+  durationMins: PropTypes.string.isRequired,
   desc: PropTypes.string.isRequired,
   size: 'md' || 'lg',
   onClickFunc: PropTypes.func,

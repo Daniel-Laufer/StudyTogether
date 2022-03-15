@@ -12,6 +12,7 @@ require('dotenv').config();
 var usersRouter = require('./routes/users');
 var forgotRouter = require('./routes/forgot');
 var studygroupsRouter = require('./routes/studygroups');
+var viewsRouter = require('./views/views');
 
 var app = express();
 
@@ -31,6 +32,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/forgot', forgotRouter);
 app.use('/users', usersRouter);
 app.use('/studygroups', studygroupsRouter);
+app.use('/admin', viewsRouter);
+
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'pug');
 
 // Connect to MongoDB Atlas cluster
 const uri =
