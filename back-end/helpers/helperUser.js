@@ -170,7 +170,6 @@ module.exports = {
   //rec_email can be list or single user
   async sendEmail(rec_email, subject, message) {
     let password = process.env.password;
-    console.log(password);
     let transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -186,5 +185,18 @@ module.exports = {
       text: message,
     });
     await transporter.sendMail(msg);
+  },
+  constructMessage(title, start, end, messageNum) {
+    let string = `\t  ${title}  
+          ${start} till 
+          ${end}\n`;
+    if (messageNum == 0) {
+      string += ' has become:\n';
+    } else if (messageNum == 1) {
+      string += '\n';
+    } else {
+      string += 'has been cancelled\n\n';
+    }
+    return string;
   },
 };

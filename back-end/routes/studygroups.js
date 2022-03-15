@@ -185,12 +185,10 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
 
   const editAll = req.body.editAll;
 
-  const studyGroup = await StudygroupModel.findById(groupId).catch(
-    err => err => {
-      res.status(400).json('Error: ' + err);
-      return;
-    }
-  );
+  let studyGroup = await StudygroupModel.findById(groupId).catch(err => err => {
+    res.status(400).json('Error: ' + err);
+    return;
+  });
   let groups_changed =
     'Some of the groups you are a part of have been rescheduled or cancelled:\n';
   let emailList = [];
@@ -198,7 +196,6 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
     var seriesId = new mongoose.Types.ObjectId(studyGroup.seriesId);
 
     const series = await studyGroupSeriesModel.findById(seriesId);
-    console.log(series);
     let numDays;
     if (req.body.recurring == 'weekly') {
       numDays = 7;
@@ -220,7 +217,12 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
             return;
           }
         );
-        groups_changed += `${session.title} from ${session.startDateTime} till ${session.endDateTime} has become: `;
+        groups_changed += helperUser.constructMessage(
+          session.title,
+          session.startDateTime,
+          session.endDateTime,
+          0
+        );
 
         for (let i = 0; i < session.attendees.length; i++) {
           let person = await UserModel.findById(session.attendees[i].id);
@@ -229,10 +231,20 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
           }
         }
         Object.assign(session, req.body);
+        if (
+          session.startDateTime != newStart ||
+          session.endDateTime != newEnd
+        ) {
+          session.rescheduled = true;
+        }
         session.startDateTime = newStart;
         session.endDateTime = newEnd;
-        groups_changed += `${session.title} from ${session.startDateTime} till ${session.endDateTime}\n`;
-        console.log(session);
+        groups_changed += helperUser.constructMessage(
+          session.title,
+          session.startDateTime,
+          session.endDateTime,
+          1
+        );
         session.save().catch(err => {
           res.status(400).json('Error: ' + err);
           return;
@@ -281,7 +293,12 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
             return;
           }
         );
-        groups_changed += `${group.title} at ${group.startDateTime} till ${group.endDateTime} has been cancelled\n`;
+        groups_changed += helperUser.constructMessage(
+          group.title,
+          group.startDateTime,
+          group.endDateTime,
+          2
+        );
         group.delete();
       }
     }
@@ -292,11 +309,14 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
       return;
     });
   } else {
-    groups_changed += `
-      ${studyGroup.title} from
-      ${studyGroup.startDateTime} till
-      ${studyGroup.endDateTime} has become: \n`;
-
+    console.log(studyGroup);
+    console.log(studyGroup.title);
+    groups_changed += helperUser.constructMessage(
+      studyGroup.title,
+      studyGroup.startDateTime,
+      studyGroup.endDateTime,
+      0
+    );
     for (let i = 0; i < studyGroup.attendees.length; i++) {
       let person = await UserModel.findById(studyGroup.attendees[i].id);
 
@@ -311,18 +331,20 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
     if (isRescheduled)
       Object.assign(studyGroup, {
         ...req.body,
-        ...{ recurringFinalDateTime: req.body.finalDate },
         ...{ rescheduled: isRescheduled },
       });
-    else
+    else {
       Object.assign(studyGroup, {
         ...req.body,
         ...{ recurringFinalDateTime: req.body.finalDate },
       });
-    groups_changed += `
-      ${studyGroup.title} from
-      ${studyGroup.startDateTime} till
-      ${studyGroup.endDateTime}\n`;
+    }
+    groups_changed += helperUser.constructMessage(
+      studyGroup.title,
+      studyGroup.startDateTime,
+      studyGroup.endDateTime,
+      1
+    );
     studyGroup.save().catch(err => {
       res.status(400).json('Error: ' + err);
       return;
