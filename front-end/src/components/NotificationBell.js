@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { connect } from 'react-redux';
@@ -14,6 +15,7 @@ import {
   Divider,
   Alert,
 } from '@chakra-ui/react';
+import styled from 'styled-components';
 import { BellIcon } from '@chakra-ui/icons';
 import { io } from 'socket.io-client';
 import { apiURL } from '../utils/constants';
@@ -54,15 +56,17 @@ function NotificationBell({ userDetails }) {
   return (
     <Popover>
       <PopoverTrigger>
-        <BellIcon
-          w={6}
-          h={6}
-          color={notSeen ? 'red' : 'white'}
-          style={{ cursor: 'pointer' }}
-          onClick={() => setNotSeen(false)}
-        />
+        <CustomBellContainer notSeen={notSeen}>
+          <div className="bell-red-circle" />
+          <BellIcon
+            w={6}
+            h={6}
+            style={{ cursor: 'pointer', color: 'white' }}
+            onClick={() => setNotSeen(false)}
+          />
+        </CustomBellContainer>
       </PopoverTrigger>
-      <PopoverContent>
+      <PopoverContent style={{ right: '230px', top: '40px' }}>
         <PopoverArrow />
         <PopoverCloseButton />
         <PopoverHeader>Your Notifications!</PopoverHeader>
@@ -94,6 +98,28 @@ function NotificationBell({ userDetails }) {
     </Popover>
   );
 }
+
+const CustomBellContainer = styled(({ className, children, ...rest }) => (
+  // eslint-disable-next-line react/jsx-props-no-spreading
+  <div className={className} {...rest}>
+    {children}
+  </div>
+))`
+  position: relative;
+  & {
+    .bell-red-circle {
+      width: 10px;
+      display: ${props => (props.notSeen ? 'block' : 'none')};
+      height: 10px;
+      border-radius: 50%;
+      background-color: red;
+      position: absolute;
+      right: 1px;
+      top: 3px;
+    }
+  }
+`;
+
 NotificationBell.propTypes = {
   userDetails: {
     id: PropTypes.string,

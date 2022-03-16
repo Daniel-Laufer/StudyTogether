@@ -97,22 +97,24 @@ function NavBar({ authToken, dispatch, userDetails }) {
         >
           {authToken !== null ? (
             <div ref={navbarUserMenuRef}>
-              <NotificationBell />
-              {/* <img
-                onClick={() => {
-                  setIsUserProfileMenuOpen(!isUserProfileMenuOpen);
-                }}
-                style={{
-                  display: 'block',
-                  height: '35px',
-                  width: '35px',
-                  borderRadius: '50%',
-                  cursor: 'pointer',
-                  border: 'green solid 0.5px',
-                }}
-                src={genericUser}
-                alt="user profile"
-              /> */}
+              <Flex align="center" gap="1rem">
+                <NotificationBell />
+                <img
+                  onClick={() => {
+                    setIsUserProfileMenuOpen(!isUserProfileMenuOpen);
+                  }}
+                  style={{
+                    display: 'block',
+                    height: '35px',
+                    width: '35px',
+                    borderRadius: '50%',
+                    cursor: 'pointer',
+                    border: 'green solid 0.5px',
+                  }}
+                  src={genericUser}
+                  alt="user profile"
+                />
+              </Flex>
               <div
                 style={{
                   position: 'absolute',
