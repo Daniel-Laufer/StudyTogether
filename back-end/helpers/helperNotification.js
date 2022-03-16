@@ -89,7 +89,7 @@ module.exports = {
     }
     // console.log(`Checking ${groupID} with the message ${message}`);
     // console.log('all rooms are: ', io.sockets.adapter.rooms);
-    io.to(groupID).emit('group-change', message, groupID);
+    io?.to(groupID).emit('group-change', message, groupID);
   },
   emitFollowedUpdates(followedUserID, followedUserName, action) {
     var message = '';
@@ -104,12 +104,16 @@ module.exports = {
         console.log(`Err: action does not exist`);
         return;
     }
-    io.to(followedUserID).emit('followed-user-update', message, followedUserID);
+    io?.to(followedUserID).emit(
+      'followed-user-update',
+      message,
+      followedUserID
+    );
   },
   async attendGroups(userID, groupIDs, errors) {
     if (userID in socketStore.sockets) {
       const socketID = socketStore.sockets[userID];
-      await io.sockets.sockets.get(socketID).join(groupIDs);
+      await io?.sockets.sockets.get(socketID).join(groupIDs);
     } else {
       errors.push('User was not found!');
       console.log('User was not found!');
@@ -118,7 +122,7 @@ module.exports = {
   async leaveGroups(userID, groupIDs, errors) {
     if (userID in socketStore.sockets) {
       const socketID = socketStore.sockets[userID];
-      await io.sockets.sockets.get(socketID).leave(groupIDs);
+      await io?.sockets.sockets.get(socketID).leave(groupIDs);
     } else {
       errors.push('User was not found!');
       console.log('User was not found!');
@@ -127,7 +131,7 @@ module.exports = {
   async followUsers(userID, followedUserID, errors) {
     if (userID in socketStore.sockets) {
       const socketID = socketStore.sockets[userID];
-      await io.sockets.sockets.get(socketID).join(followedUserID);
+      await io?.sockets.sockets.get(socketID).join(followedUserID);
     } else {
       errors.push('User was not found!');
       console.log('User was not found!');
@@ -136,7 +140,7 @@ module.exports = {
   async unfollowUsers(userID, followedUserID, errors) {
     if (userID in socketStore.sockets) {
       const socketID = socketStore.sockets[userID];
-      await io.sockets.sockets.get(socketID).leave(followedUserID);
+      await io?.sockets.sockets.get(socketID).leave(followedUserID);
     } else {
       errors.push('User was not found!');
       console.log('User was not found!');
