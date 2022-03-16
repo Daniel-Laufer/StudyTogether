@@ -37,8 +37,7 @@ const userSchema = new Schema(
       type: String,
       required: [true, 'Please specify user role'],
 
-      enum: ['Student', 'TA', 'Tutor', 'Admin'],
-
+      enum: ['Student', 'TA', 'Teacher', 'Admin'],
     },
     verified: {
       type: Boolean,
