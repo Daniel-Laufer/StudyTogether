@@ -189,9 +189,9 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
     res.status(400).json('Error: ' + err);
     return;
   });
-  let groups_changed =
-    'Some of the groups you are a part of have been rescheduled or cancelled:\n';
+
   let emailList = [];
+  let usersAndChanges = {};
   if (editAll) {
     var seriesId = new mongoose.Types.ObjectId(studyGroup.seriesId);
 
@@ -207,6 +207,7 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
     var newStudyGroupsList = [];
     var i = 0;
     while (start <= new Date(req.body.finalDate)) {
+      groups_changed = 'The following group has been changed or cancelled<br>';
       let newStart = new Date(start);
       let newEnd = new Date(end);
       var session;
@@ -224,19 +225,20 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
           0
         );
 
-        for (let i = 0; i < session.attendees.length; i++) {
-          let person = await UserModel.findById(session.attendees[i].id);
-          if (!emailList.find(element => element == person.email)) {
-            emailList.push(person.email);
-          }
-        }
-        Object.assign(session, req.body);
+        let isRescheduled = false;
         if (
-          session.startDateTime != newStart ||
-          session.endDateTime != newEnd
+          session.startDateTime.toString() != newStart.toString() ||
+          session.endDateTime.toString() != newEnd.toString()
         ) {
-          session.rescheduled = true;
+          console.log(session);
+          console.log(session.startDateTime + ' : ' + newStart);
+          console.log(session.endDateTime + ' : ' + newEnd);
+          isRescheduled = true;
         }
+
+        Object.assign(session, req.body);
+        session.rescheduled = isRescheduled;
+        session.recurringFinalDateTime = req.body.finalDate;
         session.startDateTime = newStart;
         session.endDateTime = newEnd;
         groups_changed += helperUser.constructMessage(
@@ -245,6 +247,18 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
           session.endDateTime,
           1
         );
+
+        for (let i = 0; i < session.attendees.length; i++) {
+          let person = await UserModel.findById(session.attendees[i].id);
+          if (!emailList.find(element => element == person.email)) {
+            emailList.push(person.email);
+          }
+          if (usersAndChanges[person.email]) {
+            usersAndChanges[person.email].put(groups_changed);
+          } else {
+            usersAndChanges[person.email] = [groups_changed];
+          }
+        }
         session.save().catch(err => {
           res.status(400).json('Error: ' + err);
           return;
@@ -299,7 +313,14 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
           group.endDateTime,
           2
         );
-        group.delete();
+        group.canceled = true;
+        let t = new Date();
+        t.setHours(t.getHours() + 24);
+        group.canceledAt = t;
+        group.save().catch(err => {
+          res.status(400).json('Error: ' + err);
+          return;
+        });
       }
     }
     series.recurring = req.body.recurring;
@@ -309,6 +330,7 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
       return;
     });
   } else {
+    groups_changed = 'The following group has been changed or cancelled<br>';
     console.log(studyGroup);
     console.log(studyGroup.title);
     groups_changed += helperUser.constructMessage(
@@ -321,19 +343,25 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
       let person = await UserModel.findById(studyGroup.attendees[i].id);
 
       emailList.push(person.email);
+      if (usersAndChanges[person.email]) {
+        usersAndChanges[person.email].put(groups_changed);
+      } else {
+        usersAndChanges[person.email] = [groups_changed];
+      }
     }
+    let start = new Date(req.body.startDateTime);
+    let end = new Date(req.body.endDateTime);
     /* TODO: Notify users once postponed (after notification feature is added) */
     var isRescheduled =
-      (new Date(req.body.startDateTime).getTime() ??
-        new Date(studyGroup.startDateTime).getTime()) !=
-      new Date(studyGroup.startDateTime).getTime();
+      studyGroup.startDateTime.toString() != start.toString() ||
+      studyGroup.endDateTime.toString() != end.toString();
 
-    if (isRescheduled)
+    if (isRescheduled) {
       Object.assign(studyGroup, {
         ...req.body,
         ...{ rescheduled: isRescheduled },
       });
-    else {
+    } else {
       Object.assign(studyGroup, {
         ...req.body,
         ...{ recurringFinalDateTime: req.body.finalDate },
@@ -353,7 +381,15 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
   if (emailList.length > 0) {
     console.log(emailList);
     let subject = 'Study group details have changed or been cancelled';
-    helperUser.sendEmail(emailList, subject, groups_changed);
+    for (let i = 0; i < emailList.length; i++) {
+      for (let k = 0; k < usersAndChanges[emailList[i]].length; k++) {
+        helperUser.sendEmail(
+          emailList[i],
+          subject,
+          usersAndChanges[emailList[i]][k]
+        );
+      }
+    }
   }
 
   res.status(200).json(studyGroup);
