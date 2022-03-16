@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
@@ -18,28 +19,48 @@ import { io } from 'socket.io-client';
 import { apiURL } from '../utils/constants';
 
 function NotificationBell({ userDetails }) {
-  const [notifications, setNotifications] = useState([
-    'Dan Laufer is hosting a new study group!',
-    'Study group "CSC301 midterm" has new changes!',
-  ]);
+  const [notifications, setNotifications] = useState([]);
+  const [notSeen, setNotSeen] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const socket = io(apiURL, {
-      extraHeaders: {
-        userid: userDetails.id,
-      },
-    });
-    socket.on('group-change', () => {
-      setNotifications(['New notifications', ...notifications]);
-    });
+    if (!isConnected) {
+      console.log('socket re-connecting');
+      const skt = io(apiURL, {
+        extraHeaders: {
+          userid: userDetails.id,
+        },
+      });
+      setIsConnected(skt.connected);
+      skt.on('group-change', (message, groupID) => {
+        const url = `/groups/${groupID}`;
+        setNotifications([{ message, url }, ...notifications]);
+        setNotSeen(true);
+      });
+      skt.on('followed-user-update', (message, followedUserID) => {
+        const url = `/user/${followedUserID}`;
+        setNotifications([{ message, url }, ...notifications]);
+        setNotSeen(true);
+      });
+      skt.on('disconnect', () => {
+        console.log('socket disconnected');
+        setIsConnected(skt.connected);
+      });
+    }
 
     console.log('Login_req', userDetails.id);
-    console.log('yo');
-  });
+  }, [isConnected]);
   return (
     <Popover>
       <PopoverTrigger>
-        <BellIcon w={6} h={6} color="white" style={{ cursor: 'pointer' }} />
+        <BellIcon
+          w={6}
+          h={6}
+          color={notSeen ? 'red' : 'white'}
+          style={{ cursor: 'pointer' }}
+          onClick={() => setNotSeen(false)}
+        />
       </PopoverTrigger>
       <PopoverContent>
         <PopoverArrow />
@@ -50,10 +71,17 @@ function NotificationBell({ userDetails }) {
             <>
               <Alert
                 id={index}
-                style={{ margin: '5px 0 5px 0', borderRadius: '10px' }}
-                onClick={() => setNotifications([])}
+                style={{
+                  margin: '5px 0 5px 0',
+                  borderRadius: '10px',
+                  cursor: 'pointer',
+                }}
+                onClick={() => {
+                  console.log(value.url);
+                  navigate(value.url);
+                }}
               >
-                {value}
+                {value.message}
               </Alert>
               <Divider />
             </>
