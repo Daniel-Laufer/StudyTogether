@@ -14,8 +14,9 @@ const config = {
 const onConnection = () => {
   io.on('connection', socket => {
     var userID = socket.handshake.headers.userid;
-    console.log(`user ${userID} connected`);
-    console.log(`socket id is ${socket.id}`);
+    //console.log(`user ${userID} connected`);
+    //console.log(`socket id is ${socket.id}`);
+    //console.log(Object.keys(socketStore.sockets).length);
 
     if (userID) {
       socketStore.sockets[userID] = socket.id;
@@ -59,7 +60,7 @@ const followUsers = async (userID, socket, errors) => {
   });
   const userIDs = usr.profileFollowing.map(s => s.toString());
   await socket.join(userIDs);
-  console.log(socket.rooms);
+  //console.log(socket.rooms);
 };
 
 module.exports = {
@@ -89,7 +90,6 @@ module.exports = {
     // console.log(`Checking ${groupID} with the message ${message}`);
     // console.log('all rooms are: ', io.sockets.adapter.rooms);
     io.to(groupID).emit('group-change', message, groupID);
-    //io.emit('group-change', message);
   },
   emitFollowedUpdates(followedUserID, followedUserName, action) {
     var message = '';
@@ -109,9 +109,7 @@ module.exports = {
   async attendGroups(userID, groupIDs, errors) {
     if (userID in socketStore.sockets) {
       const socketID = socketStore.sockets[userID];
-      //console.log('socket is, ', io.sockets.sockets.get(socketID));
       await io.sockets.sockets.get(socketID).join(groupIDs);
-      //console.log(socket.rooms);
     } else {
       errors.push('User was not found!');
       console.log('User was not found!');
