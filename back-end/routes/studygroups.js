@@ -254,7 +254,7 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
             emailList.push(person.email);
           }
           if (usersAndChanges[person.email]) {
-            usersAndChanges[person.email].put(groups_changed);
+            usersAndChanges[person.email].push(groups_changed);
           } else {
             usersAndChanges[person.email] = [groups_changed];
           }
@@ -313,6 +313,17 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
           group.endDateTime,
           2
         );
+        for (let i = 0; i < group.attendees.length; i++) {
+          let person = await UserModel.findById(group.attendees[i].id);
+          if (!emailList.find(element => element == person.email)) {
+            emailList.push(person.email);
+          }
+          if (usersAndChanges[person.email]) {
+            usersAndChanges[person.email].push(groups_changed);
+          } else {
+            usersAndChanges[person.email] = [groups_changed];
+          }
+        }
         group.canceled = true;
         let t = new Date();
         t.setHours(t.getHours() + 24);
@@ -344,7 +355,7 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
 
       emailList.push(person.email);
       if (usersAndChanges[person.email]) {
-        usersAndChanges[person.email].put(groups_changed);
+        usersAndChanges[person.email].push(groups_changed);
       } else {
         usersAndChanges[person.email] = [groups_changed];
       }
@@ -378,17 +389,15 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
       return;
     });
   }
-  if (emailList.length > 0) {
-    console.log(emailList);
-    let subject = 'Study group details have changed or been cancelled';
-    for (let i = 0; i < emailList.length; i++) {
-      for (let k = 0; k < usersAndChanges[emailList[i]].length; k++) {
-        helperUser.sendEmail(
-          emailList[i],
-          subject,
-          usersAndChanges[emailList[i]][k]
-        );
-      }
+
+  let subject = 'Study group details have changed or been cancelled';
+  for (let i = 0; i < emailList.length; i++) {
+    for (let k = 0; k < usersAndChanges[emailList[i]].length; k++) {
+      helperUser.sendEmail(
+        emailList[i],
+        subject,
+        usersAndChanges[emailList[i]][k]
+      );
     }
   }
 
