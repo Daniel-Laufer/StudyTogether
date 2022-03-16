@@ -13,7 +13,7 @@ function MarkerInfoWindow({ group }) {
   const { endDateTime, startDateTime, title, description } = group.metaData;
 
   return (
-    <div>
+    <div style={{ width: '150px' }}>
       <Flex direction="column" gap="5px">
         <Heading as="h2" size="m">
           {title}
@@ -22,9 +22,12 @@ function MarkerInfoWindow({ group }) {
           endDateTime
         ).format('HH:mm')}`}</Text>
         <Text>{moment(startDateTime).format('YYYY/MM/DD')}</Text>
-        <Text>{description.substring(0, 36) + (description.length > 36)}</Text>
+        <Text>
+          {description.substring(0, 36) +
+            (description.length > 36 ? '...' : '')}
+        </Text>
 
-        <GreenButton onClick={() => navigate(`groups/${group._id}`)}>
+        <GreenButton onClick={() => navigate(`/groups/${group._id}`)}>
           View More
         </GreenButton>
       </Flex>

@@ -17,12 +17,14 @@ import {
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { logout } from '../actions/Auth';
 import greenLogo from '../assets/images/smalllogogreen.png';
 import genericUser from '../assets/images/cat-pfp.jpeg';
 import GreenButton from './GreenButton';
 import * as colors from '../utils/colors';
 import useOutsideAlerter from '../hooks/useOutsideAlerter';
+import { apiURL } from '../utils/constants';
 
 function NavBar({ authToken, dispatch, userDetails }) {
   const navigate = useNavigate();
@@ -32,6 +34,20 @@ function NavBar({ authToken, dispatch, userDetails }) {
   const navbarUserMenuRef = useRef(null);
   useOutsideAlerter(navbarUserMenuRef, () => setIsUserProfileMenuOpen(false));
   // end source
+
+  const [userProfileImage, setUserProfileImage] = useState(genericUser);
+
+  useEffect(() => {
+    const config = {
+      headers: { Authorization: `JWT ${authToken}` },
+    };
+    axios
+      .get(`${apiURL}/users/profile/${userDetails.id}`, config)
+      .then(res => {
+        setUserProfileImage(res.data.profileImage);
+      })
+      .catch(err => console.log(err));
+  }, []);
 
   return (
     <Box bg="black" w="100%" h="50px">
@@ -107,7 +123,7 @@ function NavBar({ authToken, dispatch, userDetails }) {
                   borderRadius: '50%',
                   cursor: 'pointer',
                 }}
-                src={genericUser}
+                src={userProfileImage}
                 alt="user profile"
               />
               <div
