@@ -38,6 +38,8 @@ function NavBar({ authToken, dispatch, userDetails }) {
   const [userProfileImage, setUserProfileImage] = useState(genericUser);
 
   useEffect(() => {
+    if (!userDetails) return;
+
     const config = {
       headers: { Authorization: `JWT ${authToken}` },
     };
@@ -47,7 +49,7 @@ function NavBar({ authToken, dispatch, userDetails }) {
         setUserProfileImage(res.data.profileImage);
       })
       .catch(err => console.log(err));
-  }, []);
+  }, [userDetails]);
 
   return (
     <Box bg="black" w="100%" h="50px">
