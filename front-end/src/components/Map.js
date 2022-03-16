@@ -12,6 +12,7 @@ import {
   InfoWindow,
 } from '@react-google-maps/api';
 import PropTypes from 'prop-types';
+import MarkerInfoWindow from './MarkerInfoWindow';
 
 // a lot of this code was taken from https://www.npmjs.com/package/@react-google-maps/api (the starter code provided in the documentation)
 
@@ -48,7 +49,7 @@ function Map({
   });
 
   const [map, setMap] = React.useState(null);
-  const [infoWindowOpen, setInfoWindowOpen] = React.useState(true);
+  const [infoWindowOpen, setInfoWindowOpen] = React.useState(false);
   const [markers, setMarkers] = React.useState(markerLocations);
 
   useEffect(() => {
@@ -60,6 +61,10 @@ function Map({
 
     // console.log(markerLocations);
   }, [markerLocations]);
+
+  useEffect(() => {
+    setInfoWindowOpen(true);
+  }, [currentlySelectedGroup]);
 
   const addMarker = ev => {
     if (disableAddingNewMarkers) return;
@@ -82,7 +87,10 @@ function Map({
       {markers
         ? markers.map(marker => (
             <Marker
-              onClick={() => markerOnClickFunc(marker.id)}
+              onClick={() => {
+                markerOnClickFunc(marker.id);
+                setInfoWindowOpen(true);
+              }}
               key={`${marker.lat}-${marker.lng}-${marker.id}`}
               position={{ lat: marker.lat, lng: marker.lng }}
               icon={{
@@ -91,17 +99,17 @@ function Map({
             />
           ))
         : null}
-      {currentlySelectedGroup ? (
+      {infoWindowOpen && currentlySelectedGroup ? (
         <InfoWindow
-          position={initialCenter}
+          position={{
+            lat: currentlySelectedGroup.lat,
+            lng: currentlySelectedGroup.lng,
+          }}
           onCloseClick={() => {
-            setSelected(null);
+            setInfoWindowOpen(false);
           }}
         >
-          <div>
-            <h2>CSC301 Study Group</h2>
-            {/* <p>Spotted {formatRelative(selected.time, new Date())}</p> */}
-          </div>
+          <MarkerInfoWindow group={currentlySelectedGroup} />
         </InfoWindow>
       ) : null}
     </GoogleMap>

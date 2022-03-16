@@ -68,6 +68,37 @@ function Groups({
       });
   };
 
+  const getGroupData = targetGroupId => {
+    if (!groups || !targetGroupId) return undefined;
+
+    const foundGroup = groups.find(
+      group =>
+        group._id === targetGroupId &&
+        group.location &&
+        'lat' in group.location &&
+        'lng' in group.location
+    );
+
+    if (!foundGroup) return undefined;
+
+    return {
+      ...foundGroup.location,
+      metaData: { ...foundGroup },
+      _id: foundGroup._id,
+    };
+  };
+
+  useEffect(() => {
+    if (!currentlySelectedGroup) return;
+
+    const groupCardElement = document.getElementById(
+      `group-${getGroupData(currentlySelectedGroup)._id}`
+    );
+    if (!groupCardElement) return;
+
+    groupCardElement.scrollIntoView();
+  }, [currentlySelectedGroup]);
+
   const formatGroupDataForMapDisplay = () => {
     if (!groups) return [];
     return groups.reduce((acc, curr) => {
@@ -92,22 +123,6 @@ function Groups({
     );
   }
 
-  const getLocationOfGroupId = targetGroupId => {
-    if (!groups || !targetGroupId) return undefined;
-
-    const foundGroup = groups.find(
-      group =>
-        group._id === targetGroupId &&
-        group.location &&
-        'lat' in group.location &&
-        'lng' in group.location
-    );
-
-    if (!foundGroup) return undefined;
-
-    return foundGroup.location;
-  };
-
   return !loading ? (
     <Box style={{ width: '60%', margin: 'auto', marginTop: '2rem' }}>
       <Flex justify="space-between" wrap="wrap" gap="1rem">
@@ -131,6 +146,7 @@ function Groups({
       </Flex>
 
       <Box
+        id="group-card-results"
         style={{
           marginTop: '1rem',
           border: '1px solid var(--chakra-colors-gray-200)',
@@ -153,50 +169,53 @@ function Groups({
           {groups.length > 0 ? (
             groups.map(g =>
               !viewDetailedGroupCards ? (
-                <Group
-                  id={`group-${g._id}`}
-                  heading={g.title}
-                  restrict="UofT students"
-                  availability={`${g.maxAttendees - g.curAttendees} / ${
-                    g.maxAttendees
-                  }`}
-                  imgAlt="Study group image"
-                  img={g.imageUrl}
-                  when={g.time}
-                  host={g.hostFirstName + g.hostLastName}
-                  desc={g.description}
-                  link={`${g._id}`}
-                  status={{
-                    reschedule: g.rescheduled,
-                    cancelled: g.canceled,
-                    full: g.maxAttendees - g.curAttendees === 0,
-                  }}
-                  onClickFunc={() => setCurrentlySelectedGroup(g._id)}
-                  size="md"
-                  selected={currentlySelectedGroup === g._id}
-                />
+                <div id={`group-${g._id}`}>
+                  <Group
+                    heading={g.title}
+                    restrict="UofT students"
+                    availability={`${g.maxAttendees - g.curAttendees} / ${
+                      g.maxAttendees
+                    }`}
+                    imgAlt="Study group image"
+                    img={g.imageUrl}
+                    when={g.time}
+                    host={g.hostFirstName + g.hostLastName}
+                    desc={g.description}
+                    link={`${g._id}`}
+                    status={{
+                      reschedule: g.rescheduled,
+                      cancelled: g.canceled,
+                      full: g.maxAttendees - g.curAttendees === 0,
+                    }}
+                    onClickFunc={() => setCurrentlySelectedGroup(g._id)}
+                    size="md"
+                    selected={currentlySelectedGroup === g._id}
+                  />
+                </div>
               ) : (
-                <DetailedGroup
-                  title={g.title}
-                  restrict="UofT students"
-                  availability={`${g.maxAttendees - g.curAttendees} / ${
-                    g.maxAttendees
-                  }`}
-                  imgAlt="Study group image"
-                  img={g.imageUrl}
-                  when={g.time}
-                  host={g.hostFirstName + g.hostLastName}
-                  desc={g.description}
-                  link={`${g._id}`}
-                  status={{
-                    reschedule: g.rescheduled,
-                    cancelled: g.canceled,
-                    full: g.maxAttendees - g.curAttendees === 0,
-                  }}
-                  onClickFunc={() => setCurrentlySelectedGroup(g._id)}
-                  size="md"
-                  selected={currentlySelectedGroup === g._id}
-                />
+                <div id={`group-${g._id}`}>
+                  <DetailedGroup
+                    title={g.title}
+                    restrict="UofT students"
+                    availability={`${g.maxAttendees - g.curAttendees} / ${
+                      g.maxAttendees
+                    }`}
+                    imgAlt="Study group image"
+                    img={g.imageUrl}
+                    when={g.time}
+                    host={g.hostFirstName + g.hostLastName}
+                    desc={g.description}
+                    link={`${g._id}`}
+                    status={{
+                      reschedule: g.rescheduled,
+                      cancelled: g.canceled,
+                      full: g.maxAttendees - g.curAttendees === 0,
+                    }}
+                    onClickFunc={() => setCurrentlySelectedGroup(g._id)}
+                    size="md"
+                    selected={currentlySelectedGroup === g._id}
+                  />
+                </div>
               )
             )
           ) : (
@@ -212,7 +231,7 @@ function Groups({
           borderRadius: 'var(--chakra-radii-md)',
           padding: '0.5rem',
           height: '40vh',
-          overflowY: 'scroll',
+          // overflowY: 'scroll',
         }}
       >
         <Heading size="sm">Locations</Heading>
@@ -224,14 +243,12 @@ function Groups({
           <Map
             disableAddingNewMarkers
             markers={formatGroupDataForMapDisplay()}
-            initialCenter={getLocationOfGroupId(currentlySelectedGroup)}
-            initialZoom={18}
+            initialCenter={getGroupData(currentlySelectedGroup)}
+            initialZoom={15}
             markerOnClickFunc={groupId => {
               setCurrentlySelectedGroup(groupId);
             }}
-            currentlySelectedGroup={getLocationOfGroupId(
-              currentlySelectedGroup
-            )}
+            currentlySelectedGroup={getGroupData(currentlySelectedGroup)}
           />
         </Box>
       </Box>
