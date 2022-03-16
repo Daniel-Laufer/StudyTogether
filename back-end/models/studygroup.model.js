@@ -28,7 +28,7 @@ const studygroupSchema = new Schema(
       required: true,
     },
     tags: { type: [String], required: true },
-    official: { type: Boolean, required: true, default: true },
+    official: { type: Boolean, required: true, default: false },
 
     // Recurring
     recurring: {
