@@ -48,28 +48,6 @@ router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
   }
 });
 
-/* Get all studygroups the user has attended */
-router.get(
-  '/studygroups/attended',
-  helperUser.verifyToken,
-  async (req, res) => {
-    // checking if user is authenticated
-    if (!req.user) {
-      res.status(401).send({ message: 'Invalid JWT token' });
-      return;
-    }
-
-    StudygroupModel.find({
-      _id: {
-        $in: req.user.attendedStudygroups,
-      },
-    }).exec((err, attendedStudygroups) => {
-      if (err) res.status(400).send({ message: err });
-      res.status(200).json(attendedStudygroups);
-    });
-  }
-);
-
 /* Filter all study group the user attends to check which ones have already ended */
 router.post(
   '/studygroups/generate/history',

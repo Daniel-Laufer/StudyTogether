@@ -63,7 +63,25 @@ router.get('/registered', helperUser.verifyToken, async (req, res) => {
   Promise.all(promises).then(() => res.status(200).json(response));
 });
 
-/* (4) Get an individual study group by ID*/
+/* (4) Get all studygroups the user has attended */
+router.get('/attended', helperUser.verifyToken, async (req, res) => {
+  // checking if user is authenticated
+  if (!req.user) {
+    res.status(401).send({ message: 'Invalid JWT token' });
+    return;
+  }
+
+  StudygroupModel.find({
+    _id: {
+      $in: req.user.attendedStudygroups,
+    },
+  }).exec((err, attendedStudygroups) => {
+    if (err) res.status(400).send({ message: err });
+    res.status(200).json(attendedStudygroups);
+  });
+});
+
+/* (5) Get an individual study group by ID*/
 router.get('/:id', helperUser.verifyToken, (req, res) => {
   // checking if user is authenticated
   if (!req.user) {
@@ -76,7 +94,7 @@ router.get('/:id', helperUser.verifyToken, (req, res) => {
     .catch(err => res.status(400).json('Error: ' + err));
 });
 
-/* (5) Catching a post request with url ./create */
+/* (6) Catching a post request with url ./create */
 router.post(
   '/create',
   helperUser.verifyToken,
@@ -171,7 +189,7 @@ router.post(
   }
 );
 
-/* (6) Editing a study group by id */
+/* (7) Editing a study group by id */
 
 router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
   // check whether the user is authenticated as the host of this study group
@@ -281,7 +299,7 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
   }
 });
 
-/* (7) Deleting a study group by id */
+/* (8) Deleting a study group by id */
 router.delete('/delete/:id', helperUser.verifyToken, (req, res) => {
   // check whether the user is authenticated as the host of this study group
 
@@ -335,7 +353,7 @@ router.delete('/delete/:id', helperUser.verifyToken, (req, res) => {
     .catch(err => res.status(400).json('Error: ' + err));
 });
 
-/* (8) Canceling a room marks it as inactive then deletes it after a grace period. During the grace period, the host can undo deleting a room. */
+/* (9) Canceling a room marks it as inactive then deletes it after a grace period. During the grace period, the host can undo deleting a room. */
 router.put('/cancel/:id', helperUser.verifyToken, async (req, res) => {
   // checking if user is authenticated
   if (!req.user) {
@@ -367,7 +385,7 @@ router.put('/cancel/:id', helperUser.verifyToken, async (req, res) => {
   res.status(200).json(updatedStudygroup);
 });
 
-/* (9) Undo canceling in case the user decides otherwise */
+/* (10) Undo canceling in case the user decides otherwise */
 router.put('/reactivate/:id', helperUser.verifyToken, async (req, res) => {
   // checking if user is authenticated
   if (!req.user) {
@@ -392,7 +410,7 @@ router.put('/reactivate/:id', helperUser.verifyToken, async (req, res) => {
   res.status(200).json(updatedStudygroup);
 });
 
-/* (10) Attend a study group given an id */
+/* (11) Attend a study group given an id */
 router.post('/attend/:id', helperUser.verifyToken, (req, res) => {
   // checking if user is authenticated
   if (!req.user) {
@@ -435,7 +453,7 @@ router.post('/attend/:id', helperUser.verifyToken, (req, res) => {
     });
 });
 
-/* (11) Leave a study group given an id */
+/* (12) Leave a study group given an id */
 router.patch('/leave/:id', helperUser.verifyToken, (req, res) => {
   // checking if user is authenticated
   if (!req.user) {
