@@ -30,6 +30,7 @@ import { connect } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import axios from 'axios';
+import moment from 'moment';
 import { WithContext as ReactTags } from 'react-tag-input';
 import CustomSpinner from '../../components/CustomSpinner';
 import { apiURL } from '../../utils/constants';
@@ -600,10 +601,31 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
                     }`}
                     imgAlt="Study group image"
                     img={g.imageUrl}
-                    when={g.time}
+                    when={moment(g.startDateTime).format(
+                      'dddd, MMM DD, yyyy HH:mm a'
+                    )}
+                    durationHours={moment(g.endDateTime).diff(
+                      moment(g.startDateTime),
+                      'hours'
+                    )}
+                    durationMins={moment(g.endDateTime)
+                      .subtract(
+                        moment(g.endDateTime).diff(
+                          moment(g.startDateTime),
+                          'hours'
+                        ),
+                        'hours'
+                      )
+                      .diff(moment(g.startDateTime), 'minutes')}
                     host={g.hostFirstName + g.hostLastName}
+                    hostId={g.hostId}
                     desc={g.description}
-                    link={`${g._id}`}
+                    status={{
+                      reschedule: g.rescheduled,
+                      cancelled: g.canceled,
+                      full: g.maxAttendees - g.curAttendees === 0,
+                    }}
+                    link={`/groups/${g._id}`}
                   />
                 ))
               : null}

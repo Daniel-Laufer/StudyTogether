@@ -141,7 +141,7 @@ function NavBar({ authToken, dispatch, userDetails }) {
                 }}
               >
                 <Menu isOpen={isUserProfileMenuOpen}>
-                  <MenuList>
+                  <MenuList zIndex={10}>
                     <MenuItem
                       onClick={() => navigate(`/user/${userDetails.id}`)}
                     >
@@ -150,8 +150,8 @@ function NavBar({ authToken, dispatch, userDetails }) {
                     <MenuItem onClick={() => navigate('/saved-groups')}>
                       Saved groups
                     </MenuItem>
-                    <MenuItem onClick={() => navigate('/group-history')}>
-                      Group history
+                    <MenuItem onClick={() => navigate('/cal')}>
+                      Calendar
                     </MenuItem>
                     <MenuItem onClick={() => dispatch(logout())}>
                       Logout
