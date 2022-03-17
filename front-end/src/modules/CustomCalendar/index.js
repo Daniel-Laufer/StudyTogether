@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-vars */
+/* eslint-disable react/no-unstable-nested-components */
 import { Calendar, momentLocalizer, Views } from 'react-big-calendar';
 import React, { useEffect, useState } from 'react';
 import moment from 'moment';
@@ -7,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import 'react-big-calendar/lib/css/react-big-calendar.css.map';
-import { Container, Alert, AlertIcon } from '@chakra-ui/react';
+import { Container, Alert, AlertIcon, Box } from '@chakra-ui/react';
 
 const localizer = momentLocalizer(moment);
 const COLORS = [
@@ -21,13 +22,25 @@ const COLORS = [
 
 const events = [
   {
-    id: 0,
+    id: '622d549b244da0cde08c9e02',
     title: 'All Day Event very long title',
     start: new Date(2022, 2, 1),
     end: new Date(2022, 2, 2),
   },
   {
-    id: 2,
+    id: '622d549b244da0cde08c9e08',
+    title: 'All Day long title',
+    start: new Date(2022, 2, 1),
+    end: new Date(2022, 2, 2),
+  },
+  {
+    id: '622d549b244da0cde08c9e04',
+    title: 'All Day Event',
+    start: new Date(2022, 2, 1),
+    end: new Date(2022, 2, 2),
+  },
+  {
+    id: '622ea79fc6cac53e555e5871',
     title: 'DTS STARTS',
     start: new Date(2022, 2, 13, 13, 0, 0),
     end: new Date(2022, 2, 20, 16, 0, 0),
@@ -88,6 +101,10 @@ function CustomCalendar({ authToken }) {
         showMultiDayTimes
         defaultDate={new Date()}
         events={state}
+        onSelectEvent={event => {
+          navigate(`/groups/${event.id}`);
+        }}
+        popup
         style={{ height: 500, marginTop: '2rem' }}
         eventPropGetter={eventStyleGetter}
       />
