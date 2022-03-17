@@ -17,12 +17,15 @@ import {
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { logout } from '../actions/Auth';
 import greenLogo from '../assets/images/smalllogogreen.png';
 import genericUser from '../assets/images/cat-pfp.jpeg';
 import GreenButton from './GreenButton';
 import * as colors from '../utils/colors';
 import useOutsideAlerter from '../hooks/useOutsideAlerter';
+import NotificationBell from './NotificationBell';
+import { apiURL } from '../utils/constants';
 
 function NavBar({ authToken, dispatch, userDetails }) {
   const navigate = useNavigate();
@@ -32,6 +35,22 @@ function NavBar({ authToken, dispatch, userDetails }) {
   const navbarUserMenuRef = useRef(null);
   useOutsideAlerter(navbarUserMenuRef, () => setIsUserProfileMenuOpen(false));
   // end source
+
+  const [userProfileImage, setUserProfileImage] = useState(genericUser);
+
+  useEffect(() => {
+    if (!userDetails) return;
+
+    const config = {
+      headers: { Authorization: `JWT ${authToken}` },
+    };
+    axios
+      .get(`${apiURL}/users/profile/${userDetails.id}`, config)
+      .then(res => {
+        setUserProfileImage(res.data.profileImage);
+      })
+      .catch(err => console.log(err));
+  }, [userDetails]);
 
   return (
     <Box bg="black" w="100%" h="50px">
@@ -96,20 +115,24 @@ function NavBar({ authToken, dispatch, userDetails }) {
         >
           {authToken !== null ? (
             <div ref={navbarUserMenuRef}>
-              <img
-                onClick={() => {
-                  setIsUserProfileMenuOpen(!isUserProfileMenuOpen);
-                }}
-                style={{
-                  display: 'block',
-                  height: '35px',
-                  width: '35px',
-                  borderRadius: '50%',
-                  cursor: 'pointer',
-                }}
-                src={genericUser}
-                alt="user profile"
-              />
+              <Flex align="center" gap="1rem">
+                <NotificationBell />
+                <img
+                  onClick={() => {
+                    setIsUserProfileMenuOpen(!isUserProfileMenuOpen);
+                  }}
+                  style={{
+                    display: 'block',
+                    height: '35px',
+                    width: '35px',
+                    borderRadius: '50%',
+                    cursor: 'pointer',
+                    border: 'green solid 0.5px',
+                  }}
+                  src={genericUser}
+                  alt="user profile"
+                />
+              </Flex>
               <div
                 style={{
                   position: 'absolute',

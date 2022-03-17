@@ -4,11 +4,11 @@ var bcrypt = require('bcrypt');
 var helperUser = require('../helpers/helperUser');
 let StudygroupModel = require('../models/studygroup.model');
 var User = require('../models/user.model');
+const { unfollowUsers, followUsers } = require('../helpers/helperNotification');
 
 var tarequest = require('../models/taverify.model');
 const { check, body, validationResult, param } = require('express-validator');
 const mongoose = require('mongoose');
-
 
 /* Get non-sensitive user profile info */
 router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
@@ -350,6 +350,9 @@ router.patch(
       return;
     });
 
+    /* BEGIN Notification */
+    await followUsers(req.user.id, req.params.id, []);
+    /* END Notification */
     res.status(200).json({
       message: 'User followed successfully',
       profileFollowers: followedUser.profileFollowers,
@@ -384,6 +387,9 @@ router.patch(
       res.status(400).send('Err: ' + err);
       return;
     });
+    /* BEGIN Notification */
+    await unfollowUsers(req.user.id, req.params.id, []);
+    /* END Notification */
     res.status(200).json({
       message: 'User unfollowed successfully',
       profileFollowers: followedUser.profileFollowers,
