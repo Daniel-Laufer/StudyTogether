@@ -24,6 +24,7 @@ import genericUser from '../assets/images/cat-pfp.jpeg';
 import GreenButton from './GreenButton';
 import * as colors from '../utils/colors';
 import useOutsideAlerter from '../hooks/useOutsideAlerter';
+import NotificationBell from './NotificationBell';
 import { apiURL } from '../utils/constants';
 
 function NavBar({ authToken, dispatch, userDetails }) {
@@ -114,20 +115,24 @@ function NavBar({ authToken, dispatch, userDetails }) {
         >
           {authToken !== null ? (
             <div ref={navbarUserMenuRef}>
-              <img
-                onClick={() => {
-                  setIsUserProfileMenuOpen(!isUserProfileMenuOpen);
-                }}
-                style={{
-                  display: 'block',
-                  height: '35px',
-                  width: '35px',
-                  borderRadius: '50%',
-                  cursor: 'pointer',
-                }}
-                src={userProfileImage}
-                alt="user profile"
-              />
+              <Flex align="center" gap="1rem">
+                <NotificationBell />
+                <img
+                  onClick={() => {
+                    setIsUserProfileMenuOpen(!isUserProfileMenuOpen);
+                  }}
+                  style={{
+                    display: 'block',
+                    height: '35px',
+                    width: '35px',
+                    borderRadius: '50%',
+                    cursor: 'pointer',
+                    border: 'green solid 0.5px',
+                  }}
+                  src={genericUser}
+                  alt="user profile"
+                />
+              </Flex>
               <div
                 style={{
                   position: 'absolute',

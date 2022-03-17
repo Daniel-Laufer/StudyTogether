@@ -1,23 +1,23 @@
 //TODO: Create a config helper class to handle all this config to lessen the clutter.
-
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-var mongoose = require('mongoose');
-var cors = require('cors');
+//TODO: modify the API entry point to /api/v1
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const mongoose = require('mongoose');
+const cors = require('cors');
 require('dotenv').config();
 
-var usersRouter = require('./routes/users');
-var forgotRouter = require('./routes/forgot');
-var studygroupsRouter = require('./routes/studygroups');
-var viewsRouter = require('./views/views');
+const usersRouter = require('./routes/users');
+const forgotRouter = require('./routes/forgot');
+const studygroupsRouter = require('./routes/studygroups');
+const viewsRouter = require('./views/views');
 
-var app = express();
+const app = express();
 
 // swagger docs config
-var swaggerUI = require('swagger-ui-express');
+const swaggerUI = require('swagger-ui-express');
 const swaggerDoc = require('./swagger.json');
 app.use('/api/docs', swaggerUI.serve, swaggerUI.setup(swaggerDoc));
 
