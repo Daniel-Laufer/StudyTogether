@@ -65,7 +65,7 @@ function Group({
       >
         {heading}
       </Box>
-      <HStack mb={2}>
+      <HStack mb={2} style={{ height: '25px' }}>
         {status.cancelled ? (
           <Tag colorScheme="red" m={0}>
             Cancelled
@@ -82,7 +82,7 @@ function Group({
           </Tag>
         ) : null}
       </HStack>
-      <ImageContainer>
+      <ImageContainer style={{ height: '230px' }}>
         <Image src={img} htmlWidth="334px" htmlHeight="223px" alt={imgAlt} />
       </ImageContainer>
       <Flex>

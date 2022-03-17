@@ -6,6 +6,12 @@ var helperUser = require('../helpers/helperUser');
 const { body, validationResult } = require('express-validator');
 const mongoose = require('mongoose');
 const helperGroupHistory = require('../helpers/helperGroupHistory');
+const {
+  emitGroupUpdated,
+  emitFollowedUpdates,
+  attendGroups,
+  leaveGroups,
+} = require('../helpers/helperNotification');
 
 /* (1) Get all study groups*/
 router.get('/', helperUser.verifyToken, (req, res) => {
@@ -106,8 +112,14 @@ router.get('/:id', helperUser.verifyToken, (req, res) => {
   }
   const groupId = req.params.id;
   StudygroupModel.findById(groupId)
-    .then(studygroup => res.status(200).json(studygroup))
-    .catch(err => res.status(400).json('Error: ' + err));
+    .then(studygroup => {
+      res.status(200).json(studygroup);
+      return;
+    })
+    .catch(err => {
+      console.log('Error: ' + err);
+      res.status(400).json('Error: ' + err);
+    });
 });
 
 /* (6) Catching a post request with url ./create */
@@ -201,7 +213,17 @@ router.post(
     newSeries
       .save()
       .catch(err => res.status(400).json('Error: ' + err))
-      .then(() => res.status(200).json(studygroup));
+      .then(() => {
+        /* BEGIN Notification */
+        emitFollowedUpdates(
+          req.user.id.toString(),
+          `${req.user.firstName} ${req.user.lastName}`,
+          'host'
+        );
+        /* END Notification */
+
+        res.status(200).json(studygroup);
+      });
   }
 );
 
@@ -307,6 +329,7 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
       });
 
     studyGroup.save().catch(err => res.status(400).json('Error: ' + err));
+    emitGroupUpdated(groupId, studyGroup.title, 'edit');
   }
   try {
     res.status(200).json(studyGroup);
@@ -436,7 +459,7 @@ router.post('/attend/:id', helperUser.verifyToken, (req, res) => {
 
   const groupId = req.params.id;
   StudygroupModel.findById(groupId)
-    .then(studygroup => {
+    .then(async studygroup => {
       const attendee = {
         id: req.user.id,
         name: `${req.user.firstName} ${req.user.lastName}`,
@@ -461,6 +484,19 @@ router.post('/attend/:id', helperUser.verifyToken, (req, res) => {
       studygroup.save();
       req.user.registeredStudygroups.push(studygroup);
       req.user.save();
+
+      /* BEGIN Notification */
+
+      //When req.user attends a new study group, we add it as a new room to their socket.
+      await attendGroups(req.user.id, groupId, []);
+      //Notify the followers of req.user
+      emitFollowedUpdates(
+        req.user.id.toString(),
+        `${req.user.firstName} ${req.user.lastName}`,
+        'attend'
+      );
+      /* END Notification */
+
       res.status(200).json(studygroup);
     })
     .catch(err => {
@@ -479,7 +515,7 @@ router.patch('/leave/:id', helperUser.verifyToken, (req, res) => {
 
   const groupId = req.params.id;
   StudygroupModel.findById(groupId)
-    .then(studygroup => {
+    .then(async studygroup => {
       const studyArr = studygroup.attendees.filter(
         user => user.id == req.user.id
       );
@@ -514,6 +550,9 @@ router.patch('/leave/:id', helperUser.verifyToken, (req, res) => {
         req.user.save();
       }
 
+      /* begin notification */
+      await leaveGroups(req.user.id, groupId, []);
+      /* end notification  */
       res.status(200).json(studygroup);
     })
     .catch(() => res.status(404).json('Error: Invalid study group id'));
