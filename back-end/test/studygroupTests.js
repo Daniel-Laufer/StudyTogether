@@ -260,6 +260,22 @@ describe('Studygroup Tests', function () {
     }).timeout(5000);
   });
 
+  /* Test: Fetching study groups a logged in user has already attended */
+  describe('/studygroups/attended', function () {
+    it('Check that fetching study groups a logged in user has already attended is functional', function (done) {
+      chai
+        .request(app)
+        .get('/studygroups/attended')
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `JWT ${token}`)
+        .send()
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          done();
+        });
+    }).timeout(5000);
+  });
+
   /* Test: Attending a study group as a logged in user */
   describe('/studygroups/attend/:id', function () {
     it('Check that attending a study group as a logged in user is functional', function (done) {

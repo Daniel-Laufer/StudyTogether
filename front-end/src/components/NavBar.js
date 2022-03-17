@@ -150,6 +150,9 @@ function NavBar({ authToken, dispatch, userDetails }) {
                     <MenuItem onClick={() => navigate('/saved-groups')}>
                       Saved groups
                     </MenuItem>
+                    <MenuItem onClick={() => navigate('/group-history')}>
+                      Group history
+                    </MenuItem>
                     <MenuItem onClick={() => dispatch(logout())}>
                       Logout
                     </MenuItem>
