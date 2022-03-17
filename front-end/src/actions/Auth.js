@@ -2,6 +2,7 @@
 /* eslint-disable no-undef */
 import axios from 'axios';
 import { apiURL } from '../utils/constants';
+
 /* eslint-disable no-console */
 export const LOGIN_REQUEST = 'LOGIN_REQUEST';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
@@ -24,6 +25,7 @@ export function login(userDetails) {
       .then(res => {
         dispatch({ type: REGISTRATION_SUCCESS });
         dispatch({ type: SAVE_AUTH_DETAILS, ...res.data });
+
         if (userDetails.rememberUser) {
           window.localStorage.setItem(
             'userDetails',
