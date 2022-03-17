@@ -130,7 +130,6 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
       .get(`${apiURL}/studygroups/registered`, config)
       .then(res => {
         setGroups(res.data);
-        console.log(res.data);
         setLoading({
           ...loading,
           groups: false,
