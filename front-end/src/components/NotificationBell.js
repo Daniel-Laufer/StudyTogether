@@ -28,7 +28,7 @@ function NotificationBell({ userDetails }) {
 
   useEffect(() => {
     if (!isConnected) {
-      console.log('socket re-connecting');
+      // console.log('socket re-connecting');
       const skt = io(apiURL, {
         extraHeaders: {
           userid: userDetails.id,
@@ -46,12 +46,10 @@ function NotificationBell({ userDetails }) {
         setNotSeen(true);
       });
       skt.on('disconnect', () => {
-        console.log('socket disconnected');
+        // console.log('socket disconnected');
         setIsConnected(skt.connected);
       });
     }
-
-    console.log('Login_req', userDetails.id);
   }, [isConnected]);
   return (
     <Popover>
@@ -81,7 +79,6 @@ function NotificationBell({ userDetails }) {
                   cursor: 'pointer',
                 }}
                 onClick={() => {
-                  console.log(value.url);
                   navigate(value.url);
                 }}
               >
@@ -90,9 +87,6 @@ function NotificationBell({ userDetails }) {
               <Divider />
             </>
           ))}
-          {/* <Alert style={{ margin: '5px 0 5px 0', borderRadius: '10px' }}>
-            Study group &apos;CSC301 midterm&apos; has new changes!
-          </Alert> */}
         </PopoverBody>
       </PopoverContent>
     </Popover>
