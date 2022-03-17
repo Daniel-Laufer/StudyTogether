@@ -61,6 +61,11 @@ const userSchema = new Schema(
       default: [],
       required: false,
     },
+    attendedStudygroups: {
+      type: [mongoose.Types.ObjectId],
+      default: [],
+      required: false,
+    },
     //profile info
     profileImage: {
       type: String,

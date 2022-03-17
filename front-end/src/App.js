@@ -72,7 +72,18 @@ function App() {
                 />
               }
             />
+            <Route
+              path="/group-history"
+              element={
+                <Groups
+                  studyGroupsEndPoint="studygroups/attended"
+                  headerContent="Study groups you have attended"
+                  noGroupsFoundHeaderContent="You don't have any saved study groups."
+                />
+              }
+            />
             <Route path="/groups/:id" element={<GroupView />} />
+            <Route path="/group-history/:id" element={<GroupView />} />
             <Route path="/user/:id" element={<AccountInfo />} />
             <Route path="/cal" element={<CustomCalendar />} />
             <Route path="*" element={<NotFoundPage />} />
