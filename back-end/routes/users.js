@@ -9,7 +9,6 @@ var tarequest = require('../models/taverify.model');
 const { check, body, validationResult, param } = require('express-validator');
 const mongoose = require('mongoose');
 
-
 /* Get non-sensitive user profile info */
 router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
   if (!req.user) {
@@ -48,6 +47,65 @@ router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
     });
   }
 });
+
+/* Get all studygroups the user has attended */
+router.get(
+  '/studygroups/attended',
+  helperUser.verifyToken,
+  async (req, res) => {
+    // checking if user is authenticated
+    if (!req.user) {
+      res.status(401).send({ message: 'Invalid JWT token' });
+      return;
+    }
+
+    StudygroupModel.find({
+      _id: {
+        $in: req.user.attendedStudygroups,
+      },
+    }).exec((err, attendedStudygroups) => {
+      if (err) res.status(400).send({ message: err });
+      res.status(200).json(attendedStudygroups);
+    });
+  }
+);
+
+/* Filter all study group the user attends to check which ones have already ended */
+router.post(
+  '/studygroups/generate/history',
+  helperUser.verifyToken,
+
+  // checking if user is authenticated
+  (req, res) => {
+    if (!req.user) {
+      res.status(401).send({ message: 'Invalid JWT token' });
+      return;
+    }
+
+    // check that the studygroup exists
+    var promises = [];
+    var oldStudygroups = [];
+    var newStudygroups = [];
+
+    req.user.registeredStudygroups.forEach(groupId => {
+      promises.push(
+        StudygroupModel.findById(groupId.toString()).then(studygroup => {
+          if (studygroup && studygroup.endDateTime < new Date())
+            oldStudygroups.push(studygroup);
+          else newStudygroups.push(studygroup);
+        })
+      );
+    });
+
+    /* based on https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all  */
+    Promise.all(promises).then(() => {
+      req.user.attendedStudygroups = oldStudygroups;
+      req.user.registeredStudygroups = newStudygroups;
+      req.user.save();
+      res.status(200).json(oldStudygroups);
+    });
+  }
+);
 
 /* Get first (x=limit) users you have not followed */
 router.get(
