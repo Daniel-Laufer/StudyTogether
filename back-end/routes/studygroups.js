@@ -77,7 +77,6 @@ router.get('/:id', helperUser.verifyToken, (req, res) => {
   const groupId = req.params.id;
   StudygroupModel.findById(groupId)
     .then(studygroup => {
-      emitGroupUpdated(groupId, studygroup.title, 'edit');
       res.status(200).json(studygroup);
       return;
     })
