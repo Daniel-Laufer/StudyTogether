@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 let StudygroupModel = require('../models/studygroup.model');
 let studyGroupSeriesModel = require('../models/studygroupseries.model');
+let UserModel = require('../models/user.model');
 var helperUser = require('../helpers/helperUser');
 const { body, validationResult } = require('express-validator');
 const mongoose = require('mongoose');
@@ -204,11 +205,16 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
 
   const editAll = req.body.editAll;
 
-  const studyGroup = await StudygroupModel.findById(groupId).catch(err =>
-    res.status(400).json('Error: ' + err)
-  );
+  let studyGroup = await StudygroupModel.findById(groupId).catch(err => err => {
+    res.status(400).json('Error: ' + err);
+    return;
+  });
+
+  let emailList = [];
+  let usersAndChanges = {};
   if (editAll) {
     var seriesId = new mongoose.Types.ObjectId(studyGroup.seriesId);
+
     const series = await studyGroupSeriesModel.findById(seriesId);
     let numDays;
     if (req.body.recurring == 'weekly') {
@@ -221,18 +227,62 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
     var newStudyGroupsList = [];
     var i = 0;
     while (start <= new Date(req.body.finalDate)) {
+      groups_changed = 'The following group has been changed or cancelled<br>';
       let newStart = new Date(start);
       let newEnd = new Date(end);
       var session;
       if (i < series.studyGroups.length) {
         session = await StudygroupModel.findById(series.studyGroups[i]).catch(
-          err => res.status(400).json('Error: ' + err)
+          err => {
+            res.status(400).json('Error: ' + err);
+            return;
+          }
+        );
+        groups_changed += helperUser.constructMessage(
+          session.title,
+          session.startDateTime,
+          session.endDateTime,
+          0
         );
 
+        let isRescheduled = false;
+        if (
+          session.startDateTime.toString() != newStart.toString() ||
+          session.endDateTime.toString() != newEnd.toString()
+        ) {
+          console.log(session);
+          console.log(session.startDateTime + ' : ' + newStart);
+          console.log(session.endDateTime + ' : ' + newEnd);
+          isRescheduled = true;
+        }
+
         Object.assign(session, req.body);
+        session.rescheduled = isRescheduled;
+        session.recurringFinalDateTime = req.body.finalDate;
         session.startDateTime = newStart;
         session.endDateTime = newEnd;
-        session.save().catch(err => res.status(400).json('Error: ' + err));
+        groups_changed += helperUser.constructMessage(
+          session.title,
+          session.startDateTime,
+          session.endDateTime,
+          1
+        );
+
+        for (let i = 0; i < session.attendees.length; i++) {
+          let person = await UserModel.findById(session.attendees[i].id);
+          if (!emailList.find(element => element == person.email)) {
+            emailList.push(person.email);
+          }
+          if (usersAndChanges[person.email]) {
+            usersAndChanges[person.email].push(groups_changed);
+          } else {
+            usersAndChanges[person.email] = [groups_changed];
+          }
+        }
+        session.save().catch(err => {
+          res.status(400).json('Error: ' + err);
+          return;
+        });
       } else {
         //var id = mongoose.Types.ObjectId(req.body.hostId); jsut for back end only testing
         session = new StudygroupModel({
@@ -251,7 +301,13 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
           official: req.body.official,
           recurring: req.body.recurring,
         });
-        session.save().catch(err => res.status(400).json('Error: ' + err));
+        if (req.body.recurring != 'N/A')
+          session.recurringFinalDateTime = req.body.finalDate;
+
+        session.save().catch(err => {
+          res.status(400).json('Error: ' + err);
+          return;
+        });
       }
 
       newStudyGroupsList.push(session._id);
@@ -265,41 +321,110 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
           element => element.toString() == series.studyGroups[i].toString()
         )
       ) {
-        await StudygroupModel.findByIdAndDelete(series.studyGroups[i]).catch(
-          err => res.status(400).json('Error: ' + err)
+        group = await StudygroupModel.findById(series.studyGroups[i]).catch(
+          err => {
+            res.status(400).json('Error: ' + err);
+            return;
+          }
         );
+        groups_changed += helperUser.constructMessage(
+          group.title,
+          group.startDateTime,
+          group.endDateTime,
+          2
+        );
+        for (let i = 0; i < group.attendees.length; i++) {
+          let person = await UserModel.findById(group.attendees[i].id);
+          if (!emailList.find(element => element == person.email)) {
+            emailList.push(person.email);
+          }
+          if (usersAndChanges[person.email]) {
+            usersAndChanges[person.email].push(groups_changed);
+          } else {
+            usersAndChanges[person.email] = [groups_changed];
+          }
+        }
+        group.canceled = true;
+        let t = new Date();
+        t.setHours(t.getHours() + 24);
+        group.canceledAt = t;
+        group.save().catch(err => {
+          res.status(400).json('Error: ' + err);
+          return;
+        });
       }
     }
     series.recurring = req.body.recurring;
     series.studyGroups = newStudyGroupsList;
-    series.save().catch(err => res.status(400).json('Error: ' + err));
+    series.save().catch(err => {
+      res.status(400).json('Error: ' + err);
+      return;
+    });
   } else {
+    groups_changed = 'The following group has been changed or cancelled<br>';
+    console.log(studyGroup);
+    console.log(studyGroup.title);
+    groups_changed += helperUser.constructMessage(
+      studyGroup.title,
+      studyGroup.startDateTime,
+      studyGroup.endDateTime,
+      0
+    );
+    for (let i = 0; i < studyGroup.attendees.length; i++) {
+      let person = await UserModel.findById(studyGroup.attendees[i].id);
+
+      emailList.push(person.email);
+      if (usersAndChanges[person.email]) {
+        usersAndChanges[person.email].push(groups_changed);
+      } else {
+        usersAndChanges[person.email] = [groups_changed];
+      }
+    }
+    let start = new Date(req.body.startDateTime);
+    let end = new Date(req.body.endDateTime);
     /* TODO: Notify users once postponed (after notification feature is added) */
     var isRescheduled =
-      (new Date(req.body.startDateTime).getTime() ??
-        new Date(studyGroup.startDateTime).getTime()) !=
-      new Date(studyGroup.startDateTime).getTime();
+      studyGroup.startDateTime.toString() != start.toString() ||
+      studyGroup.endDateTime.toString() != end.toString();
 
-    if (isRescheduled)
+    if (isRescheduled) {
       Object.assign(studyGroup, {
         ...req.body,
-        ...{ recurringFinalDateTime: req.body.finalDate },
         ...{ rescheduled: isRescheduled },
       });
-    else
+    } else {
       Object.assign(studyGroup, {
         ...req.body,
         ...{ recurringFinalDateTime: req.body.finalDate },
       });
+
+    }
+    groups_changed += helperUser.constructMessage(
+      studyGroup.title,
+      studyGroup.startDateTime,
+      studyGroup.endDateTime,
+      1
+    );
+
+
 
     studyGroup.save().catch(err => res.status(400).json('Error: ' + err));
     emitGroupUpdated(groupId, studyGroup.title, 'edit');
+
   }
-  try {
-    res.status(200).json(studyGroup);
-  } catch (err) {
-    console.log(err);
+
+  let subject = 'Study group details have changed or been cancelled';
+  for (let i = 0; i < emailList.length; i++) {
+    for (let k = 0; k < usersAndChanges[emailList[i]].length; k++) {
+      helperUser.sendEmail(
+        emailList[i],
+        subject,
+        usersAndChanges[emailList[i]][k]
+      );
+    }
   }
+
+  res.status(200).json(studyGroup);
 });
 
 /* (7) Deleting a study group by id */

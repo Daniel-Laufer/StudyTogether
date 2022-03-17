@@ -4,6 +4,7 @@ var User = require('../models/user.model');
 var tarequest = require('../models/taverify.model');
 const adminurl = 'http://localhost:8000/admin';
 const { validationResult } = require('express-validator');
+var nodemailer = require('nodemailer');
 
 module.exports = {
   respondJWT(user, res, successMessage) {
@@ -146,4 +147,89 @@ module.exports = {
       err.push('Invalid JWT token');
     }
   },
+
+  stripSensitiveInfo(userObj) {
+    var sensInfo = [
+      'email',
+      'password',
+      'verified',
+      'created',
+      'savedStudygroups',
+    ];
+    sensInfo.forEach(elem => {
+      userObj = removeProperty(elem, userObj);
+    });
+  },
+  async getUserDetailsNonSens(usersId, errors) {
+    var users = await User.find({
+      _id: { $in: usersId },
+    }).catch(err => errors.push('Err: ' + err));
+  },
+
+  //rec_email can be list or single user
+  async sendEmail(rec_email, subject, message) {
+    let password = process.env.password;
+    let transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'studtogtest@gmail.com',
+        pass: password,
+      },
+      secure: true,
+    });
+    let msg = {
+      from: 'studtogtest@gmail.com', // sender address
+      to: `${rec_email}`, // list of receivers
+      subject: subject,
+      text: message,
+      html: `<p>${message}</p><br><img src="cid:logo" style="width:412px;height:70"/>`,
+      attachments: [
+        {
+          filename: 'logoblack.png',
+          path: './logo/logoblack.png',
+          cid: 'logo',
+        },
+      ],
+    };
+    await transporter.sendMail(msg);
+  },
+  constructMessage(title, start, end, messageNum) {
+    let startTime = this.dateParser(start);
+    let endTime = this.dateParser(end);
+
+    let string = `<strong>${title}</strong> on <strong>${start.toDateString()}</strong> from <strong>${
+      startTime.hours
+    }:${startTime.mins} ${startTime.mornOrEve}</strong> till <strong>${
+      endTime.hours
+    }:${endTime.mins} ${endTime.mornOrEve}</strong><br>`;
+    if (messageNum == 0) {
+      string += ' has become:<br>';
+    } else if (messageNum == 1) {
+      string += '<br>';
+    } else {
+      string += 'has been cancelled<br><br>';
+    }
+    return string;
+  },
+  dateParser(date) {
+    let startHours = `${date.getHours()}`;
+    let mornOrEveStart;
+    if (startHours > 12) {
+      startHours = startHours - 12;
+      mornOrEveStart = 'PM';
+    } else if (startHours == 12) {
+      mornOrEveStart = 'PM';
+    } else if (startHours == 0) {
+      mornOrEveStart = 'AM';
+      startHours = 12;
+    } else {
+      mornOrEveStart = 'AM';
+    }
+    let startMins = `${date.getMinutes()}`;
+    if (startHours.length < 2) startHours = '0' + startHours;
+    if (startMins.length < 2) startMins = '0' + startMins;
+
+    return { hours: startHours, mins: startMins, mornOrEve: mornOrEveStart };
+  },
+
 };
