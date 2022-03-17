@@ -5,7 +5,7 @@ let studyGroupSeriesModel = require('../models/studygroupseries.model');
 var helperUser = require('../helpers/helperUser');
 const { body, validationResult } = require('express-validator');
 const mongoose = require('mongoose');
-const studygroup = require('../models/studygroup.model');
+const helperGroupHistory = require('../helpers/helperGroupHistory');
 
 /* (1) Get all study groups*/
 router.get('/', helperUser.verifyToken, (req, res) => {
@@ -15,7 +15,13 @@ router.get('/', helperUser.verifyToken, (req, res) => {
     return;
   }
   StudygroupModel.find()
-    .then(studygroups => res.status(200).json(studygroups))
+    .then(studygroups => {
+      res
+        .status(200)
+        .json(
+          studygroups.filter(studygroup => studygroup.endDateTime >= new Date())
+        );
+    })
     .catch(err => res.status(400).json('Error: ' + err));
 });
 
@@ -42,44 +48,54 @@ router.get('/saved', helperUser.verifyToken, async (req, res) => {
 });
 
 /* (3) Get all studygroups the current logged in user is registered for */
-router.get('/registered', helperUser.verifyToken, async (req, res) => {
-  // checking if user is authenticated
-  if (!req.user) {
-    res.status(401).send({ message: 'Invalid JWT token' });
-    return;
+router.get(
+  '/registered',
+  helperUser.verifyToken,
+  helperGroupHistory.updateGroupHistory,
+  async (req, res) => {
+    // checking if user is authenticated
+    if (!req.user) {
+      res.status(401).send({ message: 'Invalid JWT token' });
+      return;
+    }
+
+    var response = [];
+    var promises = [];
+    req.user.registeredStudygroups.forEach(groupId => {
+      promises.push(
+        StudygroupModel.findById(groupId.toString()).then(studygroup => {
+          if (studygroup) response.push(studygroup);
+        })
+      );
+    });
+
+    /* based on https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all  */
+    Promise.all(promises).then(() => res.status(200).json(response));
   }
-
-  var response = [];
-  var promises = [];
-  req.user.registeredStudygroups.forEach(groupId => {
-    promises.push(
-      StudygroupModel.findById(groupId.toString()).then(studygroup => {
-        if (studygroup) response.push(studygroup);
-      })
-    );
-  });
-
-  /* based on https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all  */
-  Promise.all(promises).then(() => res.status(200).json(response));
-});
+);
 
 /* (4) Get all studygroups the user has attended */
-router.get('/attended', helperUser.verifyToken, async (req, res) => {
-  // checking if user is authenticated
-  if (!req.user) {
-    res.status(401).send({ message: 'Invalid JWT token' });
-    return;
-  }
+router.get(
+  '/attended',
+  helperUser.verifyToken,
+  helperGroupHistory.updateGroupHistory,
+  async (req, res) => {
+    // checking if user is authenticated
+    if (!req.user) {
+      res.status(401).send({ message: 'Invalid JWT token' });
+      return;
+    }
 
-  StudygroupModel.find({
-    _id: {
-      $in: req.user.attendedStudygroups,
-    },
-  }).exec((err, attendedStudygroups) => {
-    if (err) res.status(400).send({ message: err });
-    res.status(200).json(attendedStudygroups);
-  });
-});
+    StudygroupModel.find({
+      _id: {
+        $in: req.user.attendedStudygroups,
+      },
+    }).exec((err, attendedStudygroups) => {
+      if (err) res.status(400).send({ message: err });
+      res.status(200).json(attendedStudygroups);
+    });
+  }
+);
 
 /* (5) Get an individual study group by ID*/
 router.get('/:id', helperUser.verifyToken, (req, res) => {
