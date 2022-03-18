@@ -1,14 +1,19 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/no-unstable-nested-components */
+/* eslint-disable arrow-body-style */
 import { Calendar, momentLocalizer, Views } from 'react-big-calendar';
 import React, { useEffect, useState } from 'react';
 import moment from 'moment';
 import { connect } from 'react-redux';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import 'react-big-calendar/lib/css/react-big-calendar.css.map';
 import { Container, Alert, AlertIcon, Box } from '@chakra-ui/react';
+import CustomSpinner from '../../components/CustomSpinner';
+import { apiURL } from '../../utils/constants';
+import { logout } from '../../actions/Auth';
 
 const localizer = momentLocalizer(moment);
 const COLORS = [
@@ -66,10 +71,11 @@ const eventStyleGetter = (event, start, end, isSelected) => {
   };
 };
 
-function CustomCalendar({ authToken }) {
+function CustomCalendar({ authToken, dispatch }) {
   const navigate = useNavigate();
   const allViews = Object.keys(Views).map(k => Views[k]);
   const [state, setState] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (authToken === null) {
@@ -78,7 +84,30 @@ function CustomCalendar({ authToken }) {
   }, [authToken]);
 
   useEffect(() => {
-    setState(events.map(e => assignColors(e)));
+    const config = {
+      headers: { Authorization: `JWT ${authToken}` },
+    };
+    axios
+      .get(`${apiURL}/studygroups/registered`, config)
+      .then(res => {
+        const data = res.data.map(event => {
+          return {
+            id: event._id,
+            title: event.title,
+            start: new Date(event.startDateTime),
+            end: new Date(event.endDateTime),
+          };
+        });
+        setState(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        setLoading(false);
+        if (err.response.status === 401) {
+          dispatch(logout());
+          navigate('/login');
+        }
+      });
   }, []);
 
   if (authToken === null) {
@@ -91,7 +120,7 @@ function CustomCalendar({ authToken }) {
     );
   }
 
-  return (
+  return !loading ? (
     <Container maxW="container.lg">
       <Calendar
         localizer={localizer}
@@ -109,11 +138,14 @@ function CustomCalendar({ authToken }) {
         eventPropGetter={eventStyleGetter}
       />
     </Container>
+  ) : (
+    <CustomSpinner />
   );
 }
 
 CustomCalendar.propTypes = {
   authToken: PropTypes.string,
+  dispatch: PropTypes.func.isRequired,
 };
 
 CustomCalendar.defaultProps = {
