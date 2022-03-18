@@ -1,75 +1,72 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/no-unstable-nested-components */
+/* eslint-disable arrow-body-style */
+/* eslint-disable no-bitwise */
+/* eslint-disable no-plusplus */
+/* eslint-disable no-use-before-define */
+/* eslint-disable prefer-template */
+
 import { Calendar, momentLocalizer, Views } from 'react-big-calendar';
 import React, { useEffect, useState } from 'react';
 import moment from 'moment';
 import { connect } from 'react-redux';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import 'react-big-calendar/lib/css/react-big-calendar.css.map';
 import { Container, Alert, AlertIcon, Box } from '@chakra-ui/react';
+import CustomSpinner from '../../components/CustomSpinner';
+import { apiURL } from '../../utils/constants';
+import { logout } from '../../actions/Auth';
 
 const localizer = momentLocalizer(moment);
-const COLORS = [
-  '#105E97',
-  '#4DE351',
-  '#62A501',
-  '#77176A',
-  '#E3449C',
-  '#DE49E0',
-];
-
-const events = [
-  {
-    id: '622d549b244da0cde08c9e02',
-    title: 'All Day Event very long title',
-    start: new Date(2022, 2, 1),
-    end: new Date(2022, 2, 2),
-  },
-  {
-    id: '622d549b244da0cde08c9e08',
-    title: 'All Day long title',
-    start: new Date(2022, 2, 1),
-    end: new Date(2022, 2, 2),
-  },
-  {
-    id: '622d549b244da0cde08c9e04',
-    title: 'All Day Event',
-    start: new Date(2022, 2, 1),
-    end: new Date(2022, 2, 2),
-  },
-  {
-    id: '622ea79fc6cac53e555e5871',
-    title: 'DTS STARTS',
-    start: new Date(2022, 2, 13, 13, 0, 0),
-    end: new Date(2022, 2, 20, 16, 0, 0),
-  },
-];
 
 const assignColors = e => {
-  e.hexColor = COLORS[Math.floor(Math.random() * COLORS.length)];
+  e.hexColor = stringToColour(e.title);
   return e;
 };
 
+// Code from https://stackoverflow.com/questions/3426404/create-a-hexadecimal-colour-based-on-a-string-with-javascript
+const stringToColour = str => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  let colour = '#';
+  for (let i = 0; i < 3; i++) {
+    const value = (hash >> (i * 8)) & 0xff;
+    colour += ('00' + value.toString(16)).substr(-2);
+  }
+  return colour;
+};
+
+// Code from https://stackoverflow.com/questions/12043187/how-to-check-if-hex-color-is-too-black
+function wcHexIsLight(color) {
+  const hex = color.replace('#', '');
+  const cr = parseInt(hex.substr(0, 2), 16);
+  const cg = parseInt(hex.substr(2, 2), 16);
+  const cb = parseInt(hex.substr(4, 2), 16);
+  const brightness = (cr * 299 + cg * 587 + cb * 114) / 1000;
+  return brightness > 155;
+}
+
 const eventStyleGetter = (event, start, end, isSelected) => {
-  const fontColor =
-    event.hexColor === '#77176A' || event.hexColor === '#105E97'
-      ? 'white'
-      : 'black';
+  const color = wcHexIsLight(event.hexColor) ? 'black' : 'white';
   const style = {
     backgroundColor: event.hexColor,
-    color: fontColor,
+    color,
   };
   return {
     style,
   };
 };
 
-function CustomCalendar({ authToken }) {
+function CustomCalendar({ authToken, dispatch }) {
   const navigate = useNavigate();
   const allViews = Object.keys(Views).map(k => Views[k]);
   const [state, setState] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (authToken === null) {
@@ -78,7 +75,30 @@ function CustomCalendar({ authToken }) {
   }, [authToken]);
 
   useEffect(() => {
-    setState(events.map(e => assignColors(e)));
+    const config = {
+      headers: { Authorization: `JWT ${authToken}` },
+    };
+    axios
+      .get(`${apiURL}/studygroups/registered`, config)
+      .then(res => {
+        const data = res.data.map(event => {
+          return {
+            id: event._id,
+            title: event.title,
+            start: new Date(event.startDateTime),
+            end: new Date(event.endDateTime),
+          };
+        });
+        setState(data.map(e => assignColors(e)));
+        setLoading(false);
+      })
+      .catch(err => {
+        setLoading(false);
+        if (err.response.status === 401) {
+          dispatch(logout());
+          navigate('/login');
+        }
+      });
   }, []);
 
   if (authToken === null) {
@@ -91,7 +111,7 @@ function CustomCalendar({ authToken }) {
     );
   }
 
-  return (
+  return !loading ? (
     <Container maxW="container.lg">
       <Calendar
         localizer={localizer}
@@ -109,11 +129,14 @@ function CustomCalendar({ authToken }) {
         eventPropGetter={eventStyleGetter}
       />
     </Container>
+  ) : (
+    <CustomSpinner />
   );
 }
 
 CustomCalendar.propTypes = {
   authToken: PropTypes.string,
+  dispatch: PropTypes.func.isRequired,
 };
 
 CustomCalendar.defaultProps = {
