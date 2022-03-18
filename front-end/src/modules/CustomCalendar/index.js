@@ -1,6 +1,11 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable arrow-body-style */
+/* eslint-disable no-bitwise */
+/* eslint-disable no-plusplus */
+/* eslint-disable no-use-before-define */
+/* eslint-disable prefer-template */
+
 import { Calendar, momentLocalizer, Views } from 'react-big-calendar';
 import React, { useEffect, useState } from 'react';
 import moment from 'moment';
@@ -16,55 +21,41 @@ import { apiURL } from '../../utils/constants';
 import { logout } from '../../actions/Auth';
 
 const localizer = momentLocalizer(moment);
-const COLORS = [
-  '#105E97',
-  '#4DE351',
-  '#62A501',
-  '#77176A',
-  '#E3449C',
-  '#DE49E0',
-];
-
-const events = [
-  {
-    id: '622d549b244da0cde08c9e02',
-    title: 'All Day Event very long title',
-    start: new Date(2022, 2, 1),
-    end: new Date(2022, 2, 2),
-  },
-  {
-    id: '622d549b244da0cde08c9e08',
-    title: 'All Day long title',
-    start: new Date(2022, 2, 1),
-    end: new Date(2022, 2, 2),
-  },
-  {
-    id: '622d549b244da0cde08c9e04',
-    title: 'All Day Event',
-    start: new Date(2022, 2, 1),
-    end: new Date(2022, 2, 2),
-  },
-  {
-    id: '622ea79fc6cac53e555e5871',
-    title: 'DTS STARTS',
-    start: new Date(2022, 2, 13, 13, 0, 0),
-    end: new Date(2022, 2, 20, 16, 0, 0),
-  },
-];
 
 const assignColors = e => {
-  e.hexColor = COLORS[Math.floor(Math.random() * COLORS.length)];
+  e.hexColor = stringToColour(e.title);
   return e;
 };
 
+// Code from https://stackoverflow.com/questions/3426404/create-a-hexadecimal-colour-based-on-a-string-with-javascript
+const stringToColour = str => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  let colour = '#';
+  for (let i = 0; i < 3; i++) {
+    const value = (hash >> (i * 8)) & 0xff;
+    colour += ('00' + value.toString(16)).substr(-2);
+  }
+  return colour;
+};
+
+// Code from https://stackoverflow.com/questions/12043187/how-to-check-if-hex-color-is-too-black
+function wcHexIsLight(color) {
+  const hex = color.replace('#', '');
+  const cr = parseInt(hex.substr(0, 2), 16);
+  const cg = parseInt(hex.substr(2, 2), 16);
+  const cb = parseInt(hex.substr(4, 2), 16);
+  const brightness = (cr * 299 + cg * 587 + cb * 114) / 1000;
+  return brightness > 155;
+}
+
 const eventStyleGetter = (event, start, end, isSelected) => {
-  const fontColor =
-    event.hexColor === '#77176A' || event.hexColor === '#105E97'
-      ? 'white'
-      : 'black';
+  const color = wcHexIsLight(event.hexColor) ? 'black' : 'white';
   const style = {
     backgroundColor: event.hexColor,
-    color: fontColor,
+    color,
   };
   return {
     style,
@@ -98,7 +89,7 @@ function CustomCalendar({ authToken, dispatch }) {
             end: new Date(event.endDateTime),
           };
         });
-        setState(data);
+        setState(data.map(e => assignColors(e)));
         setLoading(false);
       })
       .catch(err => {
