@@ -1,9 +1,6 @@
 # The participants in the meeting
 Dan Laufer, John Lewczuk, Mohamed Issa, Maor Gornic, Milind Vishnoi
 
-# Unfinished tasks and group them into stories
-
-
 # What are practices that you should continue during next sprint 
 Discussing issues as they arise without waiting for the stand up
 Fast communication and reply time

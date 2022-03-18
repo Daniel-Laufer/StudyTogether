@@ -1,3 +1,26 @@
+<!-- Output copied to clipboard! -->
+
+<!-----
+
+Yay, no errors, warnings, or alerts!
+
+Conversion time: 0.453 seconds.
+
+
+Using this Markdown file:
+
+1. Paste this output into your source file.
+2. See the notes and action items below regarding this conversion run.
+3. Check the rendered output (headings, lists, code blocks, tables) for proper
+   formatting and use a linkchecker before you publish this page.
+
+Conversion notes:
+
+* Docs to Markdown version 1.0β33
+* Thu Mar 17 2022 19:02:56 GMT-0700 (PDT)
+* Source doc: PB.md
+* Tables are currently converted to HTML tables.
+----->
 
 
 
@@ -15,46 +38,12 @@
   <tr>
    <td>1
    </td>
-   <td>As Linus, Tobey, or teacher Adjoa, I want to be able to create recurring study groups.
+   <td>As Linus, Tobey, or teacher Adjoa, when I receive an email notifying me about study group changes, I want the notification to be extremely intuitive and include a link that will take me to the changed study group
    </td>
    <td>
 <ul>
 
-<li>Users will be able to create study groups that occur weekly or biweekly.
-</li>
-</ul>
-   </td>
-   <td>4
-   </td>
-  </tr>
-  <tr>
-   <td>2
-   </td>
-   <td>As Linus, Tobey, or teacher Adjoa I want to view study groups that I am registered for on a calendar where I can click on a given date and time on the calendar to view the details of the study group I am registered for, so that I can easily schedule the time I spend in study groups.
-   </td>
-   <td>
-<ul>
-
-<li>Users will be able to select a calendar view button
-
-<li>Users will be able to look at the in-app calendar to see what study groups they have signed up for/when those study groups occur, and their duration
-</li>
-</ul>
-   </td>
-   <td>7
-   </td>
-  </tr>
-  <tr>
-   <td>3
-   </td>
-   <td>As Linus, Tobey, or teacher Adjoa, I want to be sent an email notifying me about meeting status (starting soon, rescheduled, etc) so that I can be rapidly made aware of important updates to the study group I am registered for. 
-   </td>
-   <td>
-<ul>
-
-<li>Users will get an email notification (to the email that they used when creating the account) when a schedule of a  study group that they registered for  has changed (whether it be that it is canceled, delayed, rescheduled, etc)
-
-<li>Users will also get email notifications when the study group that they registered for is about to begin. 
+<li>Users will get an email notification that is visually appealing, intuitive, and contains a link that will take them to the updated group 
 </li>
 </ul>
    </td>
@@ -62,98 +51,7 @@
    </td>
   </tr>
   <tr>
-   <td>4
-   </td>
-   <td>As Linus, Tobey, or teacher Adjoa View, I want to be able to view other peoples’ profiles so that I can obtain more information about a user and decide if I want to study with them in the future
-   </td>
-   <td>
-<ul>
-
-<li>Users will be able to select other user’s profiles for viewing
-
-<li>Users will be able to view the information stored in other user’s profiles
-</li>
-</ul>
-   </td>
-   <td>5
-   </td>
-  </tr>
-  <tr>
-   <td>5
-   </td>
-   <td>As Linus, Tobey, or teacher Adjoa, I want to see my study group history in the “Meeting history” tab and on my profile so that in case I want to see details about study groups I was part of in the past.
-   </td>
-   <td>
-<ul>
-
-<li>Users will be able to access the “Meeting history” tab on their profile
-
-<li>Users will be able to see their past meetings in the “meeting history” tab
-
-<li>Users will be able to see details of their past meetings in the “meeting history” tab
-</li>
-</ul>
-   </td>
-   <td>4
-   </td>
-  </tr>
-  <tr>
-   <td>6
-   </td>
-   <td>As Linus I want to follow users (“follow” as in following someone on instagram) So that I can keep track of people I liked studying with.
-   </td>
-   <td>
-<ul>
-
-<li>Users should be able to easily recognize the follow button
-
-<li>Users should get some visual feedback if the successfully followed a person (e.g “user followed”)
-
-<li>Users should be able to see that they have already followed users, no room for confusion should exist (e,g “follow” button changes color and says “followed”). 
-</li>
-</ul>
-   </td>
    <td>2
-   </td>
-  </tr>
-  <tr>
-   <td>7
-   </td>
-   <td>As Linus, Tobey or teacher Adjoa, I want to receive notifications in the app when people you follow create new study groups so that I can join them if I so desire. 
-   </td>
-   <td>
-<ul>
-
-<li>Users are always updated about who they follow and not miss anything. 
-
-<li>Notification messages should be clear on what they are  reporting.
-
-<li>notifications should not be intrusive when the user is using the site.  
-</li>
-</ul>
-   </td>
-   <td>2
-   </td>
-  </tr>
-  <tr>
-   <td>8
-   </td>
-   <td>As Linus, Tobey, or teacher Adjoa I want visual information on the map for different types of study-groups so that I can differentiate them visually and make it easier to select the right group for me. 
-   </td>
-   <td>
-<ul>
-
-<li>Users have clear visual labeling for types of study groups near their location. 
-
-<li>Users can quickly scan through study-groups near their location and quickly determine what they want and what they don’t want.
-</li>
-</ul>
-   </td>
-   <td>4
-   </td>
-  </tr>
-  <tr>
-   <td>9
    </td>
    <td>As  Linus, Tobey, or teacher Adjoa I want to  customize the appearance of the website so that I can adjust the visual appearance to my liking, and to potentially fulfill my accessibility needs. 
    </td>
@@ -170,7 +68,7 @@
    </td>
   </tr>
   <tr>
-   <td>10
+   <td>3
    </td>
    <td>As Linus I want to be able to see a listing of recommended users that I should follow.
    </td>
@@ -187,7 +85,7 @@
    </td>
   </tr>
   <tr>
-   <td>11
+   <td>4
    </td>
    <td>As Linus, Tobey or teacher Adjoa I want to have an achievement page. 
    </td>
@@ -195,6 +93,170 @@
 <ul>
 
 <li>Creating a page that displays achievements, and labeling them as either received or not received. 
+</li>
+</ul>
+   </td>
+   <td>1
+   </td>
+  </tr>
+  <tr>
+   <td>5
+   </td>
+   <td>As  Linus, Tobey, or teacher Adjoa I want to  customize the appearance of the website so that I can adjust the visual appearance to my liking, and to potentially fulfill my accessibility needs.
+   </td>
+   <td>
+<ul>
+
+<li>Add a toggle to turn on “dark mode” to the website 
+<ul>
+ 
+<li>Makes the background of each page black instead of white and adjusts the colors of all other components to account for this.
+</li> 
+</ul>
+</li> 
+</ul>
+   </td>
+   <td>1
+   </td>
+  </tr>
+  <tr>
+   <td>6
+   </td>
+   <td>As Linus, Tobey, or teacher Adjoa I want to mark my study group as private so that only select people can register,
+   </td>
+   <td>
+<ul>
+
+<li>Users will have the ability to designate their group as private and only accessible via an invite or a specific link
+</li>
+</ul>
+   </td>
+   <td>6
+   </td>
+  </tr>
+  <tr>
+   <td>7
+   </td>
+   <td>As Linus, Tobey, or teacher Adjoa I want to filter out study-groups by things such as date, official, paid, etc...
+   </td>
+   <td>
+<ul>
+
+<li>Users will be able to select one or multiple filters when viewing study group to help them choose the perfect study group for them
+
+<li>Filters will include: date, location, paid, etc.
+</li>
+</ul>
+   </td>
+   <td>4
+   </td>
+  </tr>
+  <tr>
+   <td>8
+   </td>
+   <td>As Linus, Tobey, or teacher Adjoa, I want to login/register using third parties such as google.
+   </td>
+   <td>
+<ul>
+
+<li>Users will be able to login with their google account into the website.
+</li>
+</ul>
+   </td>
+   <td>3
+   </td>
+  </tr>
+  <tr>
+   <td>9
+   </td>
+   <td>As Linus, Tobey, or teacher Adjoa, I would like to have a discussion board where users can request to be invited to certain types of groups or to ask others to consider joining their study group.
+   </td>
+   <td>
+<ul>
+
+<li>Users will be able to post comments where they can post invitation links to their study-groups or request other users to add them to a study group. 
+<ul>
+ 
+<li>E.g “Can some please add me to a CSC301 midterm study group”?
+</li> 
+</ul>
+</li> 
+</ul>
+   </td>
+   <td>6
+   </td>
+  </tr>
+</table>
+
+
+
+<table>
+  <tr>
+   <td>
+   </td>
+   <td><strong>Task</strong>
+   </td>
+   <td><strong>Criteria of Satisfaction </strong>
+   </td>
+   <td><strong>Priority</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>1
+   </td>
+   <td>If a user who verifies their email happens to be a UOFT student, we need to track that on the backend and frontend (on their profile).
+   </td>
+   <td>
+<ul>
+
+<li>Users who go to UofT and verify their school email could attend study groups meant for UofT students only and get study groups relevant for UofT students.
+</li>
+</ul>
+   </td>
+   <td>3
+   </td>
+  </tr>
+  <tr>
+   <td>2
+   </td>
+   <td>Official study-groups should obtain extra features such as visually distinct, pushed to the top of the study-group list, etc.
+   </td>
+   <td>
+<ul>
+
+<li>When a user searches through study groups, they should always view official study groups on top of the list. 
+
+<li>When a user views the map, official study groups should be visually distinct from other ones. 
+</li>
+</ul>
+   </td>
+   <td>3
+   </td>
+  </tr>
+  <tr>
+   <td>3
+   </td>
+   <td>As Linus, Tobey, or teacher Adjoa, I want to login/register using third parties such as google.
+   </td>
+   <td>
+<ul>
+
+<li>Users who do not want to use the traditional registration and login procedure will be able to use a third party application to register an account and authenticate using it.
+</li>
+</ul>
+   </td>
+   <td>3
+   </td>
+  </tr>
+  <tr>
+   <td>4
+   </td>
+   <td>Fix inefficient study group endpoints
+   </td>
+   <td>
+<ul>
+
+<li>Make the registered and saved endpoints in study groups use the built in mongoose find function to make it more efficient.
 </li>
 </ul>
    </td>

@@ -6,7 +6,7 @@ Complete the user stories STUD-9, STUD-17, STUD-18, STUD-14, STUD-11, STUD-12,  
 Bug fixes and improvements: STUD-59
 
 # Spikes
-###No spike was required for this sprint. 
+### No spike was required for this sprint. 
 
 # Tasks breakdown
 
@@ -28,7 +28,7 @@ Story points: 4
 
 ### Main tasks
 
-- [ ] When a user clicks on a marker on the map, two things happen how. They are presented with an informative "info window" that presents useful information about the group and a button that takes them the group page. Additionally, clicking on a marker on the map also auto scrolls the user to the corresponding group card component in the above window.
+- [ ] When a user clicks on a marker on the map, two things happen now. They are presented with an informative "info window" that presents useful information about the group and a button that takes them to the group page. Additionally, clicking on a marker on the map also auto scrolls the user to the corresponding group card component in the above window.
 
 ## Story: STUD-58
 
@@ -54,7 +54,7 @@ Assignees: Milind
 Story points: 7
 
 ### Main tasks
-- [ ] Create a calendar to display the timings of the studygroups a user is registered for
+- [ ] Create a calendar to display the timings of the study groups a user is registered for
 - [ ] Connect with with backend
 
 ## Story: STUD-12
