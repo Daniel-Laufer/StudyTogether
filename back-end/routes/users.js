@@ -10,6 +10,7 @@ const { unfollowUsers, followUsers } = require('../helpers/helperNotification');
 var tarequest = require('../models/taverify.model');
 const { check, body, validationResult, param } = require('express-validator');
 const mongoose = require('mongoose');
+const user = require('../models/user.model');
 const verifyURL = 'http://localhost:3000/verify';
 
 /* Get non-sensitive user profile info */
@@ -253,7 +254,31 @@ router.post(
       return;
     }
     console.log(req);
-    User.findById(req.params.id);
+    let person = User.findById(req.params.id).catch(err => {
+      res.status(400).json('Error: ' + err);
+      return;
+    });
+
+    let verifyToken = await Token.findOne({ email: person.email });
+    if (!verifyToken || verifyToken.length == 0) {
+      res.status(401).send('No token was sent for validation');
+      return;
+    }
+
+    const isValid = bcrypt.compareSync(req.body.token, verifyToken.token);
+    if (!isValid) {
+      res.status(403).send('Invalid token');
+      return;
+    }
+
+    if (
+      person.email.endsWith('@mail.utoronto.ca') ||
+      person.email.endsWith('@mail.utoronto.ca')
+    ) {
+      person.verified = 'University of Toronto';
+    } else {
+      person.verified = 'Not University Email';
+    }
     res.send('nice');
   }
 );
