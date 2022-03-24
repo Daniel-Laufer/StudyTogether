@@ -215,7 +215,6 @@ router.get(
   '/send-verification/:id',
   helperUser.verifyToken,
   async (req, res) => {
-    console.log(req.headers);
     if (!req.user) {
       res.status(403).send('Invalid JWT token');
       return;
@@ -257,12 +256,10 @@ router.post(
       res.status(400).json({ errors: errors.array() });
       return;
     }
-    console.log(req.body);
     let person = await User.findById(req.body.id).catch(err => {
       res.status(400).json('Error: ' + err);
       return;
     });
-    console.log(person);
     let verifyToken = await Token.findOne({ email: person.email });
     if (!verifyToken || verifyToken.length == 0) {
       res.status(401).send('Invalid token');
