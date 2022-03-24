@@ -1,12 +1,14 @@
 var chai = require('chai');
 var chaiHttp = require('chai-http');
 var app = require('../app');
+const { verifyToken } = require('../helpers/helperUser');
 var expect = chai.expect;
 var userId;
 var token;
 
 var user2Id;
 var token2;
+var emailVerifyToken;
 
 chai.use(chaiHttp);
 
@@ -166,6 +168,36 @@ describe('User Tests', function () {
         .end(function (err, res) {
           expect(res).to.have.status(200);
           expect(res.body.profileFollowers).to.not.contain(userId); //user1 is no longer a follower of user2
+          done();
+        });
+    });
+  });
+
+  describe('check verification email sends', function () {
+    it('user1 gets verification email', function (done) {
+      chai
+        .request(app)
+        .get(`/users/send-verification/${userId}`)
+        .set('Authorization', `JWT ${token}`)
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.property('token');
+          expect(res.body).to.have.property('id');
+          emailVerifyToken = res.body.token;
+          done();
+        });
+    });
+  });
+  describe('check email is verified', function () {
+    it('user1 gets verification email', function (done) {
+      chai
+        .request(app)
+        .post(`/users/verify`)
+        .set('Authorization', `JWT ${token}`)
+        .send({ id: userId, token: emailVerifyToken })
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.property('verified');
           done();
         });
     });
