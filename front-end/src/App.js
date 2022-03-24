@@ -22,7 +22,6 @@ import GroupView from './modules/GroupView';
 import CustomCalendar from './modules/CustomCalendar';
 import GroupEditor from './modules/GroupEditor';
 import About from './modules/About';
-import EmailVerified from './modules/EmailVerified/index';
 
 const store = createStore(
   rootReducer,
@@ -52,7 +51,6 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/email-sent" element={<EmailSent />} />
             <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/verify" element={<EmailVerified />} />
             <Route
               path="/groups"
               element={
