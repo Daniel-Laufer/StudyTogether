@@ -164,22 +164,6 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
     });
   };
 
-  const sendEmailVerification = () => {
-    const config = {
-      headers: { Authorization: `JWT ${authToken}` },
-    };
-    axios
-      .get(`${apiURL}/users/sendverify/${id}`, {}, config)
-      .then(() => {
-        console.log('bruh');
-      })
-      .catch(err => {
-        if (err.response.status === 401) {
-          dispatch(logout());
-          navigate('/login');
-        }
-      });
-  };
   const saveUserInfo = () => {
     if (JSON.stringify(userInfo) === JSON.stringify(oldUserInfo)) return;
     const config = {
@@ -274,17 +258,6 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
 
   return !loading.groups && !loading.user ? (
     <Container maxW="container.lg" style={{ marginTop: '2rem' }}>
-      <Alert status="warning">
-        <AlertIcon />
-        Please verify your email:
-        <Button
-          onClick={() => {
-            sendEmailVerification();
-          }}
-        >
-          Resend verification link
-        </Button>
-      </Alert>
       <Grid templateColumns="repeat(2, 1fr)" gap={12}>
         <GridItem
           colSpan={[12, 12, 1]}
