@@ -237,7 +237,7 @@ router.get(
       createdAt: Date.now(),
     }).save();
 
-    const link = `${verifyURL}?id=${person.id}token=${verifyToken}`;
+    const link = `${verifyURL}?id=${person.id}&token=${verifyToken}`;
     helperUser.sendEmail(
       person.email,
       'Email verification',

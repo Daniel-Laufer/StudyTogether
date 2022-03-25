@@ -24,6 +24,7 @@ import {
   AlertDialogContent,
   AlertDialogOverlay,
   Button,
+  CloseButton,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
@@ -71,12 +72,13 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
       { id: '1', text: 'CSC302' },
     ],
     profileFollowing: [],
-    verified: '',
+    verified: 'false',
   });
   const [oldUserInfo, setOldUserInfo] = useState({});
   const [groups, setGroups] = useState([]);
-  let emailSent = false;
-
+  const [dialogBoxState, setDialogBoxState] = useState({
+    openEmailReminder: true,
+  });
   useEffect(() => {
     if (authToken === null) setTimeout(() => navigate('/login'), 3000);
   }, [authToken]);
@@ -171,11 +173,11 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
     const config = {
       headers: { Authorization: `JWT ${authToken}` },
     };
+    console.log(id);
+    console.log(authToken);
     axios
-      .get(`${apiURL}/users/sendverify/${id}`, {}, config)
-      .then(() => {
-        console.log('bruh');
-      })
+      .get(`${apiURL}/users/send-verification/${id}`, config)
+      .then(() => {})
       .catch(err => {
         if (err.response.status === 401) {
           dispatch(logout());
@@ -279,19 +281,32 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
     <Container
       maxW="container.lg"
       style={
-        userInfo.verified !== '' && userInfo.verified !== false
+        userInfo.verified !== '' &&
+        userInfo.verified !== false &&
+        !dialogBoxState.openEmailReminder
           ? { marginTop: '2rem' }
           : { marginTop: '0.5rem' }
       }
     >
-      {userInfo.verified === '' ||
-        (userInfo.verified === false && (
+      {dialogBoxState.openEmailReminder &&
+        (userInfo.verified === '' || userInfo.verified === 'false') && (
           <Alert
             status="warning"
             height="50px"
             style={{ marginBottom: '1.5rem' }}
           >
             <AlertIcon />
+            <CloseButton
+              position="absolute"
+              right="8px"
+              top="8px"
+              onClick={() => {
+                setDialogBoxState({
+                  ...dialogBoxState,
+                  openEmailReminder: false,
+                });
+              }}
+            />
             <AlertDescription
               style={{
                 display: 'flex',
@@ -318,7 +333,7 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
               </GreenButton>
             </AlertDescription>
           </Alert>
-        ))}
+        )}
       <Grid templateColumns="repeat(2, 1fr)" gap={12}>
         <GridItem
           colSpan={[12, 12, 1]}
