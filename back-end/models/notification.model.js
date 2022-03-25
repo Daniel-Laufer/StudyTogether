@@ -4,18 +4,17 @@ const Schema = mongoose.Schema;
 //TODO: create a trigger that deletes all notififations a week old
 const notificationSchema = new Schema(
   {
-    userID: {
-      type: mongoose.Types.ObjectId,
+    subscribers: {
+      type: [mongoose.Types.ObjectId],
       required: true,
+      default: [],
     },
-    //if true, the notification message would say "user A has joined a new group! Click here to view more. "
-    //otherwise, the notification is about the userID
-    isFollowedUser: {
+    isUser: {
       type: Boolean,
       required: true,
       default: false,
     },
-    description: {
+    message: {
       type: String,
       required: true,
       default: '',

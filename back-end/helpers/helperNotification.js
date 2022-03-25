@@ -1,5 +1,6 @@
 const Sockets = require('../helpers/SocketStore');
 const userORM = require('../models/user.model');
+const notificationORM = require('../models/notification.model');
 var socketStore = Sockets.getInstance();
 
 var io = null;
@@ -44,7 +45,7 @@ const attendGroups = async (userID, socket, errors) => {
     errors.push(err);
     return;
   });
-  const groupIDs = usr.registeredStudygroups.map(s => s.toString());
+  const groupIDs = usr?.registeredStudygroups.map(s => s.toString());
   await socket.join(groupIDs);
 };
 /**
@@ -58,9 +59,35 @@ const followUsers = async (userID, socket, errors) => {
     errors.push(err);
     return;
   });
-  const userIDs = usr.profileFollowing.map(s => s.toString());
+  const userIDs = usr?.profileFollowing.map(s => s.toString());
   await socket.join(userIDs);
   //console.log(socket.rooms);
+};
+
+const saveNotification = (roomName, isUser, message) => {
+  //this is an ES6 Set of all client ids in the room
+  const sockets = io?.sockets.adapter.rooms.get(roomName);
+  const subscribers = [];
+  for (const socketId of sockets) {
+    //foreach socket, get the associated user
+    subscribers.push(
+      Object.keys(socketStore.sockets).find(
+        key => socketStore.sockets[key] === socketId
+      )
+    );
+  }
+
+  /* Saving notification after it was sent. */
+  const newNotification = new notificationORM({
+    subscribers: subscribers,
+    isUser: isUser,
+    message: message,
+  });
+  newNotification.save().catch(err => console.log('Err: ' + err));
+};
+
+const expandMessage = (message, type) => {
+  //TODO: Create more information messages while keeping the type in mind (gruop vs user)
 };
 
 module.exports = {
@@ -87,9 +114,10 @@ module.exports = {
         console.log(`Err: action does not exist`);
         return;
     }
-    // console.log(`Checking ${groupID} with the message ${message}`);
-    // console.log('all rooms are: ', io.sockets.adapter.rooms);
     io?.to(groupID).emit('group-change', message, groupID);
+
+    /* Saving notification after it was sent. */
+    saveNotification(groupID, false, message);
   },
   emitFollowedUpdates(followedUserID, followedUserName, action) {
     var message = '';
@@ -109,6 +137,8 @@ module.exports = {
       message,
       followedUserID
     );
+    /* Saving notification after it was sent. */
+    saveNotification(followedUserID, true, message);
   },
   async attendGroups(userID, groupIDs, errors) {
     if (userID in socketStore.sockets) {
