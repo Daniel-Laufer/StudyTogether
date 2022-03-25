@@ -75,6 +75,7 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
   });
   const [oldUserInfo, setOldUserInfo] = useState({});
   const [groups, setGroups] = useState([]);
+  let emailSent = false;
 
   useEffect(() => {
     if (authToken === null) setTimeout(() => navigate('/login'), 3000);
@@ -111,6 +112,7 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
             return { id: i, text: c };
           }),
         });
+        console.log(userInfo);
         setLoading({
           ...loading,
           user: false,
@@ -277,22 +279,46 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
     <Container
       maxW="container.lg"
       style={
-        userInfo.verified !== 'false'
+        userInfo.verified !== '' && userInfo.verified !== false
           ? { marginTop: '2rem' }
-          : { marginTop: '0rem' }
+          : { marginTop: '0.5rem' }
       }
     >
-      <Alert status="warning" height="50px">
-        <AlertIcon />
-        Please verify your email:
-        <Button
-          onClick={() => {
-            sendEmailVerification();
-          }}
-        >
-          Resend verification link
-        </Button>
-      </Alert>
+      {userInfo.verified === '' ||
+        (userInfo.verified === false && (
+          <Alert
+            status="warning"
+            height="50px"
+            style={{ marginBottom: '1.5rem' }}
+          >
+            <AlertIcon />
+            <AlertDescription
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                fontSize: '15px',
+              }}
+            >
+              Your email has not been verified, resend the verification link:
+              <GreenButton
+                style={{
+                  color: 'white',
+                  //  backgroundColor: '#ffeccc',
+                  // backgroundColor: 'blue',
+                  maxWidth: '110px',
+                  marginLeft: '0.45rem',
+                  fontSize: '15px',
+                  maxHeight: '34px',
+                }}
+                onClick={() => {
+                  sendEmailVerification();
+                }}
+              >
+                Resend Link
+              </GreenButton>
+            </AlertDescription>
+          </Alert>
+        ))}
       <Grid templateColumns="repeat(2, 1fr)" gap={12}>
         <GridItem
           colSpan={[12, 12, 1]}
