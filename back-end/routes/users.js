@@ -241,7 +241,7 @@ router.get(
     helperUser.sendEmail(
       person.email,
       'Email verification',
-      `Click this link to verify your email: ${link}`
+      `Click this link to verify your email:  <a href=${link}>Verify email</a>`
     );
     res.json({ token: verifyToken, id: person.id });
   }
