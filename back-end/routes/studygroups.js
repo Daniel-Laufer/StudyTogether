@@ -12,6 +12,7 @@ const {
   emitFollowedUpdates,
   attendGroups,
   leaveGroups,
+  emitInviteMessage,
 } = require('../helpers/helperNotification');
 
 /* (1) Get all study groups*/
@@ -26,7 +27,11 @@ router.get('/', helperUser.verifyToken, (req, res) => {
       res
         .status(200)
         .json(
-          studygroups.filter(studygroup => studygroup.endDateTime >= new Date())
+          studygroups.filter(
+            studygroup =>
+              studygroup.endDateTime.toLocaleDateString() >=
+                new Date().toLocaleDateString() && !studygroup.private
+          )
         );
     })
     .catch(err => res.status(400).json('Error: ' + err));
@@ -111,9 +116,20 @@ router.get('/:id', helperUser.verifyToken, (req, res) => {
     res.status(401).send({ message: 'Invalid JWT token' });
     return;
   }
+
   const groupId = req.params.id;
   StudygroupModel.findById(groupId)
     .then(studygroup => {
+      // check if the study group is private and if the current logged in user was invited to join this group
+      if (
+        studygroup.private &&
+        !studygroup.invitees.find(userId => userId == user.req.id)
+      ) {
+        res
+          .status(409)
+          .json({ message: 'User is not invited to this study group' });
+        return;
+      }
       res.status(200).json(studygroup);
       return;
     })
@@ -433,7 +449,6 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
         ...req.body,
         ...{ recurringFinalDateTime: req.body.finalDate },
       });
-
     }
     groups_changed += helperUser.constructMessage(
       studyGroup.title,
@@ -442,11 +457,8 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
       1
     );
 
-
-
     studyGroup.save().catch(err => res.status(400).json('Error: ' + err));
     emitGroupUpdated(groupId, studyGroup.title, 'edit');
-
   }
 
   let subject = 'Study group details have changed or been cancelled';
@@ -682,5 +694,62 @@ router.patch('/leave/:id', helperUser.verifyToken, (req, res) => {
     })
     .catch(() => res.status(404).json('Error: Invalid study group id'));
 });
+
+/* (13) Send an invite to a user of a study group given an id */
+router.post(
+  '/:id/invite',
+  helperUser.verifyToken,
+  body('email').notEmpty().isString(),
+  async (req, res) => {
+    // checking if user is authenticated
+    if (!req.user) {
+      res.status(401).send({ message: 'Invalid JWT token' });
+      return;
+    }
+
+    const targetUser = await UserModel.findOne({ email: req.body.email });
+    if (!targetUser) {
+      res
+        .status(400)
+        .json({ Error: 'Could not find a user with the given email address' });
+      return;
+    }
+
+    const groupId = req.params.id;
+    StudygroupModel.findById(groupId)
+      .then(async studygroup => {
+        if (studygroup.invitees.find(id => id == targetUser.id)) {
+          res
+            .status(409)
+            .send({ message: 'User is already invited to this study group' });
+          return;
+        }
+
+        /* BEGIN Notification */
+        // When req.user sends a new invite to attend a study group to another user, we add the study group
+        //  as a new room to their socket.
+        await attendGroups(req.user.id, groupId, []);
+
+        // Send an invite message to the given user
+        emitInviteMessage(
+          targetUser.id.toString(),
+          `${targetUser.firstName} ${targetUser.lastName}`,
+          groupId
+        );
+        /* END Notification */
+
+        // only if the study group is private, we enforce the invitees
+        if (studygroup.private) {
+          studygroup.invitees.push(targetUser);
+          studygroup.save();
+        }
+        res.status(200).json(studygroup);
+      })
+      .catch(err => {
+        console.log(err);
+        res.status(404).json('Error: Invalid study group id');
+      });
+  }
+);
 
 module.exports = router;

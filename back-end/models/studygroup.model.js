@@ -50,8 +50,15 @@ const studygroupSchema = new Schema(
     rescheduled: { type: Boolean, default: false, required: false },
 
     //Accessabililty.
-    private: { type: Boolean, default: false, required: false },
+    private: { type: Boolean, default: false, required: true },
     paid: { type: Boolean, default: false, required: false },
+    invitees: {
+      type: [mongoose.Types.ObjectId],
+      default: [],
+      required: function () {
+        return this.private;
+      },
+    },
 
     //Series
     seriesId: { type: mongoose.Types.ObjectId, required: true },

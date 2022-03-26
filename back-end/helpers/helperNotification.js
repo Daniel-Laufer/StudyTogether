@@ -14,9 +14,9 @@ const config = {
 const onConnection = () => {
   io.on('connection', socket => {
     var userID = socket.handshake.headers.userid;
-    //console.log(`user ${userID} connected`);
-    //console.log(`socket id is ${socket.id}`);
-    //console.log(Object.keys(socketStore.sockets).length);
+    // console.log(`user ${userID} connected`);
+    // console.log(`socket id is ${socket.id}`);
+    // console.log(Object.keys(socketStore.sockets).length);
 
     if (userID) {
       socketStore.sockets[userID] = socket.id;
@@ -109,6 +109,16 @@ module.exports = {
       message,
       followedUserID
     );
+  },
+  emitInviteMessage(inviteeUserID, inviteeUserName, studygroupId) {
+    var message = `${inviteeUserName} has invited you to join their study group ${studygroupId}!`;
+    // TODO need to handle invite-user-update on frontend
+    // const socketID = socketStore.sockets[inviteeUserID];
+    const socketID = socketStore.sockets[inviteeUserID];
+    // const socket = io?.sockets.sockets.get(socketID);
+
+    // io?.emit('invite-user', message, inviteeUserID);
+    io?.to(socketID).emit('invite-user', message, inviteeUserID);
   },
   async attendGroups(userID, groupIDs, errors) {
     if (userID in socketStore.sockets) {
