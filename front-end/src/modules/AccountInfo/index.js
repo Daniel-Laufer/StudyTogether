@@ -292,7 +292,9 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
           : { marginTop: '0.5rem' }
       }
     >
-      {dialogBoxState.openEmailReminder &&
+      {userDetails &&
+        userDetails.id === id &&
+        dialogBoxState.openEmailReminder &&
         (userInfo.verified === '' || userInfo.verified === 'false') && (
           <Alert
             status="warning"
