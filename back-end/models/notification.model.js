@@ -9,10 +9,11 @@ const notificationSchema = new Schema(
       required: true,
       default: [],
     },
-    isUser: {
-      type: Boolean,
+    type: {
+      type: String,
       required: true,
       default: false,
+      enum: ['FOLLOW', 'REGISTERED'],
     },
     message: {
       type: String,
