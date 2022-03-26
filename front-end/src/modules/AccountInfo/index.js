@@ -82,6 +82,7 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
   const [groups, setGroups] = useState([]);
   const [dialogBoxState, setDialogBoxState] = useState({
     openEmailReminder: true,
+    displaySentAlert: false,
   });
   useEffect(() => {
     if (authToken === null) setTimeout(() => navigate('/login'), 3000);
@@ -286,8 +287,8 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
       maxW="container.lg"
       style={
         userInfo.verified !== '' &&
-        userInfo.verified !== false &&
-        !dialogBoxState.openEmailReminder
+        userInfo.verified !== 'false' &&
+        (!dialogBoxState.openEmailReminder || dialogBoxState.displaySentAlert)
           ? { marginTop: '2rem' }
           : { marginTop: '0.5rem' }
       }
@@ -333,6 +334,11 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
                 }}
                 onClick={() => {
                   sendEmailVerification();
+                  setDialogBoxState({
+                    ...dialogBoxState,
+                    openEmailReminder: false,
+                    displaySentAlert: true,
+                  });
                 }}
               >
                 Resend Link
@@ -340,6 +346,31 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
             </AlertDescription>
           </Alert>
         )}
+      {userDetails && userDetails.id === id && dialogBoxState.displaySentAlert && (
+        <Alert status="info" height="50px" style={{ marginBottom: '1.5rem' }}>
+          <AlertIcon />
+          <CloseButton
+            position="absolute"
+            right="8px"
+            top="8px"
+            onClick={() => {
+              setDialogBoxState({
+                ...dialogBoxState,
+                displaySentAlert: false,
+              });
+            }}
+          />
+          <AlertDescription
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              fontSize: '15px',
+            }}
+          >
+            Verification email sent
+          </AlertDescription>
+        </Alert>
+      )}
       <Grid templateColumns="repeat(2, 1fr)" gap={12}>
         <GridItem
           colSpan={[12, 12, 1]}
