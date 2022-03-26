@@ -53,6 +53,10 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
     groups: false,
     user: false,
   });
+  const universityColorText = {
+    'University of Toronto': { color: colors.UofTblue.medium, text: 'UofT' },
+  };
+  console.log(universityColorText['University of Toronto']);
   const [dataUpdated, setDataUpdated] = useState(false);
   const [errorOccured, setErrorOccured] = useState(false);
   const [followed, setFollowed] = useState(false);
@@ -320,10 +324,10 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
                   color: 'white',
                   //  backgroundColor: '#ffeccc',
                   // backgroundColor: 'blue',
-                  maxWidth: '110px',
+                  maxWidth: '90px',
                   marginLeft: '0.45rem',
-                  fontSize: '15px',
-                  maxHeight: '34px',
+                  fontSize: '14px',
+                  maxHeight: '28px',
                 }}
                 onClick={() => {
                   sendEmailVerification();
@@ -487,8 +491,25 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
                   boxSize="200px"
                   alignSelf="center"
                 />
+                {userInfo.verified !== 'false' &&
+                  userInfo.verified !== 'Not University Email' && (
+                    <Text
+                      style={{
+                        backgroundColor:
+                          universityColorText[userInfo.verified].color,
+                        color: 'white',
+                        paddingLeft: '6px',
+                        paddingRight: '6px',
+                        textAlign: 'center',
+                        borderRadius: '6px',
+                        marginTop: '-20px',
+                      }}
+                    >
+                      {universityColorText[userInfo.verified].text}
+                    </Text>
+                  )}
                 {userDetails && id !== userDetails.id && (
-                  <Box>
+                  <Box style={{ marginTop: '20px' }}>
                     {!followed ? (
                       <GreenButton
                         width="100px"
@@ -545,12 +566,31 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
                     </AlertDialogContent>
                   </AlertDialogOverlay>
                 </AlertDialog>
+
+                {userInfo.verified === 'Not University Email' &&
+                  userDetails &&
+                  id === userDetails.id && (
+                    <Text
+                      style={{
+                        backgroundColor: colors.grey.medium,
+                        color: 'white',
+                        paddingLeft: '6px',
+                        paddingRight: '6px',
+                        textAlign: 'center',
+                        borderRadius: '6px',
+                        marginTop: '-10px',
+                      }}
+                    >
+                      verified
+                    </Text>
+                  )}
                 <Divider orientation="horizontal" />
                 <Text
                   fontSize={18}
                   as="b"
-                  alignSelf="flex-start"
+                  //    alignSelf="flex-start"
                   color={colors.grey.dark}
+                  style={{ textAlign: 'center' }}
                 >
                   {userInfo.firstName} {userInfo.lastName} ({userInfo.role})
                 </Text>

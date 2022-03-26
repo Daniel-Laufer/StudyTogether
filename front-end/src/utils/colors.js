@@ -21,3 +21,7 @@ export const blue = {
 export const red = {
   medium: '#E53E3E',
 };
+
+export const UofTblue = {
+  medium: '#042c64',
+};
