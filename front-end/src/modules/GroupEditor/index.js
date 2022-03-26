@@ -21,6 +21,7 @@ import {
   Textarea,
   Image,
   Checkbox,
+  Button,
 } from '@chakra-ui/react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
@@ -294,6 +295,23 @@ function GroupEditor({ authToken, userRole, dispatch }) {
           }
         });
     }
+  };
+
+  const handleGroupDelete = () => {
+    axios
+      .delete(`${apiURL}/studygroups/delete/${groupId}`, {
+        headers: { Authorization: `JWT ${authToken}` },
+      })
+      .then(res => {
+        navigate('/groups');
+      })
+      .catch(err => {
+        console.log(err);
+        if (err.response.status === 401) {
+          dispatch(logout());
+          navigate('/login');
+        }
+      });
   };
 
   const handleDelete = i => {
@@ -616,13 +634,13 @@ function GroupEditor({ authToken, userRole, dispatch }) {
               <div
                 style={{
                   display: 'flex',
-                  flexDirection: 'column',
+                  flexDirection: 'row',
                   justifyContent: 'flex-start',
                   gap: '20px',
                 }}
               >
                 <GreenButton
-                  onClick={handleSubmit}
+                  // onClick={handleSubmit}
                   colorScheme="green"
                   bg={colors.green.dark}
                   style={{ alignSelf: 'flex-start' }}
@@ -642,6 +660,27 @@ function GroupEditor({ authToken, userRole, dispatch }) {
                 >
                   Update Group
                 </GreenButton>
+                <Button
+                  onClick={handleGroupDelete}
+                  colorScheme="green"
+                  bg={colors.red.medium}
+                  style={{ alignSelf: 'flex-start' }}
+                  // isLoading
+                  // spinner={<BeatLoader size={8} color="white" />}
+                  _hover={{ bg: colors.red.light }}
+                  borderColor={colors.red.medium}
+                  _active={{
+                    bg: colors.red.light,
+                    transform: 'scale(0.98)',
+                    borderColor: colors.red.medium,
+                  }}
+                  _focus={{
+                    boxShadow: `0 0 1px 2px ${colors.red.medium}, 0 1px 1px rgba(0, 0, 0, .15)`,
+                  }}
+                  // isLoading={authState.loading || false}
+                >
+                  Delete Group
+                </Button>
                 {!forceHideAlert && Object.values(errors).some(item => item) && (
                   <Alert status="error" style={{ paddingRight: '2rem' }}>
                     <AlertIcon />
