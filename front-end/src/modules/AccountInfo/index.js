@@ -56,7 +56,6 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
   const universityColorText = {
     'University of Toronto': { color: colors.UofTblue.medium, text: 'UofT' },
   };
-  console.log(universityColorText['University of Toronto']);
   const [dataUpdated, setDataUpdated] = useState(false);
   const [errorOccured, setErrorOccured] = useState(false);
   const [followed, setFollowed] = useState(false);
