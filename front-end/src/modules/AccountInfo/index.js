@@ -7,6 +7,7 @@ import {
   Text,
   Input,
   Grid,
+  HStack,
   GridItem,
   Box,
   Select,
@@ -242,6 +243,19 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
       });
   };
 
+  const displayFollowers = (number, title) => (
+    <Box as="button" onClick={() => navigate(`/following/${id}`)}>
+      <VStack>
+        <Text fontSize="xl" as="b" color={colors.grey.dark}>
+          {number}
+        </Text>
+        <Text color={colors.grey.dark} style={{ marginTop: 0 }}>
+          {title}
+        </Text>
+      </VStack>
+    </Box>
+  );
+
   const [edit, setEdit] = useState(false);
 
   if (authToken === null) {
@@ -411,6 +425,20 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
                   boxSize="200px"
                   alignSelf="center"
                 />
+                <HStack spacing="20px">
+                  {userInfo.profileFollowers
+                    ? displayFollowers(
+                        userInfo.profileFollowers.length,
+                        'Followers'
+                      )
+                    : displayFollowers(0, 'Followers')}
+                  {userInfo.profileFollowing
+                    ? displayFollowers(
+                        userInfo.profileFollowing.length,
+                        'Following'
+                      )
+                    : displayFollowers(0, 'Following')}
+                </HStack>
                 {userDetails && id !== userDetails.id && (
                   <Box>
                     {!followed ? (
