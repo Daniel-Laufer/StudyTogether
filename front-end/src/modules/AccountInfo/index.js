@@ -295,7 +295,9 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
       {userDetails &&
         userDetails.id === id &&
         dialogBoxState.openEmailReminder &&
-        (userInfo.verified === '' || userInfo.verified === 'false') && (
+        (userInfo.verified === '' ||
+          userInfo.verified === 'false' ||
+          userInfo.verified === false) && (
           <Alert
             status="warning"
             height="50px"
