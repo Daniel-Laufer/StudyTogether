@@ -13,6 +13,7 @@ import {
 } from '@react-google-maps/api';
 import PropTypes from 'prop-types';
 import MarkerInfoWindow from './MarkerInfoWindow';
+import * as colors from '../utils/colors';
 
 // a lot of this code was taken from https://www.npmjs.com/package/@react-google-maps/api (the starter code provided in the documentation)
 
@@ -76,6 +77,41 @@ function Map({
     getLngLatOfNewMarker(ev.latLng.lat(), ev.latLng.lng());
   };
 
+  const defaultMapOptions = {
+    mapTypeControl: false,
+    streetViewControl: false,
+    styles: [
+      {
+        featureType: 'poi',
+        elementType: 'labels.icon',
+        stylers: [
+          {
+            visibility: 'off',
+          },
+        ],
+        mapTypeControl: false,
+      },
+    ],
+  };
+
+  const getMarkerIconUrl = marker => {
+    const { metaData } = marker;
+
+    if (!metaData) return '/markers/red.png';
+
+    if (metaData.cancelled) {
+      return 'markers/yellow.png';
+    }
+    if (metaData.full) {
+      return 'markers/green.png';
+    }
+    if (metaData.rescheduled) {
+      return 'markers/blue.png';
+    }
+
+    return '/markers/red.png';
+  };
+
   return isLoaded ? (
     <GoogleMap
       center={initialCenter}
@@ -83,6 +119,7 @@ function Map({
       onClick={addMarker}
       zoom={initialZoom}
       style={{ ...style }}
+      options={defaultMapOptions}
     >
       {markers
         ? markers.map(marker => (
@@ -94,7 +131,9 @@ function Map({
               key={`${marker.lat}-${marker.lng}-${marker.id}`}
               position={{ lat: marker.lat, lng: marker.lng }}
               icon={{
-                scaledSize: new window.google.maps.Size(600, 40),
+                scaledSize: new window.google.maps.Size(70, 60),
+                color: 'green',
+                url: getMarkerIconUrl(marker),
               }}
             />
           ))
@@ -105,6 +144,7 @@ function Map({
             lat: currentlySelectedGroup.lat,
             lng: currentlySelectedGroup.lng,
           }}
+          options={{ pixelOffset: new google.maps.Size(0, -40) }}
           onCloseClick={() => {
             setInfoWindowOpen(false);
           }}
