@@ -97,19 +97,19 @@ function Map({
   const getMarkerIconUrl = marker => {
     const { metaData } = marker;
 
-    if (!metaData) return '/markers/red.png';
+    if (!metaData) return `/markers/${colors.statusColors.default}.png`;
 
     if (metaData.cancelled) {
-      return 'markers/yellow.png';
+      return `/markers/${colors.statusColors.cancelled}.png`;
     }
     if (metaData.full) {
-      return 'markers/green.png';
+      return `/markers/${colors.statusColors.full}.png`;
     }
     if (metaData.rescheduled) {
-      return 'markers/blue.png';
+      return `/markers/${colors.statusColors.rescheduled}.png`;
     }
 
-    return '/markers/red.png';
+    return `/markers/${colors.statusColors.default}.png`;
   };
 
   return isLoaded ? (
