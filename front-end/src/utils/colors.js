@@ -27,4 +27,5 @@ export const statusColors = {
   full: 'green',
   cancelled: 'yellow',
   rescheduled: 'blue',
+  default: 'red',
 };
