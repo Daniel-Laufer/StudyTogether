@@ -12,6 +12,7 @@ const {
   emitFollowedUpdates,
   attendGroups,
   leaveGroups,
+  saveNotification,
 } = require('../helpers/helperNotification');
 
 /* (1) Get all study groups*/
@@ -216,11 +217,13 @@ router.post(
       .catch(err => res.status(400).json('Error: ' + err))
       .then(() => {
         /* BEGIN Notification */
+        const action = 'host';
         emitFollowedUpdates(
           req.user.id.toString(),
           `${req.user.firstName} ${req.user.lastName}`,
-          'host'
+          action
         );
+        saveNotification(studygroup._id, req.user.id, action, false);
         /* END Notification */
 
         res.status(200).json(studygroup);
@@ -433,7 +436,6 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
         ...req.body,
         ...{ recurringFinalDateTime: req.body.finalDate },
       });
-
     }
     groups_changed += helperUser.constructMessage(
       studyGroup.title,
@@ -442,11 +444,12 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
       1
     );
 
-
-
     studyGroup.save().catch(err => res.status(400).json('Error: ' + err));
-    emitGroupUpdated(groupId, studyGroup.title, 'edit');
-
+    /* begin: notification logic */
+    const action = 'edit';
+    emitGroupUpdated(groupId, studyGroup.title, action);
+    saveNotification(groupId, req.user._id, action, true);
+    /* end */
   }
 
   let subject = 'Study group details have changed or been cancelled';
@@ -615,11 +618,13 @@ router.post('/attend/:id', helperUser.verifyToken, (req, res) => {
       //When req.user attends a new study group, we add it as a new room to their socket.
       await attendGroups(req.user.id, groupId, []);
       //Notify the followers of req.user
+      const action = 'attend';
       emitFollowedUpdates(
         req.user.id.toString(),
         `${req.user.firstName} ${req.user.lastName}`,
-        'attend'
+        action
       );
+      saveNotification(groupId, req.user.id, action, false);
       /* END Notification */
 
       res.status(200).json(studygroup);

@@ -3,6 +3,7 @@ var router = express.Router();
 var bcrypt = require('bcrypt');
 var helperUser = require('../helpers/helperUser');
 let StudygroupModel = require('../models/studygroup.model');
+const notifModel = require('../models/notification.model');
 var User = require('../models/user.model');
 const { unfollowUsers, followUsers } = require('../helpers/helperNotification');
 
@@ -396,4 +397,23 @@ router.patch(
     });
   }
 );
+
+router.get('/notifications', helperUser.verifyToken, async (req, res) => {
+  if (!req.user) {
+    res.status(401).send({ message: 'Invalid JWT token' });
+    return;
+  }
+
+  var notifications = await notifModel
+    .find({
+      $expr: {
+        $in: [req.user.id, '$subscribers'],
+      },
+    })
+    .catch(err => {
+      res.status(400).send('Err: ' + err);
+      return;
+    });
+  res.status(200).json(notifications);
+});
 module.exports = router;
