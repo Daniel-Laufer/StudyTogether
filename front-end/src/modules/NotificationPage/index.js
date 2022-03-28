@@ -7,13 +7,36 @@ import {
   Heading,
 } from '@chakra-ui/react';
 import { MoonIcon, StarIcon, SunIcon } from '@chakra-ui/icons';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import useHover from '../../hooks/useHover';
+import { apiURL } from '../../utils/constants';
 import * as colors from '../../utils/colors';
 
 function NotificationPage() {
   const [hoverRef, isHovering] = useHover();
   const [notifications, setNotifications] = useState([]);
+  const getNotifications = () => {
+    const config = {
+      headers: { Authorization: `JWT ${authToken}` },
+    };
+    setLoading(true);
+    axios
+      .get(`${apiURL}/users/notifications`, config)
+      .then(res => {
+        setLoading(false);
+        setNotifications(res.data);
+      })
+      .catch(err => {
+        setLoading(false);
+        if (err.response && err.response.status === 401) {
+          dispatch(logout());
+          navigate('/login');
+        }
+      });
+  };
+  useEffect(() => {
+    getNotifications();
+  });
 
   return (
     <Container maxW="container.md">
