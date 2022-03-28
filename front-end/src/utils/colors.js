@@ -19,5 +19,12 @@ export const blue = {
 };
 
 export const red = {
+  light: '#ff5959',
   medium: '#E53E3E',
+};
+
+export const statusColors = {
+  full: 'green',
+  cancelled: 'yellow',
+  rescheduled: 'blue',
 };

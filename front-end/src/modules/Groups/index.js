@@ -97,6 +97,11 @@ function Groups({
     if (!groupCardElement) return;
 
     groupCardElement.scrollIntoView();
+
+    const mapContainer = document.getElementById(`map-container`);
+    if (!mapContainer) return;
+
+    mapContainer.scrollIntoView();
   }, [currentlySelectedGroup]);
 
   const formatGroupDataForMapDisplay = () => {
@@ -124,7 +129,13 @@ function Groups({
   }
 
   return !loading ? (
-    <Box style={{ width: '60%', margin: 'auto', marginTop: '2rem' }}>
+    <Box
+      style={{
+        width: '60%',
+        margin: 'auto',
+        marginTop: '2rem',
+      }}
+    >
       <Flex justify="space-between" wrap="wrap" gap="1rem">
         <Heading as="h2" size="2xl">
           {headerContent}
@@ -152,7 +163,7 @@ function Groups({
           border: '1px solid var(--chakra-colors-gray-200)',
           borderRadius: 'var(--chakra-radii-md)',
           padding: '0.5rem',
-          height: '40vh',
+          height: '60vh',
           overflowY: 'scroll',
         }}
       >
@@ -236,6 +247,7 @@ function Groups({
       >
         <Heading size="sm">Locations</Heading>
         <Box
+          id="map-container"
           style={{
             margin: 'auto',
           }}
