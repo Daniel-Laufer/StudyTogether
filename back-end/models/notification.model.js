@@ -20,6 +20,11 @@ const notificationSchema = new Schema(
       required: true,
       default: '',
     },
+    preview: {
+      type: String,
+      required: true,
+      default: '',
+    },
   },
   { collection: 'notifications' }
 );

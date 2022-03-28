@@ -24,7 +24,7 @@ function NotificationPage() {
       .get(`${apiURL}/users/notifications`, config)
       .then(res => {
         setLoading(false);
-        setNotifications(res.data);
+        setNotifications(res.data); //res.data is an array of objects
       })
       .catch(err => {
         setLoading(false);
@@ -53,7 +53,39 @@ function NotificationPage() {
         <Heading as="h3" size="lg">
           Notifications
         </Heading>
-        <VStack align="stretch" spacing={2} cursor="pointer" ref={hoverRef}>
+        {notifications.map((value, index) => (
+          <>
+            <VStack
+              key={index}
+              align="stretch"
+              spacing={2}
+              cursor="pointer"
+              ref={hoverRef}
+            >
+              <HStack align="stretch" marginBottom="5" spacing="1rem">
+                <MoonIcon
+                  transform={isHovering ? 'rotate(360deg)' : ''}
+                  transition="transform 800ms ease"
+                  boxSize={6}
+                  color={colors.blue.medium}
+                />
+                <Text color="gray.700">{value.action}</Text>
+              </HStack>
+              <br />
+              <Text noOfLines="2" color="gray.500">
+                <b style={{ color: 'black' }}>Title:</b> {value.title}
+              </Text>
+              <Text noOfLines="2" color="gray.500">
+                <b style={{ color: 'black' }}>Host:</b> {value.hostName}
+              </Text>
+              <Text noOfLines="3" color="gray.500">
+                <b style={{ color: 'black' }}>Description: </b>{' '}
+                {value.description}
+              </Text>
+            </VStack>
+          </>
+        ))}
+        {/* <VStack align="stretch" spacing={2} cursor="pointer" ref={hoverRef}>
           <HStack align="stretch" marginBottom="5" spacing="1rem">
             <MoonIcon
               transform={isHovering ? 'rotate(360deg)' : ''}
@@ -82,55 +114,7 @@ function NotificationPage() {
             Qui voluptatem eveniet vel nisi beatae et harum illum aut odit
             minima. Et placeat voluptatem ut`}
           </Text>
-        </VStack>
-        <VStack align="stretch" spacing={2}>
-          <HStack align="stretch" marginBottom="5" spacing="1rem">
-            <SunIcon boxSize={6} color={colors.red.medium} />
-            <Text color="gray.700">
-              <b style={{ color: 'black' }}>Dan</b> is attending a study group!
-            </Text>
-          </HStack>
-          <br />
-          <Text noOfLines="2" color="gray.500">
-            <b style={{ color: 'black' }}>Title:</b> CSC301 midterm
-          </Text>
-          <Text noOfLines="2" color="gray.500">
-            <b style={{ color: 'black' }}>Host:</b> Maor Uchiha
-          </Text>
-          <Text noOfLines="3" color="gray.500">
-            <b style={{ color: 'black' }}>Description: </b>
-            Ea quia iste ut quas autem aut tenetur nulla sit eligendi architecto
-            ea minus quaerat. Qui voluptatem eveniet vel nisi beatae et harum
-            illum aut odit minima. Et placeat voluptatem ut Ea quia iste ut quas
-            autem aut tenetur nulla sit eligendi architecto ea minus quaerat.
-            Qui voluptatem eveniet vel nisi beatae et harum illum aut odit
-            minima. Et placeat voluptatem ut
-          </Text>
-        </VStack>{' '}
-        <VStack align="stretch" spacing={2}>
-          <HStack align="stretch" marginBottom="5" spacing="1rem">
-            <StarIcon boxSize={6} color={colors.green.dark} />
-            <Text color="gray.700">
-              <b style={{ color: 'black' }}>Dan</b> has hosted a new study group
-            </Text>
-          </HStack>
-          <br />
-          <Text noOfLines="2" color="gray.500">
-            <b style={{ color: 'black' }}>Title:</b> CSC301 midterm
-          </Text>
-          <Text noOfLines="2" color="gray.500">
-            <b style={{ color: 'black' }}>Host:</b> Daniel Laufer
-          </Text>
-          <Text noOfLines="3" color="gray.500">
-            <b style={{ color: 'black' }}>Description: </b>
-            Ea quia iste ut quas autem aut tenetur nulla sit eligendi architecto
-            ea minus quaerat. Qui voluptatem eveniet vel nisi beatae et harum
-            illum aut odit minima. Et placeat voluptatem ut Ea quia iste ut quas
-            autem aut tenetur nulla sit eligendi architecto ea minus quaerat.
-            Qui voluptatem eveniet vel nisi beatae et harum illum aut odit
-            minima. Et placeat voluptatem ut
-          </Text>
-        </VStack>
+        </VStack> */}
       </VStack>
     </Container>
   );
