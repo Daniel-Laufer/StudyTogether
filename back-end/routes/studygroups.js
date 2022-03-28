@@ -223,7 +223,7 @@ router.post(
           `${req.user.firstName} ${req.user.lastName}`,
           action
         );
-        saveNotification(studygroup._id, req.user.id, action);
+        saveNotification(studygroup._id, req.user.id, action, false);
         /* END Notification */
 
         res.status(200).json(studygroup);
@@ -446,8 +446,9 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
 
     studyGroup.save().catch(err => res.status(400).json('Error: ' + err));
     /* begin: notification logic */
-    emitGroupUpdated(groupId, studyGroup.title, 'edit');
-    saveNotification(groupId, null, 'edit');
+    const action = 'edit';
+    emitGroupUpdated(groupId, studyGroup.title, action);
+    saveNotification(groupId, req.user._id, action, true);
     /* end */
   }
 
@@ -617,12 +618,13 @@ router.post('/attend/:id', helperUser.verifyToken, (req, res) => {
       //When req.user attends a new study group, we add it as a new room to their socket.
       await attendGroups(req.user.id, groupId, []);
       //Notify the followers of req.user
+      const action = 'attend';
       emitFollowedUpdates(
         req.user.id.toString(),
         `${req.user.firstName} ${req.user.lastName}`,
-        'attend'
+        action
       );
-      saveNotification(groupId, req.user.id, 'attend');
+      saveNotification(groupId, req.user.id, action, false);
       /* END Notification */
 
       res.status(200).json(studygroup);

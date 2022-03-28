@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-// const { notification_types } = require('../helpers/helperSocketio');
+
 //TODO: create a trigger that deletes all notififations a week old
 const notificationSchema = new Schema(
   {
@@ -12,10 +12,25 @@ const notificationSchema = new Schema(
     type: {
       type: String,
       required: true,
-      default: false,
+      default: 'REGISTERED',
       enum: ['FOLLOW', 'REGISTERED'],
     },
-    message: {
+    summary: {
+      type: String,
+      required: true,
+      default: '',
+    },
+    groupTitle: {
+      type: String,
+      required: true,
+      default: '',
+    },
+    groupHost: {
+      type: String,
+      required: true,
+      default: '',
+    },
+    groupDescription: {
       type: String,
       required: true,
       default: '',

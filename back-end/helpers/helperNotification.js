@@ -65,8 +65,6 @@ const followUsers = async (userID, socket, errors) => {
   //console.log(socket.rooms);
 };
 
-const saveNotification = async () => {};
-
 const getPreviewGroupNotification = (groupTitle, action) => {
   const titlePreview = groupTitle.substring(0, 15);
   var message = '';
@@ -185,30 +183,63 @@ module.exports = {
     }
   },
   async saveNotification(groupID, followedUserId, action, isGroup) {
+    var summary = '';
     var title = '';
     var host = '';
     var description = '';
 
-    const group = groupORM.findById(groupID).catch(err => {
+    /* begin - getting information about the study group and/or followed user */
+    const group = await groupORM.findById(groupID).catch(err => {
       console.log('Err: ' + err);
       return;
     });
-    const usr = userORM.findById(followedUserId).catch(err => {
+    const usr = await userORM.findById(followedUserId).catch(err => {
       console.log('Err: ' + err);
       return;
     });
+    const hostUser = await userORM.findById(group.hostId).catch(err => {
+      console.log('Err: ' + err);
+      return;
+    });
+    /* end */
+
+    const subscribers =
+      (isGroup
+        ? group.attendees?.map(attendee => attendee.id)
+        : usr.profileFollowers) ?? [];
+
+    if (subscribers.length === 0) return; // If there is no one to receive the notification at the time, don't create it.
+
     var preview = isGroup
       ? getPreviewGroupNotification(group.title, action)
       : getPreviewFollowedNotification(usr.firstName, action);
+
     switch (action) {
       case 'host':
+        summary = `[${usr.firstName}] has hosted a new study group!`;
         break;
       case 'edit':
+        summary = `[${group.title}] has new changes!`;
         break;
       case 'attend':
+        summary = `[${usr.firstName}] is attending a new studygroup!`;
         break;
       default:
         break;
     }
+    title = group.title;
+    host = hostUser.firstName;
+    description = group.description;
+
+    var newNotification = new notifORM({
+      subscribers: subscribers,
+      summary: summary,
+      type: isGroup ? 'REGISTERED' : 'FOLLOW',
+      groupTitle: title,
+      groupHost: host,
+      groupDescription: description,
+      preview: preview,
+    });
+    await newNotification.save().catch(err => console.log('Err: ' + err));
   },
 };
