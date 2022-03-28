@@ -12,6 +12,7 @@ const {
   emitFollowedUpdates,
   attendGroups,
   leaveGroups,
+  saveNotification,
 } = require('../helpers/helperNotification');
 
 /* (1) Get all study groups*/
@@ -216,11 +217,13 @@ router.post(
       .catch(err => res.status(400).json('Error: ' + err))
       .then(() => {
         /* BEGIN Notification */
+        const action = 'host';
         emitFollowedUpdates(
           req.user.id.toString(),
           `${req.user.firstName} ${req.user.lastName}`,
-          'host'
+          action
         );
+        saveNotification(studygroup._id, req.user.id, action);
         /* END Notification */
 
         res.status(200).json(studygroup);
@@ -433,7 +436,6 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
         ...req.body,
         ...{ recurringFinalDateTime: req.body.finalDate },
       });
-
     }
     groups_changed += helperUser.constructMessage(
       studyGroup.title,
@@ -442,11 +444,11 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
       1
     );
 
-
-
     studyGroup.save().catch(err => res.status(400).json('Error: ' + err));
+    /* begin: notification logic */
     emitGroupUpdated(groupId, studyGroup.title, 'edit');
-
+    saveNotification(groupId, null, 'edit');
+    /* end */
   }
 
   let subject = 'Study group details have changed or been cancelled';
@@ -620,6 +622,7 @@ router.post('/attend/:id', helperUser.verifyToken, (req, res) => {
         `${req.user.firstName} ${req.user.lastName}`,
         'attend'
       );
+      saveNotification(groupId, req.user.id, 'attend');
       /* END Notification */
 
       res.status(200).json(studygroup);

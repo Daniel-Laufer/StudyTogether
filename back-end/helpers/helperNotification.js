@@ -1,5 +1,7 @@
 const Sockets = require('../helpers/SocketStore');
 const userORM = require('../models/user.model');
+const notifORM = require('../models/notification.model');
+const groupORM = require('../models/studygroup.model');
 var socketStore = Sockets.getInstance();
 
 var io = null;
@@ -63,6 +65,42 @@ const followUsers = async (userID, socket, errors) => {
   //console.log(socket.rooms);
 };
 
+const saveNotification = async () => {};
+
+const getPreviewGroupNotification = (groupTitle, action) => {
+  const titlePreview = groupTitle.substring(0, 15);
+  var message = '';
+  switch (action) {
+    case 'edit':
+      message = `Study group ${titlePreview}... has new changes!`;
+      break;
+    case 'cancel':
+      message = `Study group ${titlePreview}... has been cancelled!`;
+      break;
+    case 'reactivate':
+      message = `Study group ${titlePreview}... has been reactivated!`;
+      break;
+    default:
+      console.log(`Err: action does not exist`);
+      return;
+  }
+  return message;
+};
+const getPreviewFollowedNotification = (followedUserName, action) => {
+  var message = '';
+  switch (action) {
+    case 'attend':
+      message = `${followedUserName} has joined a new study group!`;
+      break;
+    case 'host':
+      message = `${followedUserName} is hosting a new study group!`;
+      break;
+    default:
+      console.log(`Err: action does not exist`);
+      return;
+  }
+  return message;
+};
 module.exports = {
   handleSocketIntegration(server) {
     const { Server, Socket } = require('socket.io');
@@ -144,6 +182,33 @@ module.exports = {
     } else {
       errors.push('User was not found!');
       console.log('User was not found!');
+    }
+  },
+  async saveNotification(groupID, followedUserId, action, isGroup) {
+    var title = '';
+    var host = '';
+    var description = '';
+
+    const group = groupORM.findById(groupID).catch(err => {
+      console.log('Err: ' + err);
+      return;
+    });
+    const usr = userORM.findById(followedUserId).catch(err => {
+      console.log('Err: ' + err);
+      return;
+    });
+    var preview = isGroup
+      ? getPreviewGroupNotification(group.title, action)
+      : getPreviewFollowedNotification(usr.firstName, action);
+    switch (action) {
+      case 'host':
+        break;
+      case 'edit':
+        break;
+      case 'attend':
+        break;
+      default:
+        break;
     }
   },
 };
