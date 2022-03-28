@@ -92,6 +92,7 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
     axios
       .get(`${apiURL}/users/profile/${id}`, config)
       .then(res => {
+        console.log(res.data);
         setLoading({
           ...loading,
           user: false,
@@ -228,6 +229,13 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
       .patch(`${apiURL}/users/profile/${prefix}follow/${id}`, {}, config)
       .then(() => {
         setFollowed(!isFollow);
+        let { profileFollowers } = userInfo;
+        if (isFollow)
+          profileFollowers = profileFollowers.filter(
+            uid => uid !== userDetails.id
+          );
+        else profileFollowers.push(userDetails.id);
+        setUserInfo({ ...userInfo, profileFollowers });
       })
       .catch(err => {
         console.log(err);
