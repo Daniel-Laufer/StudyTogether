@@ -5,16 +5,34 @@ import {
   HStack,
   StackDivider,
   Heading,
+  Center,
+  Image,
 } from '@chakra-ui/react';
-import { MoonIcon, StarIcon, SunIcon } from '@chakra-ui/icons';
+import { MoonIcon, SunIcon, StarIcon } from '@chakra-ui/icons';
+// import { MoonIcon, StarIcon, SunIcon } from '@chakra-ui/icons';
 import React, { useEffect, useState } from 'react';
-import useHover from '../../hooks/useHover';
+import { connect } from 'react-redux';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import { apiURL } from '../../utils/constants';
+import { logout } from '../../actions/Auth';
+import CustomSpinner from '../../components/CustomSpinner';
+// import useHover from '../../hooks/useHover';
 import * as colors from '../../utils/colors';
 
-function NotificationPage() {
-  const [hoverRef, isHovering] = useHover();
+function NotificationPage({ authToken, dispatch }) {
+  // const [hoverRef, isHovering] = useHover();
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
+
+  const getKeyword = string => {
+    const regExp = /\[([^)]+)\]/;
+    const matches = regExp.exec(string);
+    // matches[1] contains the value between the parenthese
+    return matches[1];
+  };
   const getNotifications = () => {
     const config = {
       headers: { Authorization: `JWT ${authToken}` },
@@ -24,7 +42,8 @@ function NotificationPage() {
       .get(`${apiURL}/users/notifications`, config)
       .then(res => {
         setLoading(false);
-        setNotifications(res.data); //res.data is an array of objects
+        console.log(res.data);
+        setNotifications(res.data); // res.data is an array of objects
       })
       .catch(err => {
         setLoading(false);
@@ -36,9 +55,11 @@ function NotificationPage() {
   };
   useEffect(() => {
     getNotifications();
-  });
+  }, []);
 
-  return (
+  return loading ? (
+    <CustomSpinner />
+  ) : (
     <Container maxW="container.md">
       <VStack
         divider={<StackDivider borderColor="gray.200" />}
@@ -53,71 +74,77 @@ function NotificationPage() {
         <Heading as="h3" size="lg">
           Notifications
         </Heading>
-        {notifications.map((value, index) => (
-          <>
+        {notifications.length > 0 ? (
+          notifications.map(value => (
             <VStack
-              key={index}
+              key={value._id}
               align="stretch"
               spacing={2}
               cursor="pointer"
-              ref={hoverRef}
+              onClick={() =>
+                navigate(
+                  value.groupId
+                    ? `/groups/${value.groupId}`
+                    : `/user/${value.followedUserID}`
+                )
+              }
             >
-              <HStack align="stretch" marginBottom="5" spacing="1rem">
-                <MoonIcon
-                  transform={isHovering ? 'rotate(360deg)' : ''}
-                  transition="transform 800ms ease"
-                  boxSize={6}
-                  color={colors.blue.medium}
-                />
-                <Text color="gray.700">{value.action}</Text>
+              <HStack align="stretch" marginBottom="" spacing="1rem">
+                {value.type === 'attend' && (
+                  <MoonIcon boxSize={6} color={colors.blue.medium} />
+                )}
+                {value.type === 'edit' && (
+                  <SunIcon boxSize={6} color={colors.red.medium} />
+                )}{' '}
+                {value.type === 'host' && (
+                  <StarIcon boxSize={6} color={colors.green.dark} />
+                )}
+                <Text color="gray.700">
+                  <b style={{ color: 'black' }}>{getKeyword(value.summary)}</b>
+                  {value.summary.replace(/\[(.+?)\]/g, ' ')}
+                </Text>
               </HStack>
               <br />
               <Text noOfLines="2" color="gray.500">
-                <b style={{ color: 'black' }}>Title:</b> {value.title}
+                <b style={{ color: 'black' }}>Title:</b> {value.groupTitle}
               </Text>
               <Text noOfLines="2" color="gray.500">
-                <b style={{ color: 'black' }}>Host:</b> {value.hostName}
+                <b style={{ color: 'black' }}>Host:</b> {value.groupHost}
               </Text>
               <Text noOfLines="3" color="gray.500">
                 <b style={{ color: 'black' }}>Description: </b>{' '}
-                {value.description}
+                {value.groupDescription}
               </Text>
             </VStack>
-          </>
-        ))}
-        {/* <VStack align="stretch" spacing={2} cursor="pointer" ref={hoverRef}>
-          <HStack align="stretch" marginBottom="5" spacing="1rem">
-            <MoonIcon
-              transform={isHovering ? 'rotate(360deg)' : ''}
-              transition="transform 800ms ease"
-              boxSize={6}
-              color={colors.blue.medium}
-            />
-            <Text color="gray.700">
-              <b style={{ color: 'black' }}>Dan</b> has made new changes to a
-              study group!
-            </Text>
-          </HStack>
-          <br />
-          <Text noOfLines="2" color="gray.500">
-            <b style={{ color: 'black' }}>Title:</b> {`CSC301 midterm`}
-          </Text>
-          <Text noOfLines="2" color="gray.500">
-            <b style={{ color: 'black' }}>Host:</b> {`Daniel Laufer`}
-          </Text>
-          <Text noOfLines="3" color="gray.500">
-            <b style={{ color: 'black' }}>Description: </b>
-            {`Ea quia iste ut quas autem aut tenetur nulla sit eligendi architecto
-            ea minus quaerat. Qui voluptatem eveniet vel nisi beatae et harum
-            illum aut odit minima. Et placeat voluptatem ut Ea quia iste ut quas
-            autem aut tenetur nulla sit eligendi architecto ea minus quaerat.
-            Qui voluptatem eveniet vel nisi beatae et harum illum aut odit
-            minima. Et placeat voluptatem ut`}
-          </Text>
-        </VStack> */}
+          ))
+        ) : (
+          <Center>
+            <VStack>
+              <Text fontSize="2xl" color="gray.500" margin={5}>
+                Nothing to see here
+              </Text>
+              <Image
+                boxSize="350px"
+                objectFit="cover"
+                src="https://i.postimg.cc/jSYcRR2X/image-psd.png"
+              />
+            </VStack>
+          </Center>
+        )}
       </VStack>
     </Container>
   );
 }
 
-export default NotificationPage;
+NotificationPage.propTypes = {
+  authToken: PropTypes.string,
+  dispatch: PropTypes.func.isRequired,
+};
+
+NotificationPage.defaultProps = {
+  authToken: '',
+};
+
+export default connect(state => ({
+  authToken: state.Auth.authToken || localStorage.getItem('authToken'),
+}))(NotificationPage);

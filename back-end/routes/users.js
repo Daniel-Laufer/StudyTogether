@@ -398,22 +398,36 @@ router.patch(
   }
 );
 
-router.get('/notifications', helperUser.verifyToken, async (req, res) => {
+router.get('/notifications', [helperUser.verifyToken], async (req, res) => {
   if (!req.user) {
     res.status(401).send({ message: 'Invalid JWT token' });
     return;
   }
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.status(400).json({ errors: errors.array() });
+    return;
+  }
+  var notifications = [];
+  if (req.query.limit) {
+    notifications = await notifModel
+      .find()
+      .limit(req.query.limit)
+      .sort([['_id', -1]])
+      .catch(err => {
+        res.status(400).send('Err: ' + err);
+        return;
+      });
+  } else {
+    notifications = await notifModel
+      .find()
+      .sort([['_id', -1]])
+      .catch(err => {
+        res.status(400).send('Err: ' + err);
+        return;
+      });
+  }
 
-  var notifications = await notifModel
-    .find({
-      $expr: {
-        $in: [req.user.id, '$subscribers'],
-      },
-    })
-    .catch(err => {
-      res.status(400).send('Err: ' + err);
-      return;
-    });
   res.status(200).json(notifications);
 });
 module.exports = router;

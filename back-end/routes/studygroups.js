@@ -444,7 +444,7 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
       1
     );
 
-    studyGroup.save().catch(err => res.status(400).json('Error: ' + err));
+    await studyGroup.save().catch(err => res.status(400).json('Error: ' + err));
     /* begin: notification logic */
     const action = 'edit';
     emitGroupUpdated(groupId, studyGroup.title, action);
@@ -611,7 +611,7 @@ router.post('/attend/:id', helperUser.verifyToken, (req, res) => {
       studygroup.curAttendees++;
       studygroup.save();
       req.user.registeredStudygroups.push(studygroup);
-      req.user.save();
+      await req.user.save();
 
       /* BEGIN Notification */
 

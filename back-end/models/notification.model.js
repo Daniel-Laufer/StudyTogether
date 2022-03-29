@@ -12,13 +12,22 @@ const notificationSchema = new Schema(
     type: {
       type: String,
       required: true,
-      default: 'REGISTERED',
-      enum: ['FOLLOW', 'REGISTERED'],
+      enum: ['attend', 'edit', 'host'],
     },
     summary: {
       type: String,
       required: true,
       default: '',
+    },
+    groupId: {
+      type: mongoose.Types.ObjectId,
+      required: true,
+      default: null,
+    },
+    followedUserID: {
+      type: mongoose.Types.ObjectId,
+      required: true,
+      default: null,
     },
     groupTitle: {
       type: String,

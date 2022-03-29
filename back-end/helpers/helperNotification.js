@@ -107,47 +107,17 @@ module.exports = {
   },
   /* emit actions */
   emitGroupUpdated(groupID, groupTitle, action) {
-    const titlePreview = groupTitle.substring(0, 15);
-    var message = '';
-    switch (action) {
-      case 'edit':
-        message = `Study group ${titlePreview}... has new changes!`;
-        break;
-      case 'cancel':
-        message = `Study group ${titlePreview}... has been cancelled!`;
-        break;
-      case 'reactivate':
-        message = `Study group ${titlePreview}... has been reactivated!`;
-        break;
-      default:
-        console.log(`Err: action does not exist`);
-        return;
-    }
+    const message = getPreviewGroupNotification(groupTitle, action);
     io?.to(groupID).emit('group-change', message, groupID);
-
-    /* Saving notification after it was sent. */
-    saveNotification(groupID, false, message);
   },
   emitFollowedUpdates(followedUserID, followedUserName, action) {
-    var message = '';
-    switch (action) {
-      case 'attend':
-        message = `${followedUserName} has joined a new study group!`;
-        break;
-      case 'host':
-        message = `${followedUserName} is hosting a new study group!`;
-        break;
-      default:
-        console.log(`Err: action does not exist`);
-        return;
-    }
+    const message = getPreviewFollowedNotification(followedUserName, action);
+
     io?.to(followedUserID).emit(
       'followed-user-update',
       message,
       followedUserID
     );
-    /* Saving notification after it was sent. */
-    saveNotification(followedUserID, true, message);
   },
   async attendGroups(userID, groupIDs, errors) {
     if (userID in socketStore.sockets) {
@@ -225,7 +195,7 @@ module.exports = {
         summary = `[${group.title}] has new changes!`;
         break;
       case 'attend':
-        summary = `[${usr.firstName}] is attending a new studygroup!`;
+        summary = `[${usr.firstName}] is attending a new study group!`;
         break;
       default:
         break;
@@ -237,7 +207,9 @@ module.exports = {
     var newNotification = new notifORM({
       subscribers: subscribers,
       summary: summary,
-      type: isGroup ? 'REGISTERED' : 'FOLLOW',
+      type: action,
+      groupId: groupID,
+      followedUserID: followedUserId,
       groupTitle: title,
       groupHost: host,
       groupDescription: description,

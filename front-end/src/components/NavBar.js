@@ -157,7 +157,7 @@ function NavBar({ authToken, dispatch, userDetails }) {
                       Calendar
                     </MenuItem>
                     <MenuItem onClick={() => navigate('/user/notifications')}>
-                      Notification
+                      Notifications
                     </MenuItem>
                     <MenuItem onClick={() => dispatch(logout())}>
                       Logout
