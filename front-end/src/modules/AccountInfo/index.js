@@ -615,7 +615,7 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
                         marginTop: '-10px',
                       }}
                     >
-                      verified
+                      Verified
                     </Text>
                   )}
                 <Divider orientation="horizontal" />
