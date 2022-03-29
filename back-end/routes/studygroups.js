@@ -289,9 +289,9 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
           session.startDateTime.toString() != newStart.toString() ||
           session.endDateTime.toString() != newEnd.toString()
         ) {
-          console.log(session);
-          console.log(session.startDateTime + ' : ' + newStart);
-          console.log(session.endDateTime + ' : ' + newEnd);
+          // console.log(session);
+          // console.log(session.startDateTime + ' : ' + newStart);
+          // console.log(session.endDateTime + ' : ' + newEnd);
           isRescheduled = true;
         }
 
@@ -401,8 +401,8 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
     });
   } else {
     groups_changed = 'The following group has been changed or cancelled<br>';
-    console.log(studyGroup);
-    console.log(studyGroup.title);
+    // console.log(studyGroup);
+    // console.log(studyGroup.title);
     groups_changed += helperUser.constructMessage(
       studyGroup.title,
       studyGroup.startDateTime,
