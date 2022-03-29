@@ -103,7 +103,7 @@ function NotificationBell({ userDetails }) {
             <Center>
               <VStack>
                 <Text fontSize="2xl" color="gray.500" margin={5}>
-                  Nothing to see here
+                  Nothing new to see
                 </Text>
                 <Image
                   boxSize="240px"
