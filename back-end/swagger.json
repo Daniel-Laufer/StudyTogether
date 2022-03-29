@@ -261,6 +261,32 @@
         }
       }
     },
+    "/users/notifications": {
+      "get": {
+        "tags": ["User"],
+        "summary": "Returns notifications relevant to the user",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "format is 'JWT ' followed by the token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Invalid parameter(s) supplied"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
     "/users/profile/recommend/{limit}": {
       "get": {
         "tags": ["User"],
@@ -1019,6 +1045,112 @@
           },
           "403": {
             "description": "User is authenticated and does not have rights to delete the study group"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/studygroups/cancel/{id}": {
+      "put": {
+        "tags": ["Study Groups"],
+        "summary": "Cancel a study group",
+        "description": "A user can cancel study groups they have created. This will give a grace period before the group is deleted.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "format is 'JWT ' followed by the token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of study group to delete",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "deleteAll",
+            "in": "body",
+            "description": "Designate whether to cancel this single meeting or all recurring meetings",
+            "required": true,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "token": {
+                "type": "json",
+                "description": "object containing information about a specific study group"
+              }
+            }
+          },
+          "400": {
+            "description": "study group with the given id was not found in database"
+          },
+          "401": {
+            "description": "Unauthenticated user"
+          },
+          "403": {
+            "description": "User is authenticated and does not have rights to cancel the study group"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/studygroups/reactivate/{id}": {
+      "put": {
+        "tags": ["Study Groups"],
+        "summary": "Reactivate a study group",
+        "description": "A user can reactivate a study group they have cancelled.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "format is 'JWT ' followed by the token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of study group to reactivate",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "deleteAll",
+            "in": "body",
+            "description": "Designate whether to reactivate this single meeting or all recurring meetings",
+            "required": true,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "token": {
+                "type": "json",
+                "description": "object containing information about a specific study group"
+              }
+            }
+          },
+          "400": {
+            "description": "study group with the given id was not found in database"
+          },
+          "401": {
+            "description": "Unauthenticated user"
+          },
+          "403": {
+            "description": "User is authenticated and does not have rights to reactivate the study group"
           },
           "500": {
             "description": "Internal server error"

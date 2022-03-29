@@ -485,11 +485,6 @@ router.get('/notifications', [helperUser.verifyToken], async (req, res) => {
     res.status(401).send({ message: 'Invalid JWT token' });
     return;
   }
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    res.status(400).json({ errors: errors.array() });
-    return;
-  }
   var notifications = [];
   if (req.query.limit && req.query.limit >= 0) {
     notifications = await notifModel
