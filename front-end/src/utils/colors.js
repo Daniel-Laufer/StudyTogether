@@ -23,6 +23,9 @@ export const red = {
   medium: '#E53E3E',
 };
 
+export const UofTblue = {
+  medium: '#042c64',
+};
 export const statusColors = {
   full: 'green',
   cancelled: 'yellow',
