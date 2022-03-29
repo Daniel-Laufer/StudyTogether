@@ -118,7 +118,7 @@ module.exports = {
     // const socket = io?.sockets.sockets.get(socketID);
 
     // io?.emit('invite-user', message, inviteeUserID);
-    io?.to(socketID).emit('invite-user', message, inviteeUserID);
+    io?.to(socketID).emit('invite-user', message, inviteeUserID, studygroupId);
   },
   async attendGroups(userID, groupIDs, errors) {
     if (userID in socketStore.sockets) {

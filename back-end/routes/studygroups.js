@@ -122,8 +122,9 @@ router.get('/:id', helperUser.verifyToken, (req, res) => {
     .then(studygroup => {
       // check if the study group is private and if the current logged in user was invited to join this group
       if (
+        studygroup.hostId != req.user.id &&
         studygroup.private &&
-        !studygroup.invitees.find(userId => userId == user.req.id)
+        !studygroup.invitees.find(userId => userId == req.user.id)
       ) {
         res
           .status(409)
@@ -741,7 +742,7 @@ router.post(
         // Send an invite message to the given user
         emitInviteMessage(
           targetUser.id.toString(),
-          `${targetUser.firstName} ${targetUser.lastName}`,
+          `${req.user.firstName} ${req.user.lastName}`,
           groupId
         );
         /* END Notification */
