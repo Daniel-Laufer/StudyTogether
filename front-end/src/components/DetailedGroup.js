@@ -97,17 +97,17 @@ function DetailedGroup({
         />
         <Flex justify="flex-start" gap="5px">
           {status.cancelled ? (
-            <Tag colorScheme="red" m={0}>
+            <Tag colorScheme={colors.statusColors.cancelled} m={0}>
               Cancelled
             </Tag>
           ) : null}
           {status.reschedule ? (
-            <Tag colorScheme="yellow" m={0}>
+            <Tag colorScheme={colors.statusColors.rescheduled} m={0}>
               Rescheduled
             </Tag>
           ) : null}
           {status.full ? (
-            <Tag colorScheme="green" m={0}>
+            <Tag colorScheme={colors.statusColors.full} m={0}>
               Full
             </Tag>
           ) : null}

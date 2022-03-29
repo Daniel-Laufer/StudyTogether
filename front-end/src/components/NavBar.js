@@ -129,7 +129,7 @@ function NavBar({ authToken, dispatch, userDetails }) {
                     cursor: 'pointer',
                     border: 'green solid 0.5px',
                   }}
-                  src={genericUser}
+                  src={userProfileImage}
                   alt="user profile"
                 />
               </Flex>

@@ -21,6 +21,7 @@ import {
   Textarea,
   Image,
   Checkbox,
+  Button,
 } from '@chakra-ui/react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
@@ -159,8 +160,18 @@ function GroupCreator({ authToken, userRole }) {
     const locationInvalid =
       state.locationLng === null || state.locationLat === null;
 
-    const startTimeInvalid = state.startTime === null || state.startTime === '';
-    const endTimeInvalid = state.endTime === null || state.endTime === '';
+    let startTimeInvalid = state.startTime === null || state.startTime === '';
+    let endTimeInvalid = state.endTime === null || state.endTime === '';
+
+    // ensuring no negative durations allowed
+    if (!startTimeInvalid && !endTimeInvalid) {
+      const startDateTime = new Date(`01/01/2022 ${state.startTime}`);
+      const endDateTime = new Date(`01/01/2022 ${state.endTime}`);
+      if (endDateTime.getTime() - startDateTime.getTime() <= 0) {
+        startTimeInvalid = true;
+        endTimeInvalid = true;
+      }
+    }
 
     const finalDateInvalid =
       (state.date != null &&
@@ -585,6 +596,7 @@ function GroupCreator({ authToken, userRole }) {
                 >
                   Create Group
                 </GreenButton>
+
                 {!forceHideAlert && Object.values(errors).some(item => item) && (
                   <Alert status="error" style={{ paddingRight: '2rem' }}>
                     <AlertIcon />
