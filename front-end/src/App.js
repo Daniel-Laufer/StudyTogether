@@ -17,7 +17,7 @@ import ResetPassword from './modules/ResetPassword';
 import GroupCreator from './modules/GroupCreator';
 import NavBar from './components/NavBar';
 import NotFoundPage from './modules/NotFoundPage';
-import AccountInfo from './modules/AccountInfo';
+import AccountInfo from './modules/AccountInfo/index';
 import GroupView from './modules/GroupView';
 import CustomCalendar from './modules/CustomCalendar';
 import GroupEditor from './modules/GroupEditor';

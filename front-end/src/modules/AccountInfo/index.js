@@ -558,10 +558,27 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
                         paddingRight: '6px',
                         textAlign: 'center',
                         borderRadius: '6px',
-                        marginTop: '-20px',
+                        marginTop: '16px',
                       }}
                     >
                       {universityColorText[userInfo.verified].text}
+                    </Text>
+                  )}
+                {userInfo.verified === 'Not University Email' &&
+                  userDetails &&
+                  id === userDetails.id && (
+                    <Text
+                      style={{
+                        backgroundColor: colors.grey.medium,
+                        color: 'white',
+                        paddingLeft: '6px',
+                        paddingRight: '6px',
+                        textAlign: 'center',
+                        borderRadius: '6px',
+                        marginTop: '16px',
+                      }}
+                    >
+                      Verified
                     </Text>
                   )}
                 <HStack spacing="20px">
@@ -637,23 +654,6 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
                   </AlertDialogOverlay>
                 </AlertDialog>
 
-                {userInfo.verified === 'Not University Email' &&
-                  userDetails &&
-                  id === userDetails.id && (
-                    <Text
-                      style={{
-                        backgroundColor: colors.grey.medium,
-                        color: 'white',
-                        paddingLeft: '6px',
-                        paddingRight: '6px',
-                        textAlign: 'center',
-                        borderRadius: '6px',
-                        marginTop: '-10px',
-                      }}
-                    >
-                      Verified
-                    </Text>
-                  )}
                 <Divider orientation="horizontal" />
                 <Text
                   fontSize={18}
