@@ -479,7 +479,7 @@ router.delete('/delete/:id', helperUser.verifyToken, (req, res) => {
   StudygroupModel.findById(groupId)
     .then(studygroup => {
       if (studygroup.hostId != req.user.id) {
-        res.status(403).send({ message: 'Not study group creator' });
+        res.status(401).send({ message: 'Not study group creator' });
         return;
       }
       var seriesId = new mongoose.Types.ObjectId(studygroup.seriesId);
@@ -534,7 +534,7 @@ router.put('/cancel/:id', helperUser.verifyToken, async (req, res) => {
   });
 
   if (studygroup.hostId != req.user.id) {
-    res.status(403).send('Permision denied');
+    res.status(401).send('Permision denied');
     return;
   }
   /* begin https://stackoverflow.com/questions/7687884/add-10-seconds-to-a-date */
@@ -566,7 +566,7 @@ router.put('/reactivate/:id', helperUser.verifyToken, async (req, res) => {
   });
 
   if (studygroup.hostId != req.user.id) {
-    res.status(403).send({ message: 'Permission denied' });
+    res.status(401).send({ message: 'Permission denied' });
     return;
   }
   var updatedStudygroup = await StudygroupModel.findByIdAndUpdate(groupId, {
