@@ -718,6 +718,14 @@ router.post(
     const groupId = req.params.id;
     StudygroupModel.findById(groupId)
       .then(async studygroup => {
+        // make sure the currently logged in user is the group's owner
+        if (studygroup.hostId != req.user.id) {
+          res
+            .status(403)
+            .send({ message: 'User is not the owner of this study group' });
+          return;
+        }
+
         if (studygroup.invitees.find(id => id == targetUser.id)) {
           res
             .status(409)
