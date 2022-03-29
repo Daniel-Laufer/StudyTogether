@@ -17,11 +17,12 @@ import ResetPassword from './modules/ResetPassword';
 import GroupCreator from './modules/GroupCreator';
 import NavBar from './components/NavBar';
 import NotFoundPage from './modules/NotFoundPage';
-import AccountInfo from './modules/AccountInfo';
+import AccountInfo from './modules/AccountInfo/index';
 import GroupView from './modules/GroupView';
 import CustomCalendar from './modules/CustomCalendar';
 import GroupEditor from './modules/GroupEditor';
 import About from './modules/About';
+import EmailVerified from './modules/EmailVerified/index';
 import Following from './modules/Following';
 
 const store = createStore(
@@ -52,6 +53,7 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/email-sent" element={<EmailSent />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/verify" element={<EmailVerified />} />
             <Route
               path="/groups"
               element={
