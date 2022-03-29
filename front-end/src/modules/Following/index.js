@@ -48,7 +48,7 @@ function Following({ authToken }) {
     axios
       .get(`${apiURL}/users/profile/${id}/followers`, config)
       .then(res => {
-        setLoading({ ...loading, following: false });
+        setLoading({ ...loading, followers: false });
         setFollowers(res.data.followers);
       })
       .catch(e => {
@@ -61,7 +61,7 @@ function Following({ authToken }) {
     axios
       .get(`${apiURL}/users/profile/${id}/following`, config)
       .then(res => {
-        setLoading({ ...loading, followers: false });
+        setLoading({ ...loading, following: false });
         setFollowing(res.data.following);
       })
       .catch(e => {
@@ -142,7 +142,8 @@ function Following({ authToken }) {
                     user._id,
                     user.firstName + ' ' + user.lastName,
                     user.role,
-                    user.profileImage
+                    user.profileImage,
+                    false
                   )
                 )
               ) : (

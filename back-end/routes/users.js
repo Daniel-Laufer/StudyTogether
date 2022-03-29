@@ -48,6 +48,7 @@ router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
       profileInterests: usr.profileInterests,
       profileCourses: usr.profileCourses,
       profileFollowers: usr.profileFollowers,
+      profileFollowing: usr.profileFollowing,
       verified: usr.verified,
     });
   }

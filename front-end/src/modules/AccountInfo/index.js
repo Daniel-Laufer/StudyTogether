@@ -92,7 +92,6 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
     axios
       .get(`${apiURL}/users/profile/${id}`, config)
       .then(res => {
-        console.log(res.data);
         setLoading({
           ...loading,
           user: false,
@@ -159,7 +158,6 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
   };
 
   const handleAddition = c => {
-    console.log(c);
     setUserInfo({
       ...userInfo,
       profileCourses: [...userInfo.profileCourses, c],
