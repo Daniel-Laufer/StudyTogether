@@ -12,6 +12,7 @@ const {
   emitFollowedUpdates,
   attendGroups,
   leaveGroups,
+  saveNotification,
 } = require('../helpers/helperNotification');
 
 /* (1) Get all study groups*/
@@ -216,11 +217,13 @@ router.post(
       .catch(err => res.status(400).json('Error: ' + err))
       .then(() => {
         /* BEGIN Notification */
+        const action = 'host';
         emitFollowedUpdates(
           req.user.id.toString(),
           `${req.user.firstName} ${req.user.lastName}`,
-          'host'
+          action
         );
+        saveNotification(studygroup._id, req.user.id, action, false);
         /* END Notification */
 
         res.status(200).json(studygroup);
@@ -286,9 +289,9 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
           session.startDateTime.toString() != newStart.toString() ||
           session.endDateTime.toString() != newEnd.toString()
         ) {
-          console.log(session);
-          console.log(session.startDateTime + ' : ' + newStart);
-          console.log(session.endDateTime + ' : ' + newEnd);
+          // console.log(session);
+          // console.log(session.startDateTime + ' : ' + newStart);
+          // console.log(session.endDateTime + ' : ' + newEnd);
           isRescheduled = true;
         }
 
@@ -398,8 +401,8 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
     });
   } else {
     groups_changed = 'The following group has been changed or cancelled<br>';
-    console.log(studyGroup);
-    console.log(studyGroup.title);
+    // console.log(studyGroup);
+    // console.log(studyGroup.title);
     groups_changed += helperUser.constructMessage(
       studyGroup.title,
       studyGroup.startDateTime,
@@ -433,7 +436,6 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
         ...req.body,
         ...{ recurringFinalDateTime: req.body.finalDate },
       });
-
     }
     groups_changed += helperUser.constructMessage(
       studyGroup.title,
@@ -442,11 +444,12 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
       1
     );
 
-
-
-    studyGroup.save().catch(err => res.status(400).json('Error: ' + err));
-    emitGroupUpdated(groupId, studyGroup.title, 'edit');
-
+    await studyGroup.save().catch(err => res.status(400).json('Error: ' + err));
+    /* begin: notification logic */
+    const action = 'edit';
+    emitGroupUpdated(groupId, studyGroup.title, action);
+    saveNotification(groupId, req.user._id, action, true);
+    /* end */
   }
 
   let subject = 'Study group details have changed or been cancelled';
@@ -476,7 +479,7 @@ router.delete('/delete/:id', helperUser.verifyToken, (req, res) => {
   StudygroupModel.findById(groupId)
     .then(studygroup => {
       if (studygroup.hostId != req.user.id) {
-        res.status(403).send({ message: 'Not study group creator' });
+        res.status(401).send({ message: 'Not study group creator' });
         return;
       }
       var seriesId = new mongoose.Types.ObjectId(studygroup.seriesId);
@@ -531,7 +534,7 @@ router.put('/cancel/:id', helperUser.verifyToken, async (req, res) => {
   });
 
   if (studygroup.hostId != req.user.id) {
-    res.status(403).send('Permision denied');
+    res.status(401).send('Permision denied');
     return;
   }
   /* begin https://stackoverflow.com/questions/7687884/add-10-seconds-to-a-date */
@@ -563,7 +566,7 @@ router.put('/reactivate/:id', helperUser.verifyToken, async (req, res) => {
   });
 
   if (studygroup.hostId != req.user.id) {
-    res.status(403).send({ message: 'Permission denied' });
+    res.status(401).send({ message: 'Permission denied' });
     return;
   }
   var updatedStudygroup = await StudygroupModel.findByIdAndUpdate(groupId, {
@@ -608,18 +611,20 @@ router.post('/attend/:id', helperUser.verifyToken, (req, res) => {
       studygroup.curAttendees++;
       studygroup.save();
       req.user.registeredStudygroups.push(studygroup);
-      req.user.save();
+      await req.user.save();
 
       /* BEGIN Notification */
 
       //When req.user attends a new study group, we add it as a new room to their socket.
       await attendGroups(req.user.id, groupId, []);
       //Notify the followers of req.user
+      const action = 'attend';
       emitFollowedUpdates(
         req.user.id.toString(),
         `${req.user.firstName} ${req.user.lastName}`,
-        'attend'
+        action
       );
+      saveNotification(groupId, req.user.id, action, false);
       /* END Notification */
 
       res.status(200).json(studygroup);

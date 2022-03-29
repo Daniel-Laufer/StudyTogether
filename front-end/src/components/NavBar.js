@@ -13,14 +13,16 @@ import {
   MenuItem,
   Portal,
   MenuList,
+  Spinner,
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+
 import { logout } from '../actions/Auth';
 import greenLogo from '../assets/images/smalllogogreen.png';
-import genericUser from '../assets/images/cat-pfp.jpeg';
+import genericUser from '../assets/images/defuser.jpeg';
 import GreenButton from './GreenButton';
 import * as colors from '../utils/colors';
 import useOutsideAlerter from '../hooks/useOutsideAlerter';
@@ -36,7 +38,7 @@ function NavBar({ authToken, dispatch, userDetails }) {
   useOutsideAlerter(navbarUserMenuRef, () => setIsUserProfileMenuOpen(false));
   // end source
 
-  const [userProfileImage, setUserProfileImage] = useState(genericUser);
+  const [userProfileImage, setUserProfileImage] = useState(null);
 
   useEffect(() => {
     if (!userDetails) return;
@@ -49,7 +51,13 @@ function NavBar({ authToken, dispatch, userDetails }) {
       .then(res => {
         setUserProfileImage(res.data.profileImage);
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        setUserProfileImage(genericUser);
+        if (err.response && err.response.status === 401) {
+          dispatch(logout());
+          navigate('/login');
+        }
+      });
   }, [userDetails]);
 
   return (
@@ -117,21 +125,25 @@ function NavBar({ authToken, dispatch, userDetails }) {
             <div ref={navbarUserMenuRef}>
               <Flex align="center" gap="1rem">
                 <NotificationBell />
-                <img
-                  onClick={() => {
-                    setIsUserProfileMenuOpen(!isUserProfileMenuOpen);
-                  }}
-                  style={{
-                    display: 'block',
-                    height: '35px',
-                    width: '35px',
-                    borderRadius: '50%',
-                    cursor: 'pointer',
-                    border: 'green solid 0.5px',
-                  }}
-                  src={userProfileImage}
-                  alt="user profile"
-                />
+                {userProfileImage ? (
+                  <img
+                    onClick={() => {
+                      setIsUserProfileMenuOpen(!isUserProfileMenuOpen);
+                    }}
+                    style={{
+                      display: 'block',
+                      height: '35px',
+                      width: '35px',
+                      borderRadius: '50%',
+                      cursor: 'pointer',
+                      border: 'green solid 0.5px',
+                    }}
+                    src={userProfileImage}
+                    alt="user profile"
+                  />
+                ) : (
+                  <Spinner />
+                )}
               </Flex>
               <div
                 style={{
@@ -155,6 +167,9 @@ function NavBar({ authToken, dispatch, userDetails }) {
                     </MenuItem>
                     <MenuItem onClick={() => navigate('/cal')}>
                       Calendar
+                    </MenuItem>
+                    <MenuItem onClick={() => navigate('/user/notifications')}>
+                      Notifications
                     </MenuItem>
                     <MenuItem onClick={() => dispatch(logout())}>
                       Logout

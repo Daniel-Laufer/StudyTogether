@@ -143,7 +143,7 @@ module.exports = {
   },
   handleInvalidJWT(req, res, err) {
     if (!req.user) {
-      res.status(403).send({ message: 'Invalid JWT token' });
+      res.status(401).send({ message: 'Invalid JWT token' });
       err.push('Invalid JWT token');
     }
   },
@@ -231,5 +231,4 @@ module.exports = {
 
     return { hours: startHours, mins: startMins, mornOrEve: mornOrEveStart };
   },
-
 };

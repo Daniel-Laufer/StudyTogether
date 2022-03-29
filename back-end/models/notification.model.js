@@ -1,21 +1,50 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-// const { notification_types } = require('../helpers/helperSocketio');
+
 //TODO: create a trigger that deletes all notififations a week old
 const notificationSchema = new Schema(
   {
-    userID: {
+    subscribers: {
+      type: [mongoose.Types.ObjectId],
+      required: true,
+      default: [],
+    },
+    type: {
+      type: String,
+      required: true,
+      enum: ['attend', 'edit', 'host'],
+    },
+    summary: {
+      type: String,
+      required: true,
+      default: '',
+    },
+    groupId: {
       type: mongoose.Types.ObjectId,
       required: true,
+      default: null,
     },
-    //if true, the notification message would say "user A has joined a new group! Click here to view more. "
-    //otherwise, the notification is about the userID
-    isFollowedUser: {
-      type: Boolean,
+    followedUserID: {
+      type: mongoose.Types.ObjectId,
       required: true,
-      default: false,
+      default: null,
     },
-    description: {
+    groupTitle: {
+      type: String,
+      required: true,
+      default: '',
+    },
+    groupHost: {
+      type: String,
+      required: true,
+      default: '',
+    },
+    groupDescription: {
+      type: String,
+      required: true,
+      default: '',
+    },
+    preview: {
       type: String,
       required: true,
       default: '',
@@ -24,5 +53,5 @@ const notificationSchema = new Schema(
   { collection: 'notifications' }
 );
 
-const token = mongoose.model('notification', notificationSchema);
-module.exports = token;
+const notification = mongoose.model('notification', notificationSchema);
+module.exports = notification;
