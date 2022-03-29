@@ -17,7 +17,7 @@ const verifyURL = 'http://localhost:3000/verify';
 /* Get non-sensitive user profile info */
 router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
   if (!req.user) {
-    res.status(403).send({ message: 'Invalid JWT token' });
+    res.status(401).send({ message: 'Invalid JWT token' });
     return;
   }
   var usr;
@@ -137,7 +137,7 @@ router.patch(
       return;
     }
     if (!req.user) {
-      res.status(403).send({ message: 'Invalid JWT token' });
+      res.status(401).send({ message: 'Invalid JWT token' });
       return;
     }
     var usr = await User.findById(req.user.id).catch(err => {
@@ -218,7 +218,7 @@ router.get(
   helperUser.verifyToken,
   async (req, res) => {
     if (!req.user) {
-      res.status(403).send('Invalid JWT token');
+      res.status(401).send('Invalid JWT token');
       return;
     }
 
@@ -270,7 +270,7 @@ router.post(
 
     const isValid = bcrypt.compareSync(req.body.token, verifyToken.token);
     if (!isValid) {
-      res.status(403).send('Invalid token');
+      res.status(401).send('Invalid token');
       return;
     }
 

@@ -71,7 +71,7 @@ router.post(
       passwordResetToken.token
     );
     if (!isValid) {
-      res.status(403).send('Invalid token');
+      res.status(401).send('Invalid token');
       return;
     }
 
