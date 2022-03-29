@@ -22,11 +22,8 @@ import GroupView from './modules/GroupView';
 import CustomCalendar from './modules/CustomCalendar';
 import GroupEditor from './modules/GroupEditor';
 import About from './modules/About';
-<<<<<<< HEAD
 import NotificationPage from './modules/NotificationPage';
-=======
 import Following from './modules/Following';
->>>>>>> dev
 
 const store = createStore(
   rootReducer,

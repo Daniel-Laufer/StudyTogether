@@ -491,9 +491,9 @@ router.get('/notifications', [helperUser.verifyToken], async (req, res) => {
     return;
   }
   var notifications = [];
-  if (req.query.limit) {
+  if (req.query.limit && req.query.limit >= 0) {
     notifications = await notifModel
-      .find()
+      .find({ subscribers: req.user._id })
       .limit(req.query.limit)
       .sort([['_id', -1]])
       .catch(err => {
@@ -502,7 +502,7 @@ router.get('/notifications', [helperUser.verifyToken], async (req, res) => {
       });
   } else {
     notifications = await notifModel
-      .find()
+      .find({ subscribers: req.user._id })
       .sort([['_id', -1]])
       .catch(err => {
         res.status(400).send('Err: ' + err);
