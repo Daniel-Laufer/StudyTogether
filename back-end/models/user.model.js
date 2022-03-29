@@ -40,8 +40,9 @@ const userSchema = new Schema(
       enum: ['Student', 'TA', 'Teacher', 'Admin'],
     },
     verified: {
-      type: Boolean,
-      required: [true, 'verification state is not provided!'],
+      type: String,
+      required: true,
+      default: '',
     },
     password: {
       type: String,

@@ -1,15 +1,18 @@
 var express = require('express');
 var router = express.Router();
+var crypto = require('crypto');
 var bcrypt = require('bcrypt');
 var helperUser = require('../helpers/helperUser');
 let StudygroupModel = require('../models/studygroup.model');
 const notifModel = require('../models/notification.model');
-var User = require('../models/user.model');
+let User = require('../models/user.model');
+let Token = require('../models/token.model');
 const { unfollowUsers, followUsers } = require('../helpers/helperNotification');
-
 var tarequest = require('../models/taverify.model');
 const { check, body, validationResult, param } = require('express-validator');
 const mongoose = require('mongoose');
+const user = require('../models/user.model');
+const verifyURL = 'http://localhost:3000/verify';
 
 /* Get non-sensitive user profile info */
 router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
@@ -46,6 +49,7 @@ router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
       profileInterests: usr.profileInterests,
       profileCourses: usr.profileCourses,
       profileFollowers: usr.profileFollowers,
+      verified: usr.verified,
     });
   }
 });
@@ -200,12 +204,90 @@ router.post(
       newUser.role = req.body.role;
     }
 
+    const url = `${verifyURL}/${newUser.id}`;
     newUser
       .save()
       .then(user =>
         helperUser.respondJWT(user, res, 'User registered successfully!')
       )
       .catch(err => res.status(400).json('Error: ' + err));
+  }
+);
+router.get(
+  '/send-verification/:id',
+  helperUser.verifyToken,
+  async (req, res) => {
+    if (!req.user) {
+      res.status(403).send('Invalid JWT token');
+      return;
+    }
+
+    let person = await User.findById(req.params.id);
+    if (!person) {
+      res.status(404).send('Invalid user');
+      return;
+    }
+    await Token.findOneAndDelete({ email: person.email });
+    var saltRounds = 8;
+    var salt = await bcrypt.genSalt(saltRounds);
+    let verifyToken = crypto.randomBytes(32).toString('hex');
+    const hash = await bcrypt.hash(verifyToken, salt);
+    await new Token({
+      email: person.email,
+      token: hash,
+      createdAt: Date.now(),
+    }).save();
+
+    const link = `${verifyURL}?id=${person.id}token=${verifyToken}`;
+    helperUser.sendEmail(
+      person.email,
+      'Email verification',
+      `Click this link to verify your email:  <a href=${link}>Verify email</a>`
+    );
+    res.json({ token: verifyToken, id: person.id });
+  }
+);
+
+router.post(
+  '/verify',
+  body('id').notEmpty(),
+  body('token').notEmpty(),
+  async function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(400).json({ errors: errors.array() });
+      return;
+    }
+    let person = await User.findById(req.body.id).catch(err => {
+      res.status(400).json('Error: ' + err);
+      return;
+    });
+    let verifyToken = await Token.findOne({ email: person.email });
+    if (!verifyToken || verifyToken.length == 0) {
+      res.status(401).send('Invalid token');
+      return;
+    }
+
+    const isValid = bcrypt.compareSync(req.body.token, verifyToken.token);
+    if (!isValid) {
+      res.status(403).send('Invalid token');
+      return;
+    }
+
+    if (
+      person.email.endsWith('@mail.utoronto.ca') ||
+      person.email.endsWith('@utoronto.ca')
+    ) {
+      person.verified = 'University of Toronto';
+    } else {
+      person.verified = 'Not University Email';
+    }
+    person.save().catch(err => {
+      res.status(500).send(err);
+    });
+    await verifyToken.deleteOne();
+    console.log(person);
+    res.json({ verified: person.verified });
   }
 );
 

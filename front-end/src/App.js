@@ -22,7 +22,11 @@ import GroupView from './modules/GroupView';
 import CustomCalendar from './modules/CustomCalendar';
 import GroupEditor from './modules/GroupEditor';
 import About from './modules/About';
+<<<<<<< HEAD
 import NotificationPage from './modules/NotificationPage';
+=======
+import Following from './modules/Following';
+>>>>>>> dev
 
 const store = createStore(
   rootReducer,
@@ -88,6 +92,7 @@ function App() {
             <Route path="/user/:id" element={<AccountInfo />} />
             <Route path="/user/notifications" element={<NotificationPage />} />
             <Route path="/cal" element={<CustomCalendar />} />
+            <Route path="/following/:id" element={<Following />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </BrowserRouter>
