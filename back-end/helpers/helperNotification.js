@@ -1,5 +1,7 @@
 const Sockets = require('../helpers/SocketStore');
 const userORM = require('../models/user.model');
+const notifORM = require('../models/notification.model');
+const groupORM = require('../models/studygroup.model');
 var socketStore = Sockets.getInstance();
 
 var io = null;
@@ -44,7 +46,7 @@ const attendGroups = async (userID, socket, errors) => {
     errors.push(err);
     return;
   });
-  const groupIDs = usr.registeredStudygroups.map(s => s.toString());
+  const groupIDs = usr?.registeredStudygroups.map(s => s.toString());
   await socket.join(groupIDs);
 };
 /**
@@ -58,11 +60,45 @@ const followUsers = async (userID, socket, errors) => {
     errors.push(err);
     return;
   });
-  const userIDs = usr.profileFollowing.map(s => s.toString());
+  const userIDs = usr?.profileFollowing.map(s => s.toString());
   await socket.join(userIDs);
   //console.log(socket.rooms);
 };
 
+const getPreviewGroupNotification = (groupTitle, action) => {
+  const titlePreview = groupTitle.substring(0, 15);
+  var message = '';
+  switch (action) {
+    case 'edit':
+      message = `Study group ${titlePreview}... has new changes!`;
+      break;
+    case 'cancel':
+      message = `Study group ${titlePreview}... has been cancelled!`;
+      break;
+    case 'reactivate':
+      message = `Study group ${titlePreview}... has been reactivated!`;
+      break;
+    default:
+      console.log(`Err: action does not exist`);
+      return;
+  }
+  return message;
+};
+const getPreviewFollowedNotification = (followedUserName, action) => {
+  var message = '';
+  switch (action) {
+    case 'attend':
+      message = `${followedUserName} has joined a new study group!`;
+      break;
+    case 'host':
+      message = `${followedUserName} is hosting a new study group!`;
+      break;
+    default:
+      console.log(`Err: action does not exist`);
+      return;
+  }
+  return message;
+};
 module.exports = {
   handleSocketIntegration(server) {
     const { Server, Socket } = require('socket.io');
@@ -71,39 +107,12 @@ module.exports = {
   },
   /* emit actions */
   emitGroupUpdated(groupID, groupTitle, action) {
-    const titlePreview = groupTitle.substring(0, 15);
-    var message = '';
-    switch (action) {
-      case 'edit':
-        message = `Study group ${titlePreview}... has new changes!`;
-        break;
-      case 'cancel':
-        message = `Study group ${titlePreview}... has been cancelled!`;
-        break;
-      case 'reactivate':
-        message = `Study group ${titlePreview}... has been reactivated!`;
-        break;
-      default:
-        console.log(`Err: action does not exist`);
-        return;
-    }
-    // console.log(`Checking ${groupID} with the message ${message}`);
-    // console.log('all rooms are: ', io.sockets.adapter.rooms);
+    const message = getPreviewGroupNotification(groupTitle, action);
     io?.to(groupID).emit('group-change', message, groupID);
   },
   emitFollowedUpdates(followedUserID, followedUserName, action) {
-    var message = '';
-    switch (action) {
-      case 'attend':
-        message = `${followedUserName} has joined a new study group!`;
-        break;
-      case 'host':
-        message = `${followedUserName} is hosting a new study group!`;
-        break;
-      default:
-        console.log(`Err: action does not exist`);
-        return;
-    }
+    const message = getPreviewFollowedNotification(followedUserName, action);
+
     io?.to(followedUserID).emit(
       'followed-user-update',
       message,
@@ -155,5 +164,67 @@ module.exports = {
       errors.push('User was not found!');
       console.log('User was not found!');
     }
+  },
+  async saveNotification(groupID, followedUserId, action, isGroup) {
+    var summary = '';
+    var title = '';
+    var host = '';
+    var description = '';
+
+    /* begin - getting information about the study group and/or followed user */
+    const group = await groupORM.findById(groupID).catch(err => {
+      console.log('Err: ' + err);
+      return;
+    });
+    const usr = await userORM.findById(followedUserId).catch(err => {
+      console.log('Err: ' + err);
+      return;
+    });
+    const hostUser = await userORM.findById(group.hostId).catch(err => {
+      console.log('Err: ' + err);
+      return;
+    });
+    /* end */
+
+    const subscribers =
+      (isGroup
+        ? group.attendees?.map(attendee => attendee.id)
+        : usr.profileFollowers) ?? [];
+
+    if (subscribers.length === 0) return; // If there is no one to receive the notification at the time, don't create it.
+
+    var preview = isGroup
+      ? getPreviewGroupNotification(group.title, action)
+      : getPreviewFollowedNotification(usr.firstName, action);
+
+    switch (action) {
+      case 'host':
+        summary = `[${usr.firstName}] has hosted a new study group!`;
+        break;
+      case 'edit':
+        summary = `[${group.title}] has new changes!`;
+        break;
+      case 'attend':
+        summary = `[${usr.firstName}] is attending a new study group!`;
+        break;
+      default:
+        break;
+    }
+    title = group.title;
+    host = hostUser.firstName;
+    description = group.description;
+
+    var newNotification = new notifORM({
+      subscribers: subscribers,
+      summary: summary,
+      type: action,
+      groupId: groupID,
+      followedUserID: followedUserId,
+      groupTitle: title,
+      groupHost: host,
+      groupDescription: description,
+      preview: preview,
+    });
+    await newNotification.save().catch(err => console.log('Err: ' + err));
   },
 };

@@ -4,6 +4,7 @@ var crypto = require('crypto');
 var bcrypt = require('bcrypt');
 var helperUser = require('../helpers/helperUser');
 let StudygroupModel = require('../models/studygroup.model');
+const notifModel = require('../models/notification.model');
 let User = require('../models/user.model');
 let Token = require('../models/token.model');
 const { unfollowUsers, followUsers } = require('../helpers/helperNotification');
@@ -16,7 +17,7 @@ const verifyURL = 'http://localhost:3000/verify';
 /* Get non-sensitive user profile info */
 router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
   if (!req.user) {
-    res.status(403).send({ message: 'Invalid JWT token' });
+    res.status(401).send({ message: 'Invalid JWT token' });
     return;
   }
   var usr;
@@ -136,7 +137,7 @@ router.patch(
       return;
     }
     if (!req.user) {
-      res.status(403).send({ message: 'Invalid JWT token' });
+      res.status(401).send({ message: 'Invalid JWT token' });
       return;
     }
     var usr = await User.findById(req.user.id).catch(err => {
@@ -217,7 +218,7 @@ router.get(
   helperUser.verifyToken,
   async (req, res) => {
     if (!req.user) {
-      res.status(403).send('Invalid JWT token');
+      res.status(401).send('Invalid JWT token');
       return;
     }
 
@@ -237,11 +238,11 @@ router.get(
       createdAt: Date.now(),
     }).save();
 
-    const link = `${verifyURL}?id=${person.id}token=${verifyToken}`;
+    const link = `${verifyURL}?id=${person.id}&token=${verifyToken}`;
     helperUser.sendEmail(
       person.email,
       'Email verification',
-      `Click this link to verify your email:  <a href=${link}>Verify email</a>`
+      `Click this link to verify your email: ${link}  `
     );
     res.json({ token: verifyToken, id: person.id });
   }
@@ -269,7 +270,7 @@ router.post(
 
     const isValid = bcrypt.compareSync(req.body.token, verifyToken.token);
     if (!isValid) {
-      res.status(403).send('Invalid token');
+      res.status(401).send('Invalid token');
       return;
     }
 
@@ -478,4 +479,32 @@ router.patch(
     });
   }
 );
+
+router.get('/notifications', [helperUser.verifyToken], async (req, res) => {
+  if (!req.user) {
+    res.status(401).send({ message: 'Invalid JWT token' });
+    return;
+  }
+  var notifications = [];
+  if (req.query.limit && req.query.limit >= 0) {
+    notifications = await notifModel
+      .find({ subscribers: req.user._id })
+      .limit(req.query.limit)
+      .sort([['_id', -1]])
+      .catch(err => {
+        res.status(400).send('Err: ' + err);
+        return;
+      });
+  } else {
+    notifications = await notifModel
+      .find({ subscribers: req.user._id })
+      .sort([['_id', -1]])
+      .catch(err => {
+        res.status(400).send('Err: ' + err);
+        return;
+      });
+  }
+
+  res.status(200).json(notifications);
+});
 module.exports = router;

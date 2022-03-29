@@ -14,11 +14,16 @@ import {
   PopoverCloseButton,
   Divider,
   Alert,
+  Center,
+  Text,
+  Image,
+  VStack,
 } from '@chakra-ui/react';
 import styled from 'styled-components';
 import { BellIcon } from '@chakra-ui/icons';
 import { io } from 'socket.io-client';
 import { apiURL } from '../utils/constants';
+import GreenButton from './GreenButton';
 
 function NotificationBell({ userDetails }) {
   const [notifications, setNotifications] = useState([]);
@@ -26,9 +31,35 @@ function NotificationBell({ userDetails }) {
   const [isConnected, setIsConnected] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
+  // const getNotifications = () => {
+  //   const config = {
+  //     headers: { Authorization: `JWT ${authToken}` },
+  //   };
+  //   axios
+  //     .get(`${apiURL}/users/notifications`, config)
+  //     .then(res => {
+  //       // console.log(res.data);
+  //       setNotifications([
+  //         ...res.data.map(value => ({
+  //           message: value.preview,
+  //           url: value.groupId ?? value.followedUserID,
+  //         })),
+  //         ...notifications,
+  //       ]); // res.data is an array of objects
+  //       console.log(notifications);
+  //     })
+  //     .catch(err => {
+  //       if (err.response && err.response.status === 401) {
+  //         dispatch(logout());
+  //         navigate('/login');
+  //       }
+  //     });
+  // };
+
+  useEffect(async () => {
+    // getNotifications();
+
     if (!isConnected) {
-      // console.log('socket re-connecting');
       const skt = io(apiURL, {
         extraHeaders: {
           userid: userDetails.id,
@@ -46,7 +77,6 @@ function NotificationBell({ userDetails }) {
         setNotSeen(true);
       });
       skt.on('disconnect', () => {
-        // console.log('socket disconnected');
         setIsConnected(skt.connected);
       });
     }
@@ -69,24 +99,45 @@ function NotificationBell({ userDetails }) {
         <PopoverCloseButton />
         <PopoverHeader>Your Notifications!</PopoverHeader>
         <PopoverBody>
-          {notifications.map((value, index) => (
-            <>
-              <Alert
-                id={index}
-                style={{
-                  margin: '5px 0 5px 0',
-                  borderRadius: '10px',
-                  cursor: 'pointer',
-                }}
-                onClick={() => {
-                  navigate(value.url);
-                }}
-              >
-                {value.message}
-              </Alert>
-              <Divider />
-            </>
-          ))}
+          {notifications.length === 0 ? (
+            <Center>
+              <VStack>
+                <Text fontSize="2xl" color="gray.500" margin={5}>
+                  Nothing new to see
+                </Text>
+                <Image
+                  boxSize="240px"
+                  objectFit="cover"
+                  src="https://i.postimg.cc/jSYcRR2X/image-psd.png"
+                />
+              </VStack>
+            </Center>
+          ) : (
+            notifications.map((value, index) => (
+              <>
+                <Alert
+                  id={index}
+                  style={{
+                    margin: '5px 0 5px 0',
+                    borderRadius: '10px',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => {
+                    navigate(value.url);
+                  }}
+                >
+                  {value.message}
+                </Alert>
+                <Divider />
+              </>
+            ))
+          )}
+          <Divider marginBottom={5} />
+          <Center>
+            <GreenButton onClick={() => navigate('/user/notifications')}>
+              View more
+            </GreenButton>
+          </Center>
         </PopoverBody>
       </PopoverContent>
     </Popover>
