@@ -13,7 +13,7 @@ html
 
     
     ul 
-        form(action=`/admin/handleReport/${val.id}`, method='POST')
+        form(action=`/admin/handleReport/${rep.id}`, method='POST')
             p
             |
             body= `${reporter.firstName}  ${reporter.lastName} reports ${accused.title} ${accused.startDateTime}`

@@ -13,15 +13,14 @@ html
 
     
     ul 
-        form(action=`/admin/handleReport/${val.id}`, method='POST')
+        form(action=`/admin/handleReport/${rep.id}`, method='POST')
             p
-            |
-            body= `${reporter.firstName} + ${reporter.lastName} reports ${accused.firstName} ${accused.lastName}`
-            |
-            body= "Description: " + rep.description
-            |          
-            input(type='submit' name='dismiss' value='dismiss')
-            |          
+            strong= `${reporter.firstName} ${reporter.lastName} `
+            body= `reports `
+            strong=`${accused.firstName} ${accused.lastName}` 
+            br
+            body= "Description: " + rep.description    
+            br
+            input(type='submit' name='dismiss' value='dismiss')    
             input(type='submit' name='ban' value='ban')
-            |
             input(type='hidden' name='token' value=token)
