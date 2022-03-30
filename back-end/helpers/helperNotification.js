@@ -225,6 +225,8 @@ module.exports = {
       groupDescription: description,
       preview: preview,
     });
-    await newNotification.save().catch(err => console.log('Err: ' + err));
+    return await newNotification
+      .save()
+      .catch(err => console.log('Err: ' + err));
   },
 };
