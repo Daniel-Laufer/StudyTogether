@@ -156,6 +156,7 @@ router.post(
   body('maxAttendees').notEmpty(),
   body('tags').exists().bail().isArray().bail().notEmpty(),
   body('recurring').notEmpty(),
+  body('private').notEmpty(),
   body('finalDate')
     .notEmpty()
     .if(
@@ -218,6 +219,7 @@ router.post(
         seriesId: seriesId,
         official: req.body.official,
         recurring: req.body.recurring,
+        private: req.body.private,
       });
 
       if (req.body.recurring != 'N/A')
@@ -357,6 +359,7 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
           seriesId: seriesId,
           official: req.body.official,
           recurring: req.body.recurring,
+          private: req.body.private,
         });
         if (req.body.recurring != 'N/A')
           session.recurringFinalDateTime = req.body.finalDate;

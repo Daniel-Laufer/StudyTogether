@@ -74,6 +74,7 @@ function GroupCreator({ authToken, userRole }) {
     finalDate: new Date(),
     recurring: 'N/A',
     official: false,
+    privateGroup: false,
   });
 
   const [errors, setErrors] = useState({
@@ -230,6 +231,7 @@ function GroupCreator({ authToken, userRole }) {
         maxAttendees: state.maxAttendees,
         recurring: state.recurring,
         official: state.official,
+        private: state.privateGroup,
         description: state.description,
         location: {
           lat: state.locationLat,
@@ -534,6 +536,17 @@ function GroupCreator({ authToken, userRole }) {
                     />
                   </HStack>
                 )}
+
+                <HStack>
+                  <span>Private:</span>
+                  <Checkbox
+                    name="privateGroup"
+                    checked={state.privateGroup}
+                    onChange={privateGroup => {
+                      setState({ ...state, privateGroup: !state.privateGroup });
+                    }}
+                  />
+                </HStack>
                 <>
                   <Text mb="8px">Description</Text>
                   <Textarea
