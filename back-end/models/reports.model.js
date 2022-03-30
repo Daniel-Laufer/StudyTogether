@@ -10,6 +10,7 @@ const reportSchema = new Schema({
   reporterId: { type: mongoose.Types.ObjectId, required: true },
   accusedId: { type: mongoose.Types.ObjectId, required: true },
   description: { type: String, required: true },
+  reportType: { type: String, required: true, enum: ['User', 'Group'] },
 });
 
 const report = mongoose.model('report', reportSchema);

@@ -55,7 +55,12 @@ module.exports = {
                 message: err,
               });
             } else {
-              req.user = user;
+              if (!user.banned) {
+                req.user = user;
+              } else {
+                req.banned = true;
+              }
+
               next();
             }
           });
@@ -231,5 +236,4 @@ module.exports = {
 
     return { hours: startHours, mins: startMins, mornOrEve: mornOrEveStart };
   },
-
 };

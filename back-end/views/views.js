@@ -175,6 +175,7 @@ router.post(
       res.status(401).render('login', { message: 'Please login again' });
       return;
     }
+    console.log('here');
     let reportId = req.params.id;
     let rep = await report.findById(reportId);
     let accused = await user.findById(rep.accusedId);

@@ -78,13 +78,25 @@ module.exports = {
     });
   },
   async renderonereport(req, res, rep, accused, reporter) {
-    res.render('onereport', {
-      title: 'Report',
-      message: 'Dispense justice, no partiality',
-      url: adminurl,
-      rep: rep,
-      reporter: reporter,
-      accused: accused,
-    });
+    console.log('her2e');
+    if (rep.reportType == 'User') {
+      res.render('oneuserreport', {
+        title: 'Report',
+        message: 'Dispense justice, no partiality',
+        url: adminurl,
+        rep: rep,
+        reporter: reporter,
+        accused: accused,
+      });
+    } else if (rep.reportType == 'Group') {
+      res.render('onegroupreport', {
+        title: 'Report',
+        message: 'Dispense justice, no partiality',
+        url: adminurl,
+        rep: rep,
+        reporter: reporter,
+        accused: accused,
+      });
+    }
   },
 };
