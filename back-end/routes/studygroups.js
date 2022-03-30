@@ -18,6 +18,12 @@ const {
 router.get('/', helperUser.verifyToken, (req, res) => {
   // checking if user is authenticated
   if (!req.user) {
+    if (req.banned) {
+      res
+        .status(403)
+        .send({ message: 'Banned users may not use the platform' });
+      return;
+    }
     res.status(401).send({ message: 'Invalid JWT token' });
     return;
   }
@@ -36,6 +42,12 @@ router.get('/', helperUser.verifyToken, (req, res) => {
 router.get('/saved', helperUser.verifyToken, async (req, res) => {
   // checking if user is authenticated
   if (!req.user) {
+    if (req.banned) {
+      res
+        .status(403)
+        .send({ message: 'Banned users may not use the platform' });
+      return;
+    }
     res.status(401).send({ message: 'Invalid JWT token' });
     return;
   }
@@ -62,6 +74,12 @@ router.get(
   async (req, res) => {
     // checking if user is authenticated
     if (!req.user) {
+      if (req.banned) {
+        res
+          .status(403)
+          .send({ message: 'Banned users may not use the platform' });
+        return;
+      }
       res.status(401).send({ message: 'Invalid JWT token' });
       return;
     }
@@ -89,6 +107,12 @@ router.get(
   async (req, res) => {
     // checking if user is authenticated
     if (!req.user) {
+      if (req.banned) {
+        res
+          .status(403)
+          .send({ message: 'Banned users may not use the platform' });
+        return;
+      }
       res.status(401).send({ message: 'Invalid JWT token' });
       return;
     }
@@ -108,6 +132,12 @@ router.get(
 router.get('/:id', helperUser.verifyToken, (req, res) => {
   // checking if user is authenticated
   if (!req.user) {
+    if (req.banned) {
+      res
+        .status(403)
+        .send({ message: 'Banned users may not use the platform' });
+      return;
+    }
     res.status(401).send({ message: 'Invalid JWT token' });
     return;
   }
@@ -148,6 +178,12 @@ router.post(
   (req, res) => {
     // checking if user is authenticated
     if (!req.user) {
+      if (req.banned) {
+        res
+          .status(403)
+          .send({ message: 'Banned users may not use the platform' });
+        return;
+      }
       res.status(401).send({ message: 'Invalid JWT token' });
       return;
     }
@@ -233,6 +269,12 @@ router.post(
 router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
   // check whether the user is authenticated as the host of this study group
   if (!req.user) {
+    if (req.banned) {
+      res
+        .status(403)
+        .send({ message: 'Banned users may not use the platform' });
+      return;
+    }
     res.status(401).send({ message: 'Invalid JWT token' });
     return;
   }
@@ -433,7 +475,6 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
         ...req.body,
         ...{ recurringFinalDateTime: req.body.finalDate },
       });
-
     }
     groups_changed += helperUser.constructMessage(
       studyGroup.title,
@@ -442,11 +483,8 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
       1
     );
 
-
-
     studyGroup.save().catch(err => res.status(400).json('Error: ' + err));
     emitGroupUpdated(groupId, studyGroup.title, 'edit');
-
   }
 
   let subject = 'Study group details have changed or been cancelled';
@@ -468,6 +506,12 @@ router.delete('/delete/:id', helperUser.verifyToken, (req, res) => {
   // check whether the user is authenticated as the host of this study group
 
   if (!req.user) {
+    if (req.banned) {
+      res
+        .status(403)
+        .send({ message: 'Banned users may not use the platform' });
+      return;
+    }
     res.status(401).send({ message: 'Invalid JWT token' });
     return;
   }
@@ -521,6 +565,12 @@ router.delete('/delete/:id', helperUser.verifyToken, (req, res) => {
 router.put('/cancel/:id', helperUser.verifyToken, async (req, res) => {
   // checking if user is authenticated
   if (!req.user) {
+    if (req.banned) {
+      res
+        .status(403)
+        .send({ message: 'Banned users may not use the platform' });
+      return;
+    }
     res.status(401).send({ message: 'Invalid JWT token' });
     return;
   }
@@ -553,6 +603,12 @@ router.put('/cancel/:id', helperUser.verifyToken, async (req, res) => {
 router.put('/reactivate/:id', helperUser.verifyToken, async (req, res) => {
   // checking if user is authenticated
   if (!req.user) {
+    if (req.banned) {
+      res
+        .status(403)
+        .send({ message: 'Banned users may not use the platform' });
+      return;
+    }
     res.status(401).send({ message: 'Invalid JWT token' });
     return;
   }
@@ -578,6 +634,12 @@ router.put('/reactivate/:id', helperUser.verifyToken, async (req, res) => {
 router.post('/attend/:id', helperUser.verifyToken, (req, res) => {
   // checking if user is authenticated
   if (!req.user) {
+    if (req.banned) {
+      res
+        .status(403)
+        .send({ message: 'Banned users may not use the platform' });
+      return;
+    }
     res.status(401).send({ message: 'Invalid JWT token' });
     return;
   }
@@ -634,6 +696,12 @@ router.post('/attend/:id', helperUser.verifyToken, (req, res) => {
 router.patch('/leave/:id', helperUser.verifyToken, (req, res) => {
   // checking if user is authenticated
   if (!req.user) {
+    if (req.banned) {
+      res
+        .status(403)
+        .send({ message: 'Banned users may not use the platform' });
+      return;
+    }
     res.status(401).send({ message: 'Invalid JWT token' });
     return;
   }

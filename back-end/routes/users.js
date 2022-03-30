@@ -16,7 +16,14 @@ const verifyURL = 'http://localhost:3000/verify';
 /* Get non-sensitive user profile info */
 router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
   if (!req.user) {
+    if (req.banned) {
+      res
+        .status(403)
+        .send({ message: 'Banned users may not use the platform' });
+      return;
+    }
     res.status(403).send({ message: 'Invalid JWT token' });
+
     return;
   }
   var usr;
@@ -136,6 +143,12 @@ router.patch(
       return;
     }
     if (!req.user) {
+      if (req.banned) {
+        res
+          .status(403)
+          .send({ message: 'Banned users may not use the platform' });
+        return;
+      }
       res.status(403).send({ message: 'Invalid JWT token' });
       return;
     }
@@ -217,6 +230,12 @@ router.get(
   helperUser.verifyToken,
   async (req, res) => {
     if (!req.user) {
+      if (req.banned) {
+        res
+          .status(403)
+          .send({ message: 'Banned users may not use the platform' });
+        return;
+      }
       res.status(403).send('Invalid JWT token');
       return;
     }
@@ -297,6 +316,12 @@ router.post(
   body('studygroupId').exists().bail().notEmpty(),
   (req, res) => {
     if (!req.user) {
+      if (req.banned) {
+        res
+          .status(403)
+          .send({ message: 'Banned users may not use the platform' });
+        return;
+      }
       res.status(401).send({ message: 'Invalid JWT token' });
       return;
     }
@@ -338,6 +363,12 @@ router.patch(
   /* Parameter Validation */
   (req, res) => {
     if (!req.user) {
+      if (req.banned) {
+        res
+          .status(403)
+          .send({ message: 'Banned users may not use the platform' });
+        return;
+      }
       res.status(401).send({ message: 'Invalid JWT token' });
       return;
     }
