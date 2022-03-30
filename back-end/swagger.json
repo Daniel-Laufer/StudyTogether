@@ -581,6 +581,43 @@
       }
     },
 
+    "/studygroups/attended": {
+      "get": {
+        "tags": ["Study Groups"],
+        "summary": "Returns all the study groups the current logged in user has attended",
+        "description": "",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "format is 'JWT ' followed by the token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "token": {
+                "type": "json",
+                "description": "object containing information about all study groups"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthenticated user"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+
     "/studygroups/{id}": {
       "get": {
         "tags": ["Study Groups"],
@@ -798,6 +835,57 @@
           },
           "401": {
             "description": "Unauthenticated user"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+
+    "/studygroups/{id}/invite": {
+      "post": {
+        "tags": ["Study Groups"],
+        "summary": "Invite a user by their email address to attned a given study a study group",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of study group to attend",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "format is 'JWT ' followed by the token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "email",
+            "in": "body",
+            "description": "Email address of the user they is to be invited",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "headers": {
+              "token": {
+                "type": "json",
+                "description": "object containing information about a specific study group"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated user"
+          },
+          "404": {
+            "description": "Study group with the given id was not found in database"
           },
           "500": {
             "description": "Internal server error"
@@ -1398,21 +1486,69 @@
           "type": "int",
           "example": "5"
         },
-        "hostFirstName": {
+        "hostId": {
           "type": "string",
-          "example": "Tobey"
-        },
-        "hostLastName": {
-          "type": "string",
-          "example": "Maguire"
+          "example": "623e2e7802dcd58af6397e66"
         },
         "description": {
           "type": "string",
           "example": "CSC209 Midterm preparation"
         },
+        "attendees": {
+          "type": "array",
+          "example": "[{id: 623e2e7802dcd58af6397e66, name: Tobey, imgSrc: /assets/ewffejvndqj30.jpg}]",
+          "default": "[]"
+        },
         "tags": {
           "type": "[string]",
           "example": "['Free', 'UTM']"
+        },
+        "recurring": {
+          "type": "enum",
+          "example": "['N/A', 'weekly', 'bi-weekly']",
+          "default": "N/A"
+        },
+        "recurringFinalDateTime": {
+          "type": "date",
+          "example": "2022-11-07T17:04:15.000+00:00",
+          "required": false
+        },
+        "canceledAt": {
+          "type": "date",
+          "example": "undefined",
+          "required": false
+        },
+        "canceled": {
+          "type": "boolean",
+          "example": "false",
+          "default": "false",
+          "required": false
+        },
+        "rescheduled": {
+          "type": "boolean",
+          "example": "false",
+          "default": "false",
+          "required": false
+        },
+        "private": {
+          "type": "boolean",
+          "default": "false",
+          "example": "false"
+        },
+        "paid": {
+          "type": "boolean",
+          "example": "false",
+          "default": "false",
+          "required": false
+        },
+        "invitees": {
+          "type": "array",
+          "example": "[623e2e7802dcd58af6397e66]",
+          "default": "[]"
+        },
+        "seriesId": {
+          "type": "ObjectId",
+          "example": "623e2e7802dcd58af6397e66"
         }
       },
       "xml": {
