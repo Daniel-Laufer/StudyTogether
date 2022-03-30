@@ -37,7 +37,55 @@ function Following({ authToken }) {
     if (authToken === null) setTimeout(() => navigate('/login'), 3000);
   }, [authToken]);
 
-  const handleUnfollow = userId => {};
+  useEffect(() => {
+    if (authToken === null) setTimeout(() => navigate('/login'), 3000);
+  }, [authToken]);
+
+  useEffect(() => {
+    const config = {
+      headers: { Authorization: `JWT ${authToken}` },
+    };
+    axios
+      .get(`${apiURL}/users/profile/${id}/followers`, config)
+      .then(res => {
+        setLoading({ ...loading, followers: false });
+        setFollowers(res.data.followers);
+      })
+      .catch(e => {
+        setLoading({
+          ...loading,
+          following: false,
+        });
+        console.log(e);
+      });
+    axios
+      .get(`${apiURL}/users/profile/${id}/following`, config)
+      .then(res => {
+        setLoading({ ...loading, following: false });
+        setFollowing(res.data.following);
+      })
+      .catch(e => {
+        setLoading({
+          ...loading,
+          followers: false,
+        });
+        console.log(e);
+      });
+  }, []);
+
+  const handleUnfollow = userId => {
+    const config = {
+      headers: { Authorization: `JWT ${authToken}` },
+    };
+    axios
+      .patch(`${apiURL}/users/profile/unfollow/${userId}`, {}, config)
+      .then(() => {
+        setFollowing(following.filter(user => user._id !== userId));
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
 
   const profiles = (userId, name, role, image, isFollowing) => (
     <Box width="full" alignItems="center" display="flex" mt={4}>
@@ -94,7 +142,8 @@ function Following({ authToken }) {
                     user._id,
                     user.firstName + ' ' + user.lastName,
                     user.role,
-                    user.profileImage
+                    user.profileImage,
+                    false
                   )
                 )
               ) : (
