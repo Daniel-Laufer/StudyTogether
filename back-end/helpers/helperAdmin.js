@@ -1,6 +1,7 @@
 var jwt = require('jsonwebtoken');
 var User = require('../models/user.model');
 var tarequest = require('../models/taverify.model');
+var reports = require('../models/reports.model');
 const adminurl = 'http://localhost:8000/admin';
 
 module.exports = {
@@ -51,10 +52,6 @@ module.exports = {
   },
   async renderrequests(req, res) {
     var requests = await tarequest.find({});
-    var list = [];
-    for (x in requests) {
-      list.push(requests[x].firstName + ' ' + requests[x].lastName + ' ');
-    }
     res.render('requests', {
       title: 'Requests',
       message: 'Manage TA verification requests',
@@ -68,6 +65,26 @@ module.exports = {
       title: 'Login',
       url: adminurl,
       errors: err,
+    });
+  },
+  async renderreports(req, res) {
+    var userReports = await reports.find({});
+    res.render('reports', {
+      title: 'Reports',
+      message: 'Manage user reports',
+      url: adminurl,
+      reports: userReports,
+      token: req.body.token,
+    });
+  },
+  async renderonereport(req, res, rep, accused, reporter) {
+    res.render('onereport', {
+      title: 'Report',
+      message: 'Dispense justice, no partiality',
+      url: adminurl,
+      rep: rep,
+      reporter: reporter,
+      accused: accused,
     });
   },
 };

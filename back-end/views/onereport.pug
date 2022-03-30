@@ -1,0 +1,27 @@
+html
+  head
+    title= title
+  body
+    h1= message
+    br
+    form(action=url, method='POST')
+      p
+      |
+      input(type='hidden' name='token' value=token)
+      |
+      input(type='submit' name='menu' value='menu') 
+
+    
+    ul 
+        form(action=`/admin/handleReport/${val.id}`, method='POST')
+            p
+            |
+            body= `${reporter.firstName} + ${reporter.lastName} reports ${accused.firstName} ${accused.lastName}`
+            |
+            body= "Description: " + rep.description
+            |          
+            input(type='submit' name='dismiss' value='dismiss')
+            |          
+            input(type='submit' name='ban' value='ban')
+            |
+            input(type='hidden' name='token' value=token)

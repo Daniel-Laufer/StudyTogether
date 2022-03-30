@@ -8,6 +8,9 @@ const adminurl = 'http://localhost:8000/admin';
 var helperUser = require('../helpers/helperUser');
 const taverify = require('../models/taverify.model');
 const User = require('../models/user.model');
+const report = require('../models/reports.model');
+const user = require('../models/user.model');
+const helperAdmin = require('../helpers/helperAdmin');
 
 router.get('/', helperUser.verifyTokenInBody, (req, res) => {
   if (req.user) {
@@ -154,5 +157,31 @@ router.post('/unban/:id', helperUser.verifyTokenInBody, async (req, res) => {
   person.save().catch(err => res.status(500).json(err));
   helperUser.renderusers(req, res);
 });
+
+router.post('/reports', helperUser.verifyTokenInBody, async (req, res) => {
+  if (!req.user) {
+    res.status(401).render('login', { message: 'Please login again' });
+    return;
+  }
+  console.log('here');
+  helperAdmin.renderreports(req, res);
+});
+
+router.post(
+  '/reportinfo/:id',
+  helperAdmin.verifyTokenInBody,
+  async (req, res) => {
+    if (!req.user) {
+      res.status(401).render('login', { message: 'Please login again' });
+      return;
+    }
+    let reportId = req.params.id;
+    let rep = await report.findById(reportId);
+    let accused = await user.findById(rep.accusedId);
+    let reporter = await user.findById(rep.reporterId);
+
+    helperAdmin.renderonereport(req, res, rep, accused, reporter);
+  }
+);
 
 module.exports = router;

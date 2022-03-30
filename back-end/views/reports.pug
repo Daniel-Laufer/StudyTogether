@@ -1,0 +1,34 @@
+html
+  head
+    title= title
+  body
+    h1= message
+    br
+    form(action=url, method='POST')
+      p
+      |
+      input(type='hidden' name='token' value=token)
+      |
+      input(type='submit' name='menu' value='menu') 
+    form(action=url + '/reports', method='POST')
+      p
+      |
+      input(type='hidden' name='token' value=token)
+      |
+      input(type='submit' name='refresh' value='refresh') 
+
+
+    ul 
+        each val in reports 
+            form(action=`/admin/reportinfo/${val.id}`, method='POST')
+                p
+                |
+                body= "reporter: " + val.reporterId + ", accused:" + val.accusedId
+                |
+                body= "Description: " + val.description
+                |          
+                input(type='submit' name='more info' value='more info')
+                |
+                input(type='hidden' name='token' value=token)
+
+    
