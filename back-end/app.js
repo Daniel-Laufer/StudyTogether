@@ -13,6 +13,7 @@ const usersRouter = require('./routes/users');
 const forgotRouter = require('./routes/forgot');
 const studygroupsRouter = require('./routes/studygroups');
 const viewsRouter = require('./views/views');
+const reportsRouter = require('./routes/reports');
 
 const app = express();
 
@@ -33,6 +34,7 @@ app.use('/forgot', forgotRouter);
 app.use('/users', usersRouter);
 app.use('/studygroups', studygroupsRouter);
 app.use('/admin', viewsRouter);
+app.use('/reports', reportsRouter);
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
