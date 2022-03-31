@@ -616,7 +616,6 @@ function GroupEditor({ authToken, userRole, dispatch }) {
                   <Checkbox
                     isChecked={state.privateGroup}
                     name="privateGroup"
-                    // isChecked={state.privateGroup}
                     onChange={privateGroup => {
                       setState({ ...state, privateGroup: !state.privateGroup });
                     }}
