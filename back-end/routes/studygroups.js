@@ -4,6 +4,7 @@ let StudygroupModel = require('../models/studygroup.model');
 let studyGroupSeriesModel = require('../models/studygroupseries.model');
 let UserModel = require('../models/user.model');
 var helperUser = require('../helpers/helperUser');
+const helperEmail = require('../helpers/helperEmail');
 const { body, validationResult } = require('express-validator');
 const mongoose = require('mongoose');
 const helperGroupHistory = require('../helpers/helperGroupHistory');
@@ -259,8 +260,9 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
   }
 
   const groupId = req.params.id;
-
   const editAll = req.body.editAll;
+
+  let notifMessage = null;
 
   let studyGroup = await StudygroupModel.findById(groupId).catch(err => err => {
     res.status(400).json('Error: ' + err);
@@ -466,18 +468,25 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
     /* begin: notification logic */
     const action = 'edit';
     emitGroupUpdated(groupId, studyGroup.title, action);
-    saveNotification(groupId, req.user._id, action, true);
+    notifMessage = await saveNotification(groupId, req.user._id, action, true);
     /* end */
   }
 
   let subject = 'Study group details have changed or been cancelled';
-  for (let i = 0; i < emailList.length; i++) {
-    for (let k = 0; k < usersAndChanges[emailList[i]].length; k++) {
-      helperUser.sendEmail(
-        emailList[i],
-        subject,
-        usersAndChanges[emailList[i]][k]
-      );
+  //TODO: update the implemenation to apply to recurring.
+  if (!editAll) {
+    for (let i = 0; i < emailList.length; i++) {
+      helperEmail.sendEmail(emailList[i], subject, notifMessage);
+    }
+  } else {
+    for (let i = 0; i < emailList.length; i++) {
+      for (let k = 0; k < usersAndChanges[emailList[i]].length; k++) {
+        helperUser.sendEmail(
+          emailList[i],
+          subject,
+          usersAndChanges[emailList[i]][k]
+        );
+      }
     }
   }
 
