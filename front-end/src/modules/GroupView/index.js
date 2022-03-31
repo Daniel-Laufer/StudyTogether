@@ -72,8 +72,12 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
           setGroupOwnerId(hostId);
         })
         .catch(err => {
+          console.log(err.response.status);
           setLoading(false);
-          if (err.response.status === 401) {
+          if (err.response.status === 400) {
+            dispatch(logout());
+            navigate('/login');
+          } else if (err.response.status === 401) {
             dispatch(logout());
             navigate('/login');
           }
@@ -93,12 +97,12 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
         setGroup(res.data);
         getGroupOwnerCallback(res.data.hostId, config);
       })
-      .catch(err => {
+      .catch(() => {
         setLoading(false);
-        if (err.response.status === 401) {
-          dispatch(logout());
-          navigate('/login');
-        }
+        navigate('/notfound');
+        setTimeout(() => {
+          navigate('/groups');
+        }, 1000);
       });
   };
 

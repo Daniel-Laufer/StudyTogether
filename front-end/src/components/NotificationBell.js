@@ -66,6 +66,11 @@ function NotificationBell({ userDetails }) {
         },
       });
       setIsConnected(skt.connected);
+      skt.on('invite-user', (message, groupID) => {
+        const url = `/groups/${groupID}`;
+        setNotifications([{ message, url }, ...notifications]);
+        setNotSeen(true);
+      });
       skt.on('group-change', (message, groupID) => {
         const url = `/groups/${groupID}`;
         setNotifications([{ message, url }, ...notifications]);
