@@ -413,6 +413,95 @@
         }
       }
     },
+    "/user/send-verification/{id}": {
+      "post": {
+        "tags": ["User"],
+        "summary": "Send a verification email to the user",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id of the user to send the email to",
+            "required": true
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "format is 'JWT ' followed by the token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "token": {
+                "type": "String",
+                "description": "Token that will be used to verify the email"
+              },
+              "id": {
+                "type": "String",
+                "description": "userId of the user to be verified"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated user"
+          },
+          "404": {
+            "description": "User with the given ID was not found in the database"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/user/verify": {
+      "post": {
+        "tags": ["User"],
+        "summary": "Verify the user's email",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "body",
+            "description": "Id of the user to be verified",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "token",
+            "in": "body",
+            "description": "Unique token to test for verification of user",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "verified": {
+                "type": "String",
+                "description": "The new verification status of the user"
+              }
+            }
+          },
+          "401": {
+            "description": "User's token has expired or is invalid"
+          },
+          "400": {
+            "description": "Request was malformed"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
     "/forgot": {
       "post": {
         "tags": ["Password Recovery"],
