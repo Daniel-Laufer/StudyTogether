@@ -225,7 +225,13 @@ router.post(
       if (req.body.recurring != 'N/A')
         studygroup.recurringFinalDateTime = finalDate;
 
-      studygroup.save().catch(err => res.status(400).json('Error: ' + err));
+      studygroup
+        .save()
+        .then(() => {
+          req.user.registeredStudygroups.push(studygroup);
+          req.user.save();
+        })
+        .catch(err => res.status(400).json('Error: ' + err));
 
       newSeries.studyGroups.push(studygroup._id);
       start.setDate(start.getDate() + numDays);
