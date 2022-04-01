@@ -71,6 +71,7 @@ function GroupEditor({ authToken, userRole, dispatch }) {
     finalDate: new Date(),
     recurring: 'N/A',
     official: false,
+    privateGroup: false,
     editAll: false,
   });
 
@@ -118,6 +119,7 @@ function GroupEditor({ authToken, userRole, dispatch }) {
             return acc;
           }, []),
           locationLat: res.data.location.lat,
+          privateGroup: res.data.private,
           locationLng: res.data.location.lng,
           currAttendees: res.data.curAttendees,
           maxAttendees: res.data.maxAttendees,
@@ -277,6 +279,7 @@ function GroupEditor({ authToken, userRole, dispatch }) {
         maxAttendees: state.maxAttendees,
         recurring: state.recurring,
         official: state.official,
+        private: state.privateGroup,
         description: state.description,
         editAll: state.editAll,
         location: {
@@ -608,6 +611,16 @@ function GroupEditor({ authToken, userRole, dispatch }) {
                     />
                   </HStack>
                 )}
+                <HStack>
+                  <span>Private:</span>
+                  <Checkbox
+                    isChecked={state.privateGroup}
+                    name="privateGroup"
+                    onChange={privateGroup => {
+                      setState({ ...state, privateGroup: !state.privateGroup });
+                    }}
+                  />
+                </HStack>
                 <>
                   <Text mb="8px">Description</Text>
                   <Textarea

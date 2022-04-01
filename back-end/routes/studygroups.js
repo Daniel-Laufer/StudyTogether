@@ -157,6 +157,7 @@ router.post(
   body('maxAttendees').notEmpty(),
   body('tags').exists().bail().isArray().bail().notEmpty(),
   body('recurring').notEmpty(),
+  body('private').notEmpty(),
   body('finalDate')
     .notEmpty()
     .if(
@@ -219,12 +220,19 @@ router.post(
         seriesId: seriesId,
         official: req.body.official,
         recurring: req.body.recurring,
+        private: req.body.private,
       });
 
       if (req.body.recurring != 'N/A')
         studygroup.recurringFinalDateTime = finalDate;
 
-      studygroup.save().catch(err => res.status(400).json('Error: ' + err));
+      studygroup
+        .save()
+        .then(() => {
+          req.user.registeredStudygroups.push(studygroup);
+          req.user.save();
+        })
+        .catch(err => res.status(400).json('Error: ' + err));
 
       newSeries.studyGroups.push(studygroup._id);
       start.setDate(start.getDate() + numDays);
@@ -359,6 +367,7 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
           seriesId: seriesId,
           official: req.body.official,
           recurring: req.body.recurring,
+          private: req.body.private,
         });
         if (req.body.recurring != 'N/A')
           session.recurringFinalDateTime = req.body.finalDate;

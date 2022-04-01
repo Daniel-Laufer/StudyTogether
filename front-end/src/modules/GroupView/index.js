@@ -1,7 +1,9 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-undef */
+/* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable no-underscore-dangle */
 import React, { useEffect, useState } from 'react';
+import { Formik, Form, Field } from 'formik';
 import {
   Box,
   Flex,
@@ -9,9 +11,21 @@ import {
   AlertIcon,
   Heading,
   FormControl,
+  FormLabel,
+  Input,
+  FormErrorMessage,
   AlertDescription,
   Text,
+  Button,
+  Modal,
   HStack,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  Stack,
+  useDisclosure,
 } from '@chakra-ui/react';
 import { connect } from 'react-redux';
 import moment from 'moment';
@@ -34,7 +48,11 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
   const [groupOwner, setGroupOwner] = useState({});
   const [groupOwnerId, setGroupOwnerId] = useState({});
   const [loading, setLoading] = useState(false);
+  const [formLoading, setformLoading] = useState(false);
   const [errorOccured, setErrorOccured] = useState(false);
+  const [userDneError, setUserDneError] = useState(false);
+  const [userInvSuccess, setUserInvSuccess] = useState(false);
+  const [userAlrInvError, setUserAlrInvError] = useState(false);
   const [successOccured, setSuccessOccured] = useState(false);
 
   useEffect(() => {
@@ -54,8 +72,12 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
           setGroupOwnerId(hostId);
         })
         .catch(err => {
+          console.log(err.response.status);
           setLoading(false);
-          if (err.response.status === 401) {
+          if (err.response.status === 400) {
+            dispatch(logout());
+            navigate('/login');
+          } else if (err.response.status === 401) {
             dispatch(logout());
             navigate('/login');
           }
@@ -75,14 +97,40 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
         setGroup(res.data);
         getGroupOwnerCallback(res.data.hostId, config);
       })
-      .catch(err => {
+      .catch(() => {
         setLoading(false);
-        if (err.response.status === 401) {
-          dispatch(logout());
-          navigate('/login');
-        }
+        navigate('/notfound');
+        setTimeout(() => {
+          navigate('/groups');
+        }, 1000);
       });
   };
+
+  function sendInviteViaEmail(userEmail) {
+    return new Promise((resolve, reject) => {
+      const config = {
+        headers: { Authorization: `JWT ${authToken}` },
+      };
+      // setLoading(true);
+      axios
+        .post(
+          `${apiURL}/${studyGroupsEndPoint}/${id}/invite`,
+          { email: userEmail },
+          config
+        )
+        .then(() => {
+          resolve();
+        })
+        .catch(err => {
+          if (err.response.status === 401) {
+            dispatch(logout());
+            navigate('/login');
+          }
+
+          reject(err.response.status);
+        });
+    });
+  }
 
   // on component mount, retrieve all the saved study groups
   useEffect(() => {
@@ -168,6 +216,24 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
     .subtract(dateDiffHours, 'hours')
     .diff(moment(group.startDateTime), 'minutes');
 
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  // function taken from https://stackoverflow.com/questions/46155/whats-the-best-way-to-validate-an-email-address-in-javascript
+  const validateEmail = email =>
+    String(email)
+      .toLowerCase()
+      .match(
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      );
+
+  const validateName = value => {
+    let error;
+    if (!validateEmail(value)) {
+      error = 'Email is not valid';
+    }
+    return error;
+  };
+
   return !loading ? (
     <Box
       style={{
@@ -216,15 +282,139 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
         <Box width="full">
           <Box style={{ marginTop: '1rem' }}>
             {group && group.hostId === userDetails.id ? (
-              <GreenButton
-                style={{ backgroundColor: colors.blue.medium }}
-                size="md"
-                width="50%"
-                maxWidth="380px"
-                onClick={() => navigate(`/groups/edit/${id}`)}
-              >
-                Edit
-              </GreenButton>
+              <Stack>
+                <GreenButton
+                  style={{ backgroundColor: colors.blue.medium }}
+                  size="md"
+                  width="50%"
+                  maxWidth="380px"
+                  onClick={() => navigate(`/groups/edit/${id}`)}
+                >
+                  Edit
+                </GreenButton>
+
+                <GreenButton
+                  size="md"
+                  width="50%"
+                  maxWidth="380px"
+                  onClick={onOpen}
+                >
+                  Invite User
+                </GreenButton>
+                <Modal isOpen={isOpen} onClose={onClose}>
+                  <ModalOverlay />
+                  <ModalContent>
+                    <ModalHeader>User to invite</ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody>
+                      {/* Used this link as a reference https://chakra-ui.com/docs/components/form/form-control */}
+                      <Formik
+                        initialValues={{ email: '' }}
+                        onSubmit={(values, { resetForm }) => {
+                          setformLoading(true);
+                          sendInviteViaEmail(values.email)
+                            .then(res => {
+                              console.log(res);
+                              setUserInvSuccess(true);
+                              setInterval(() => {
+                                setUserInvSuccess(false);
+                              }, 6000);
+                              setformLoading(false);
+                              setTimeout(() => {
+                                onClose();
+                                setUserInvSuccess(false);
+                              }, 1000);
+                            })
+                            .catch(err => {
+                              console.log(err);
+                              if (err === 409) {
+                                setUserAlrInvError(true);
+                                setInterval(() => {
+                                  setUserAlrInvError(false);
+                                }, 6000);
+                              } else {
+                                setUserDneError(true);
+                                setInterval(() => {
+                                  setUserDneError(false);
+                                }, 6000);
+                                resetForm({ email: '' });
+                              }
+                              setformLoading(false);
+                            });
+                        }}
+                      >
+                        <Form>
+                          <Field name="email" validate={validateName}>
+                            {({ field, form }) => (
+                              <FormControl
+                                isInvalid={
+                                  form.errors.email && form.touched.email
+                                }
+                              >
+                                <FormLabel htmlFor="email">
+                                  Email Address
+                                </FormLabel>
+                                <Input
+                                  {...field}
+                                  id="email"
+                                  placeholder="Enter here"
+                                />
+                                <FormErrorMessage>
+                                  {form.errors.email}
+                                </FormErrorMessage>
+                              </FormControl>
+                            )}
+                          </Field>
+                          <Flex
+                            justify="right"
+                            wrap="wrap"
+                            style={{
+                              marginTop:
+                                userDneError ||
+                                userAlrInvError ||
+                                userInvSuccess
+                                  ? '1em'
+                                  : 0,
+                            }}
+                          >
+                            {userInvSuccess && (
+                              <Alert status="success">
+                                <AlertIcon />
+                                User was successfully invited!
+                              </Alert>
+                            )}
+
+                            {userAlrInvError && (
+                              <Alert status="error">
+                                <AlertIcon />
+                                User with this email was already invited!
+                              </Alert>
+                            )}
+                            {userDneError && (
+                              <Alert status="error">
+                                <AlertIcon />A user with this email was not
+                                found!
+                              </Alert>
+                            )}
+
+                            <Button
+                              style={{
+                                backgroundColor: colors.blue.medium,
+                              }}
+                              mt={4}
+                              colorScheme="teal"
+                              isLoading={formLoading}
+                              type="submit"
+                            >
+                              Submit
+                            </Button>
+                          </Flex>
+                        </Form>
+                      </Formik>
+                    </ModalBody>
+                  </ModalContent>
+                </Modal>
+              </Stack>
             ) : group &&
               group.attendees &&
               group.attendees.filter(g => g.id === userDetails.id).length ===

@@ -119,15 +119,15 @@ module.exports = {
       followedUserID
     );
   },
-  emitInviteMessage(inviteeUserID, inviteeUserName, studygroupId) {
-    var message = `${inviteeUserName} has invited you to join their study group ${studygroupId}!`;
+  emitInviteMessage(inviteeUserID, inviterUserName, studygroupId) {
+    var message = `${inviterUserName} has invited you to join their study group!`;
     // TODO need to handle invite-user-update on frontend
     // const socketID = socketStore.sockets[inviteeUserID];
     const socketID = socketStore.sockets[inviteeUserID];
     // const socket = io?.sockets.sockets.get(socketID);
 
     // io?.emit('invite-user', message, inviteeUserID);
-    io?.to(socketID).emit('invite-user', message, inviteeUserID, studygroupId);
+    io?.to(socketID).emit('invite-user', message, studygroupId);
   },
   async attendGroups(userID, groupIDs, errors) {
     if (userID in socketStore.sockets) {
