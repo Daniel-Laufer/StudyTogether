@@ -16,9 +16,11 @@ Assignees: John
 Story points: 3
 
 ### Main tasks
-[x] Create an alert on the frontend telling a user to verify their email, along with a link
-[x] Create backend endpoints for sending the verification email and for verifying the user
-[x] If the user verified with a uoft email, display that on their profile
+[x] Create an alert on the frontend telling a user to verify their email, along with a link.
+
+[x] Create backend endpoints for sending the verification email and for verifying the user.
+
+[x] If the user verified with a uoft email, display that on their profile.
 
 ## Story: STUD-64
 
@@ -26,7 +28,11 @@ Assignees: Maor
 Story points: 6
 
 ### Main tasks
-[x] 
+[x] Update study group creation and edit views to allow users to mark their study groups as being private (thus only accessible by invite).
+
+[x] Update the study group view from the perspective of its owner to include a button allowing the owner to invite users to their study group given their email address.
+
+[x] Display a notification for the invited user notifying them that someone has invited them to join a study group.
 
 ## Story: STUD-65
 
@@ -48,8 +54,9 @@ Assignees: Milind
 Story points: 3
 
 ### Main tasks
-[x] Display the number of following and follower users on user’s profile you are on
-[x] Display the users that are following and are followers of a user
+[x] Display the number of following and follower users on user’s profile you are on.
+
+[x] Display the users that are following and are followers of a user.
 
 ## Story: STUD-75
 
@@ -67,7 +74,8 @@ Assignees: Mohamed
 Story points: 4
 
 ### Main tasks
-[x] Added a dedicated page for viewing more informative notification messages. 
+[x] Added a dedicated page for viewing more informative notification messages.
+
 [x] Updated the backend to store notifications in the database. 
 
 
@@ -78,8 +86,9 @@ Assignees: John
 Story points: 4
 
 ### Main tasks
-[x] Create ui for reporting abusive users/study groups
-[x] Create endpoints for creation of reports and to let Admin act on them
+[x] Create ui for reporting abusive users/study groups.
+
+[x] Create endpoints for creation of reports and to let Admin act on them.
 *** 
 # Team Capacity
 Our team has committed to a total of 24 story points.
