@@ -12,6 +12,8 @@ import {
   InfoWindow,
 } from '@react-google-maps/api';
 import PropTypes from 'prop-types';
+import MarkerInfoWindow from './MarkerInfoWindow';
+import * as colors from '../utils/colors';
 
 // a lot of this code was taken from https://www.npmjs.com/package/@react-google-maps/api (the starter code provided in the documentation)
 
@@ -48,7 +50,7 @@ function Map({
   });
 
   const [map, setMap] = React.useState(null);
-  const [infoWindowOpen, setInfoWindowOpen] = React.useState(true);
+  const [infoWindowOpen, setInfoWindowOpen] = React.useState(false);
   const [markers, setMarkers] = React.useState(markerLocations);
 
   useEffect(() => {
@@ -57,7 +59,13 @@ function Map({
       JSON.stringify(markers) !== JSON.stringify(markerLocations)
     )
       setMarkers(markerLocations);
+
+    // console.log(markerLocations);
   }, [markerLocations]);
+
+  useEffect(() => {
+    setInfoWindowOpen(true);
+  }, [currentlySelectedGroup]);
 
   const addMarker = ev => {
     if (disableAddingNewMarkers) return;
@@ -69,6 +77,41 @@ function Map({
     getLngLatOfNewMarker(ev.latLng.lat(), ev.latLng.lng());
   };
 
+  const defaultMapOptions = {
+    mapTypeControl: false,
+    streetViewControl: false,
+    styles: [
+      {
+        featureType: 'poi',
+        elementType: 'labels.icon',
+        stylers: [
+          {
+            visibility: 'off',
+          },
+        ],
+        mapTypeControl: false,
+      },
+    ],
+  };
+
+  const getMarkerIconUrl = marker => {
+    const { metaData } = marker;
+
+    if (!metaData) return `/markers/${colors.statusColors.default}.png`;
+
+    if (metaData.cancelled) {
+      return `/markers/${colors.statusColors.cancelled}.png`;
+    }
+    if (metaData.full) {
+      return `/markers/${colors.statusColors.full}.png`;
+    }
+    if (metaData.rescheduled) {
+      return `/markers/${colors.statusColors.rescheduled}.png`;
+    }
+
+    return `/markers/${colors.statusColors.default}.png`;
+  };
+
   return isLoaded ? (
     <GoogleMap
       center={initialCenter}
@@ -76,30 +119,37 @@ function Map({
       onClick={addMarker}
       zoom={initialZoom}
       style={{ ...style }}
+      options={defaultMapOptions}
     >
       {markers
         ? markers.map(marker => (
             <Marker
-              onClick={() => markerOnClickFunc(marker.id)}
+              onClick={() => {
+                markerOnClickFunc(marker.id);
+                setInfoWindowOpen(true);
+              }}
               key={`${marker.lat}-${marker.lng}-${marker.id}`}
               position={{ lat: marker.lat, lng: marker.lng }}
               icon={{
-                scaledSize: new window.google.maps.Size(600, 40),
+                scaledSize: new window.google.maps.Size(70, 60),
+                color: 'green',
+                url: getMarkerIconUrl(marker),
               }}
             />
           ))
         : null}
-      {currentlySelectedGroup ? (
+      {infoWindowOpen && currentlySelectedGroup ? (
         <InfoWindow
-          position={initialCenter}
+          position={{
+            lat: currentlySelectedGroup.lat,
+            lng: currentlySelectedGroup.lng,
+          }}
+          options={{ pixelOffset: new google.maps.Size(0, -40) }}
           onCloseClick={() => {
-            setSelected(null);
+            setInfoWindowOpen(false);
           }}
         >
-          <div>
-            <h2>CSC301 Study Group</h2>
-            {/* <p>Spotted {formatRelative(selected.time, new Date())}</p> */}
-          </div>
+          <MarkerInfoWindow group={currentlySelectedGroup} />
         </InfoWindow>
       ) : null}
     </GoogleMap>

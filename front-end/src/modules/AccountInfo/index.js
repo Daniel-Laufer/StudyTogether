@@ -7,6 +7,7 @@ import {
   Text,
   Input,
   Grid,
+  HStack,
   GridItem,
   Box,
   Select,
@@ -24,12 +25,14 @@ import {
   AlertDialogContent,
   AlertDialogOverlay,
   Button,
+  CloseButton,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import axios from 'axios';
+import moment from 'moment';
 import { WithContext as ReactTags } from 'react-tag-input';
 import CustomSpinner from '../../components/CustomSpinner';
 import { apiURL } from '../../utils/constants';
@@ -51,6 +54,9 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
     groups: false,
     user: false,
   });
+  const universityColorText = {
+    'University of Toronto': { color: colors.UofTblue.medium, text: 'UofT' },
+  };
   const [dataUpdated, setDataUpdated] = useState(false);
   const [errorOccured, setErrorOccured] = useState(false);
   const [followed, setFollowed] = useState(false);
@@ -70,10 +76,14 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
       { id: '1', text: 'CSC302' },
     ],
     profileFollowing: [],
+    verified: 'false',
   });
   const [oldUserInfo, setOldUserInfo] = useState({});
   const [groups, setGroups] = useState([]);
-
+  const [dialogBoxState, setDialogBoxState] = useState({
+    openEmailReminder: true,
+    displaySentAlert: false,
+  });
   useEffect(() => {
     if (authToken === null) setTimeout(() => navigate('/login'), 3000);
   }, [authToken]);
@@ -109,6 +119,7 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
             return { id: i, text: c };
           }),
         });
+        console.log(userInfo);
         setLoading({
           ...loading,
           user: false,
@@ -156,13 +167,28 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
   };
 
   const handleAddition = c => {
-    console.log(c);
     setUserInfo({
       ...userInfo,
       profileCourses: [...userInfo.profileCourses, c],
     });
   };
 
+  const sendEmailVerification = () => {
+    const config = {
+      headers: { Authorization: `JWT ${authToken}` },
+    };
+    console.log(id);
+    console.log(authToken);
+    axios
+      .get(`${apiURL}/users/send-verification/${id}`, config)
+      .then(() => {})
+      .catch(err => {
+        if (err.response.status === 401) {
+          dispatch(logout());
+          navigate('/login');
+        }
+      });
+  };
   const saveUserInfo = () => {
     if (JSON.stringify(userInfo) === JSON.stringify(oldUserInfo)) return;
     const config = {
@@ -226,6 +252,13 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
       .patch(`${apiURL}/users/profile/${prefix}follow/${id}`, {}, config)
       .then(() => {
         setFollowed(!isFollow);
+        let { profileFollowers } = userInfo;
+        if (isFollow)
+          profileFollowers = profileFollowers.filter(
+            uid => uid !== userDetails.id
+          );
+        else profileFollowers.push(userDetails.id);
+        setUserInfo({ ...userInfo, profileFollowers });
       })
       .catch(err => {
         console.log(err);
@@ -240,6 +273,19 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
         }, 3000);
       });
   };
+
+  const displayFollowers = (number, title) => (
+    <Box as="button" onClick={() => navigate(`/following/${id}`)}>
+      <VStack>
+        <Text fontSize="xl" as="b" color={colors.grey.dark}>
+          {number}
+        </Text>
+        <Text color={colors.grey.dark} style={{ marginTop: 0 }}>
+          {title}
+        </Text>
+      </VStack>
+    </Box>
+  );
 
   const [edit, setEdit] = useState(false);
 
@@ -256,7 +302,96 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
   }
 
   return !loading.groups && !loading.user ? (
-    <Container maxW="container.lg" style={{ marginTop: '2rem' }}>
+    <Container
+      maxW="container.lg"
+      style={
+        userInfo.verified !== '' &&
+        userInfo.verified !== 'false' &&
+        (!dialogBoxState.openEmailReminder || dialogBoxState.displaySentAlert)
+          ? { marginTop: '2rem' }
+          : { marginTop: '0.5rem' }
+      }
+    >
+      {userDetails &&
+        userDetails.id === id &&
+        dialogBoxState.openEmailReminder &&
+        (userInfo.verified === '' ||
+          userInfo.verified === 'false' ||
+          userInfo.verified === false) && (
+          <Alert
+            status="warning"
+            height="50px"
+            style={{ marginBottom: '1.5rem' }}
+          >
+            <AlertIcon />
+            <CloseButton
+              position="absolute"
+              right="8px"
+              top="8px"
+              onClick={() => {
+                setDialogBoxState({
+                  ...dialogBoxState,
+                  openEmailReminder: false,
+                });
+              }}
+            />
+            <AlertDescription
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                fontSize: '15px',
+              }}
+            >
+              Your email has not been verified, resend the verification link:
+              <GreenButton
+                style={{
+                  color: 'white',
+                  //  backgroundColor: '#ffeccc',
+                  // backgroundColor: 'blue',
+                  maxWidth: '90px',
+                  marginLeft: '0.45rem',
+                  fontSize: '14px',
+                  maxHeight: '28px',
+                }}
+                onClick={() => {
+                  sendEmailVerification();
+                  setDialogBoxState({
+                    ...dialogBoxState,
+                    openEmailReminder: false,
+                    displaySentAlert: true,
+                  });
+                }}
+              >
+                Resend Link
+              </GreenButton>
+            </AlertDescription>
+          </Alert>
+        )}
+      {userDetails && userDetails.id === id && dialogBoxState.displaySentAlert && (
+        <Alert status="info" height="50px" style={{ marginBottom: '1.5rem' }}>
+          <AlertIcon />
+          <CloseButton
+            position="absolute"
+            right="8px"
+            top="8px"
+            onClick={() => {
+              setDialogBoxState({
+                ...dialogBoxState,
+                displaySentAlert: false,
+              });
+            }}
+          />
+          <AlertDescription
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              fontSize: '15px',
+            }}
+          >
+            Verification email sent
+          </AlertDescription>
+        </Alert>
+      )}
       <Grid templateColumns="repeat(2, 1fr)" gap={12}>
         <GridItem
           colSpan={[12, 12, 1]}
@@ -410,8 +545,56 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
                   boxSize="200px"
                   alignSelf="center"
                 />
+                {userInfo.verified !== 'false' &&
+                  userInfo.verified !== 'Not University Email' && (
+                    <Text
+                      style={{
+                        backgroundColor:
+                          universityColorText[userInfo.verified].color,
+                        color: 'white',
+                        paddingLeft: '6px',
+                        paddingRight: '6px',
+                        textAlign: 'center',
+                        borderRadius: '6px',
+                        marginTop: '16px',
+                      }}
+                    >
+                      {universityColorText[userInfo.verified].text}
+                    </Text>
+                  )}
+                {userInfo.verified === 'Not University Email' &&
+                  userDetails &&
+                  id === userDetails.id && (
+                    <Text
+                      style={{
+                        backgroundColor: colors.grey.medium,
+                        color: 'white',
+                        paddingLeft: '6px',
+                        paddingRight: '6px',
+                        textAlign: 'center',
+                        borderRadius: '6px',
+                        marginTop: '16px',
+                      }}
+                    >
+                      Verified
+                    </Text>
+                  )}
+                <HStack spacing="20px">
+                  {userInfo.profileFollowers
+                    ? displayFollowers(
+                        userInfo.profileFollowers.length,
+                        'Followers'
+                      )
+                    : displayFollowers(0, 'Followers')}
+                  {userInfo.profileFollowing
+                    ? displayFollowers(
+                        userInfo.profileFollowing.length,
+                        'Following'
+                      )
+                    : displayFollowers(0, 'Following')}
+                </HStack>
                 {userDetails && id !== userDetails.id && (
-                  <Box>
+                  <Box style={{ marginTop: '20px' }}>
                     {!followed ? (
                       <GreenButton
                         width="100px"
@@ -468,12 +651,14 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
                     </AlertDialogContent>
                   </AlertDialogOverlay>
                 </AlertDialog>
+
                 <Divider orientation="horizontal" />
                 <Text
                   fontSize={18}
                   as="b"
-                  alignSelf="flex-start"
+                  //    alignSelf="flex-start"
                   color={colors.grey.dark}
+                  style={{ textAlign: 'center' }}
                 >
                   {userInfo.firstName} {userInfo.lastName} ({userInfo.role})
                 </Text>
@@ -600,10 +785,31 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
                     }`}
                     imgAlt="Study group image"
                     img={g.imageUrl}
-                    when={g.time}
+                    when={moment(g.startDateTime).format(
+                      'dddd, MMM DD, yyyy HH:mm a'
+                    )}
+                    durationHours={moment(g.endDateTime).diff(
+                      moment(g.startDateTime),
+                      'hours'
+                    )}
+                    durationMins={moment(g.endDateTime)
+                      .subtract(
+                        moment(g.endDateTime).diff(
+                          moment(g.startDateTime),
+                          'hours'
+                        ),
+                        'hours'
+                      )
+                      .diff(moment(g.startDateTime), 'minutes')}
                     host={g.hostFirstName + g.hostLastName}
+                    hostId={g.hostId}
                     desc={g.description}
-                    link={`${g._id}`}
+                    status={{
+                      reschedule: g.rescheduled,
+                      cancelled: g.canceled,
+                      full: g.maxAttendees - g.curAttendees === 0,
+                    }}
+                    link={`/groups/${g._id}`}
                   />
                 ))
               : null}

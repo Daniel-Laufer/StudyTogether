@@ -15,9 +15,34 @@ const studygroupSchema = new Schema(
     maxAttendees: { type: Number, min: 2, required: true },
     hostId: { type: mongoose.Types.ObjectId, required: true },
     description: { type: String, required: true },
-    attendees: { type: [mongoose.Types.ObjectId], default: [], required: true },
+    attendees: {
+      type: [
+        {
+          id: mongoose.Types.ObjectId,
+          name: String,
+          imgSrc: String,
+          _id: false,
+        },
+      ],
+      default: [],
+      required: true,
+    },
     tags: { type: [String], required: true },
-    official: { type: Boolean, required: true },
+    official: { type: Boolean, required: true, default: false },
+
+    // Recurring
+    recurring: {
+      type: String,
+      enum: ['N/A', 'weekly', 'bi-weekly'],
+      default: 'N/A',
+      required: true,
+    },
+    recurringFinalDateTime: {
+      type: Date,
+      required: function () {
+        return this.recurring !== 'N/A';
+      },
+    },
 
     //Status
     canceledAt: { type: Date, default: undefined, required: false }, //TLL index for deleting a group after canceling. Not meant to be parsed in the frontend.
@@ -25,8 +50,15 @@ const studygroupSchema = new Schema(
     rescheduled: { type: Boolean, default: false, required: false },
 
     //Accessabililty.
-    private: { type: Boolean, default: false, required: false },
+    private: { type: Boolean, default: false, required: true },
     paid: { type: Boolean, default: false, required: false },
+    invitees: {
+      type: [mongoose.Types.ObjectId],
+      default: [],
+      required: function () {
+        return this.private;
+      },
+    },
 
     //Series
     seriesId: { type: mongoose.Types.ObjectId, required: true },

@@ -6,7 +6,6 @@ import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import { ChakraProvider, theme } from '@chakra-ui/react';
-
 import rootReducer from './reducers/root';
 import LandingPage from './modules/LandingPage/index';
 import Groups from './modules/Groups/index';
@@ -18,8 +17,14 @@ import ResetPassword from './modules/ResetPassword';
 import GroupCreator from './modules/GroupCreator';
 import NavBar from './components/NavBar';
 import NotFoundPage from './modules/NotFoundPage';
-import AccountInfo from './modules/AccountInfo';
+import AccountInfo from './modules/AccountInfo/index';
 import GroupView from './modules/GroupView';
+import CustomCalendar from './modules/CustomCalendar';
+import GroupEditor from './modules/GroupEditor';
+import About from './modules/About';
+import NotificationPage from './modules/NotificationPage';
+import EmailVerified from './modules/EmailVerified/index';
+import Following from './modules/Following';
 
 const store = createStore(
   rootReducer,
@@ -30,10 +35,11 @@ function App() {
   return (
     <Provider store={store}>
       <ChakraProvider theme={theme}>
-        <BrowserRouter>
+        <BrowserRouter style={{ height: '100vh' }}>
           <NavBar />
           <Routes>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/about" element={<About />} />
             <Route
               path="/dashboard"
               element={
@@ -48,6 +54,7 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/email-sent" element={<EmailSent />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/verify" element={<EmailVerified />} />
             <Route
               path="/groups"
               element={
@@ -58,6 +65,7 @@ function App() {
               }
             />
             <Route path="/groups/create" element={<GroupCreator />} />
+            <Route path="/groups/edit/:id" element={<GroupEditor />} />
             <Route
               path="/saved-groups"
               element={
@@ -68,8 +76,22 @@ function App() {
                 />
               }
             />
+            <Route
+              path="/group-history"
+              element={
+                <Groups
+                  studyGroupsEndPoint="studygroups/attended"
+                  headerContent="Study groups you have attended"
+                  noGroupsFoundHeaderContent="You don't have any saved study groups."
+                />
+              }
+            />
             <Route path="/groups/:id" element={<GroupView />} />
+            <Route path="/group-history/:id" element={<GroupView />} />
             <Route path="/user/:id" element={<AccountInfo />} />
+            <Route path="/user/notifications" element={<NotificationPage />} />
+            <Route path="/cal" element={<CustomCalendar />} />
+            <Route path="/following/:id" element={<Following />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </BrowserRouter>

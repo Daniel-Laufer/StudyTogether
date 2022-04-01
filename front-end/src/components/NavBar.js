@@ -13,16 +13,21 @@ import {
   MenuItem,
   Portal,
   MenuList,
+  Spinner,
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
 import { logout } from '../actions/Auth';
 import greenLogo from '../assets/images/smalllogogreen.png';
-import genericUser from '../assets/images/cat-pfp.jpeg';
+import genericUser from '../assets/images/defuser.jpeg';
 import GreenButton from './GreenButton';
 import * as colors from '../utils/colors';
 import useOutsideAlerter from '../hooks/useOutsideAlerter';
+import NotificationBell from './NotificationBell';
+import { apiURL } from '../utils/constants';
 
 function NavBar({ authToken, dispatch, userDetails }) {
   const navigate = useNavigate();
@@ -32,6 +37,28 @@ function NavBar({ authToken, dispatch, userDetails }) {
   const navbarUserMenuRef = useRef(null);
   useOutsideAlerter(navbarUserMenuRef, () => setIsUserProfileMenuOpen(false));
   // end source
+
+  const [userProfileImage, setUserProfileImage] = useState(null);
+
+  useEffect(() => {
+    if (!userDetails) return;
+
+    const config = {
+      headers: { Authorization: `JWT ${authToken}` },
+    };
+    axios
+      .get(`${apiURL}/users/profile/${userDetails.id}`, config)
+      .then(res => {
+        setUserProfileImage(res.data.profileImage);
+      })
+      .catch(err => {
+        setUserProfileImage(genericUser);
+        if (err.response && err.response.status === 401) {
+          dispatch(logout());
+          navigate('/login');
+        }
+      });
+  }, [userDetails]);
 
   return (
     <Box bg="black" w="100%" h="50px">
@@ -74,7 +101,7 @@ function NavBar({ authToken, dispatch, userDetails }) {
             Groups
           </Text>
           <Text
-            onClick={authToken ? () => navigate('/about') : null}
+            onClick={() => navigate('/about')}
             style={{
               fontWeight: 'bold',
               cursor: 'pointer',
@@ -96,20 +123,28 @@ function NavBar({ authToken, dispatch, userDetails }) {
         >
           {authToken !== null ? (
             <div ref={navbarUserMenuRef}>
-              <img
-                onClick={() => {
-                  setIsUserProfileMenuOpen(!isUserProfileMenuOpen);
-                }}
-                style={{
-                  display: 'block',
-                  height: '35px',
-                  width: '35px',
-                  borderRadius: '50%',
-                  cursor: 'pointer',
-                }}
-                src={genericUser}
-                alt="user profile"
-              />
+              <Flex align="center" gap="1rem">
+                <NotificationBell />
+                {userProfileImage ? (
+                  <img
+                    onClick={() => {
+                      setIsUserProfileMenuOpen(!isUserProfileMenuOpen);
+                    }}
+                    style={{
+                      display: 'block',
+                      height: '35px',
+                      width: '35px',
+                      borderRadius: '50%',
+                      cursor: 'pointer',
+                      border: 'green solid 0.5px',
+                    }}
+                    src={userProfileImage}
+                    alt="user profile"
+                  />
+                ) : (
+                  <Spinner />
+                )}
+              </Flex>
               <div
                 style={{
                   position: 'absolute',
@@ -118,7 +153,7 @@ function NavBar({ authToken, dispatch, userDetails }) {
                 }}
               >
                 <Menu isOpen={isUserProfileMenuOpen}>
-                  <MenuList>
+                  <MenuList zIndex={10}>
                     <MenuItem
                       onClick={() => navigate(`/user/${userDetails.id}`)}
                     >
@@ -126,6 +161,15 @@ function NavBar({ authToken, dispatch, userDetails }) {
                     </MenuItem>
                     <MenuItem onClick={() => navigate('/saved-groups')}>
                       Saved groups
+                    </MenuItem>
+                    <MenuItem onClick={() => navigate('/group-history')}>
+                      Group history
+                    </MenuItem>
+                    <MenuItem onClick={() => navigate('/cal')}>
+                      Calendar
+                    </MenuItem>
+                    <MenuItem onClick={() => navigate('/user/notifications')}>
+                      Notifications
                     </MenuItem>
                     <MenuItem onClick={() => dispatch(logout())}>
                       Logout

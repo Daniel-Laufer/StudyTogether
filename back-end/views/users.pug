@@ -1,0 +1,40 @@
+html
+  head
+    title= title
+  body
+    input(type='hidden' name='token' value=token)
+    h1= message
+    br
+    form(action=url, method='POST')
+      p
+      |
+      input(type='hidden' name='token' value=token)
+      |
+      input(type='submit' name='menu' value='menu') 
+    form(action=url + '/users', method='POST')
+      p
+      |
+      input(type='hidden' name='token' value=token)
+      |
+      input(type='submit' name='refresh' value='refresh') 
+    ul 
+        each val in users 
+            body= val.firstName + " " + val.lastName + " "
+            if val.banned 
+                form(action=url + `/unban/${val.id}`, method='POST')
+                  p
+                  |
+                  input(type='hidden' name='token' value=token)
+                  |
+                  input(type='submit' name='unban' value='unban') 
+            else
+                form(action=url + `/ban/${val.id}`, method='POST')
+                  p
+                  |
+                  input(type='hidden' name='token' value=token)
+                  |
+                  input(type='submit' name='ban' value='ban') 
+            br
+            
+                
+

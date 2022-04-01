@@ -48,14 +48,14 @@ function LandingPage({ dispatch }) {
 
   return (
     <>
-      <Fade left cascade duration={500}>
+      <Fade left duration={500}>
         <SectionOneContainer id="landing-page-section-1">
           <Box>
             <Text fontSize="6xl" fontWeight={700}>
               StudyTogether
             </Text>
             <Text fontSize="4xl" color={colors.green.dark} fontWeight={700}>
-              studying with others has never been so easy!
+              Studying with others has never been so easy!
             </Text>
             <Button
               colorScheme="blackAlpha"
@@ -78,14 +78,19 @@ function LandingPage({ dispatch }) {
         <Box>
           <Image
             src={groupStudyingOutdoors}
-            style={{ borderRadius: '55px', height: '370px' }}
+            style={{ borderRadius: '55px', height: '370px', minWidth: '550px' }}
           />
         </Box>
-        <Box style={{ width: '50%' }}>
-          <Text fontSize="5xl" fontWeight={700} style={{ color: colors.black }}>
+        <Box
+          style={{
+            width: '50%',
+            minWidth: '450px',
+          }}
+        >
+          <Text fontSize="3xl" fontWeight={700} style={{ color: colors.black }}>
             Form study groups at your university
           </Text>
-          <Text fontSize="3xl" fontWeight={700}>
+          <Text fontSize="2xl" fontWeight={700}>
             Studying with others is an effective way of preparing for
             assessments, however it can be challenging to find others to study
             with at times. That’s where <em>StudyTogether</em> comes to the

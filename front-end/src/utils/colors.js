@@ -14,6 +14,21 @@ export const grey = {
   dark: '#595962',
 };
 
+export const blue = {
+  medium: '#3182ce',
+};
+
 export const red = {
+  light: '#ff5959',
   medium: '#E53E3E',
+};
+
+export const UofTblue = {
+  medium: '#042c64',
+};
+export const statusColors = {
+  full: 'green',
+  cancelled: 'yellow',
+  rescheduled: 'blue',
+  default: 'red',
 };

@@ -15,6 +15,11 @@ const userSchema = new Schema(
     userName: {
       type: String,
     },
+    banned: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
     email: {
       type: String,
       unique: [true, 'email already exists in database.'],
@@ -31,11 +36,13 @@ const userSchema = new Schema(
     role: {
       type: String,
       required: [true, 'Please specify user role'],
-      enum: ['Student', 'TA', 'Tutor'],
+
+      enum: ['Student', 'TA', 'Teacher', 'Admin'],
     },
     verified: {
-      type: Boolean,
-      required: [true, 'verification state is not provided!'],
+      type: String,
+      required: true,
+      default: '',
     },
     password: {
       type: String,
@@ -51,6 +58,11 @@ const userSchema = new Schema(
       required: false,
     },
     registeredStudygroups: {
+      type: [mongoose.Types.ObjectId],
+      default: [],
+      required: false,
+    },
+    attendedStudygroups: {
       type: [mongoose.Types.ObjectId],
       default: [],
       required: false,

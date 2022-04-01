@@ -21,6 +21,7 @@ import {
   Textarea,
   Image,
   Checkbox,
+  Button,
 } from '@chakra-ui/react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
@@ -31,7 +32,7 @@ import DatePicker from 'react-datepicker';
 import PhoneInput from 'react-phone-number-input/input';
 import { WithContext as ReactTags } from 'react-tag-input';
 import 'react-datepicker/dist/react-datepicker.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Auth } from '../../actions';
 import * as colors from '../../utils/colors';
 import { apiURL, userRoles } from '../../utils/constants';
@@ -40,10 +41,15 @@ import GreenButton from '../../components/GreenButton';
 
 function GroupCreator({ authToken, userRole }) {
   const navigate = useNavigate();
+  const { id } = useParams();
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  useEffect(() => {
+    console.log(id);
+  });
 
   useEffect(() => {
     if (authToken === null) {
@@ -68,6 +74,7 @@ function GroupCreator({ authToken, userRole }) {
     finalDate: new Date(),
     recurring: 'N/A',
     official: false,
+    privateGroup: false,
   });
 
   const [errors, setErrors] = useState({
@@ -154,8 +161,18 @@ function GroupCreator({ authToken, userRole }) {
     const locationInvalid =
       state.locationLng === null || state.locationLat === null;
 
-    const startTimeInvalid = state.startTime === null || state.startTime === '';
-    const endTimeInvalid = state.endTime === null || state.endTime === '';
+    let startTimeInvalid = state.startTime === null || state.startTime === '';
+    let endTimeInvalid = state.endTime === null || state.endTime === '';
+
+    // ensuring no negative durations allowed
+    if (!startTimeInvalid && !endTimeInvalid) {
+      const startDateTime = new Date(`01/01/2022 ${state.startTime}`);
+      const endDateTime = new Date(`01/01/2022 ${state.endTime}`);
+      if (endDateTime.getTime() - startDateTime.getTime() <= 0) {
+        startTimeInvalid = true;
+        endTimeInvalid = true;
+      }
+    }
 
     const finalDateInvalid =
       (state.date != null &&
@@ -214,6 +231,7 @@ function GroupCreator({ authToken, userRole }) {
         maxAttendees: state.maxAttendees,
         recurring: state.recurring,
         official: state.official,
+        private: state.privateGroup,
         description: state.description,
         location: {
           lat: state.locationLat,
@@ -231,7 +249,7 @@ function GroupCreator({ authToken, userRole }) {
       axios
         .post(`${apiURL}/studygroups/create`, body, config)
         .then(res => {
-          navigate('/');
+          navigate('/groups');
         })
         .catch(err => {
           console.log(err);
@@ -518,6 +536,17 @@ function GroupCreator({ authToken, userRole }) {
                     />
                   </HStack>
                 )}
+
+                <HStack>
+                  <span>Private:</span>
+                  <Checkbox
+                    name="privateGroup"
+                    checked={state.privateGroup}
+                    onChange={privateGroup => {
+                      setState({ ...state, privateGroup: !state.privateGroup });
+                    }}
+                  />
+                </HStack>
                 <>
                   <Text mb="8px">Description</Text>
                   <Textarea
@@ -580,6 +609,7 @@ function GroupCreator({ authToken, userRole }) {
                 >
                   Create Group
                 </GreenButton>
+
                 {!forceHideAlert && Object.values(errors).some(item => item) && (
                   <Alert status="error" style={{ paddingRight: '2rem' }}>
                     <AlertIcon />

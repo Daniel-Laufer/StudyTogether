@@ -17,6 +17,10 @@
     {
       "name": "Password Recovery",
       "description": "Everything Password Recovery related"
+    },
+    {
+      "name": "Admin",
+      "description": "Everything Admin related"
     }
   ],
   "paths": {
@@ -257,6 +261,32 @@
         }
       }
     },
+    "/users/notifications": {
+      "get": {
+        "tags": ["User"],
+        "summary": "Returns notifications relevant to the user",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "format is 'JWT ' followed by the token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Invalid parameter(s) supplied"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
     "/users/profile/recommend/{limit}": {
       "get": {
         "tags": ["User"],
@@ -383,6 +413,95 @@
         }
       }
     },
+    "/user/send-verification/{id}": {
+      "post": {
+        "tags": ["User"],
+        "summary": "Send a verification email to the user",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id of the user to send the email to",
+            "required": true
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "format is 'JWT ' followed by the token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "token": {
+                "type": "String",
+                "description": "Token that will be used to verify the email"
+              },
+              "id": {
+                "type": "String",
+                "description": "userId of the user to be verified"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated user"
+          },
+          "404": {
+            "description": "User with the given ID was not found in the database"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/user/verify": {
+      "post": {
+        "tags": ["User"],
+        "summary": "Verify the user's email",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "body",
+            "description": "Id of the user to be verified",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "token",
+            "in": "body",
+            "description": "Unique token to test for verification of user",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "verified": {
+                "type": "String",
+                "description": "The new verification status of the user"
+              }
+            }
+          },
+          "401": {
+            "description": "User's token has expired or is invalid"
+          },
+          "400": {
+            "description": "Request was malformed"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
     "/forgot": {
       "post": {
         "tags": ["Password Recovery"],
@@ -444,9 +563,6 @@
           },
           "401": {
             "description": "No verification token was sent"
-          },
-          "403": {
-            "description": "Invalid verification token"
           }
         }
       }
@@ -543,6 +659,43 @@
                 "description": "object containing information about all study groups"
               }
             }
+          },
+          "401": {
+            "description": "Unauthenticated user"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+
+    "/studygroups/attended": {
+      "get": {
+        "tags": ["Study Groups"],
+        "summary": "Returns all the study groups the current logged in user has attended",
+        "description": "",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "format is 'JWT ' followed by the token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "token": {
+                "type": "json",
+                "description": "object containing information about all study groups"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
           },
           "401": {
             "description": "Unauthenticated user"
@@ -732,7 +885,7 @@
             "in": "body",
             "description": "whether the study group is an offical office hours session",
             "required": true,
-            "type": "boolean"
+            "type": "bool"
           },
           {
             "name": "tags",
@@ -771,6 +924,57 @@
           },
           "401": {
             "description": "Unauthenticated user"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+
+    "/studygroups/{id}/invite": {
+      "post": {
+        "tags": ["Study Groups"],
+        "summary": "Invite a user by their email address to attned a given study a study group",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of study group to attend",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "format is 'JWT ' followed by the token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "email",
+            "in": "body",
+            "description": "Email address of the user they is to be invited",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "headers": {
+              "token": {
+                "type": "json",
+                "description": "object containing information about a specific study group"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated user"
+          },
+          "404": {
+            "description": "Study group with the given id was not found in database"
           },
           "500": {
             "description": "Internal server error"
@@ -960,9 +1164,6 @@
           "401": {
             "description": "Unauthenticated user"
           },
-          "403": {
-            "description": "User is authenticated and does not have rights to edit the study group"
-          },
           "500": {
             "description": "Internal server error"
           }
@@ -1013,11 +1214,431 @@
           "401": {
             "description": "Unauthenticated user"
           },
-          "403": {
-            "description": "User is authenticated and does not have rights to delete the study group"
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/studygroups/cancel/{id}": {
+      "put": {
+        "tags": ["Study Groups"],
+        "summary": "Cancel a study group",
+        "description": "A user can cancel study groups they have created. This will give a grace period before the group is deleted.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "format is 'JWT ' followed by the token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of study group to delete",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "deleteAll",
+            "in": "body",
+            "description": "Designate whether to cancel this single meeting or all recurring meetings",
+            "required": true,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "token": {
+                "type": "json",
+                "description": "object containing information about a specific study group"
+              }
+            }
+          },
+          "400": {
+            "description": "study group with the given id was not found in database"
+          },
+          "401": {
+            "description": "Unauthenticated user"
           },
           "500": {
             "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/studygroups/reactivate/{id}": {
+      "put": {
+        "tags": ["Study Groups"],
+        "summary": "Reactivate a study group",
+        "description": "A user can reactivate a study group they have cancelled.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "format is 'JWT ' followed by the token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of study group to reactivate",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "deleteAll",
+            "in": "body",
+            "description": "Designate whether to reactivate this single meeting or all recurring meetings",
+            "required": true,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "token": {
+                "type": "json",
+                "description": "object containing information about a specific study group"
+              }
+            }
+          },
+          "400": {
+            "description": "study group with the given id was not found in database"
+          },
+          "401": {
+            "description": "Unauthenticated user"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/studygroups/cancel/{id}": {
+      "put": {
+        "tags": ["Study Groups"],
+        "summary": "Cancel a study group",
+        "description": "A user can cancel study groups they have created. This will give a grace period before the group is deleted.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "format is 'JWT ' followed by the token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of study group to delete",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "deleteAll",
+            "in": "body",
+            "description": "Designate whether to cancel this single meeting or all recurring meetings",
+            "required": true,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "token": {
+                "type": "json",
+                "description": "object containing information about a specific study group"
+              }
+            }
+          },
+          "400": {
+            "description": "study group with the given id was not found in database"
+          },
+          "401": {
+            "description": "Unauthenticated user"
+          },
+          "403": {
+            "description": "User is authenticated and does not have rights to cancel the study group"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/studygroups/reactivate/{id}": {
+      "put": {
+        "tags": ["Study Groups"],
+        "summary": "Reactivate a study group",
+        "description": "A user can reactivate a study group they have cancelled.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "format is 'JWT ' followed by the token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of study group to reactivate",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "deleteAll",
+            "in": "body",
+            "description": "Designate whether to reactivate this single meeting or all recurring meetings",
+            "required": true,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "token": {
+                "type": "json",
+                "description": "object containing information about a specific study group"
+              }
+            }
+          },
+          "400": {
+            "description": "study group with the given id was not found in database"
+          },
+          "401": {
+            "description": "Unauthenticated user"
+          },
+          "403": {
+            "description": "User is authenticated and does not have rights to reactivate the study group"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/admin/login": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Logs in an admin",
+        "parameters": [
+          {
+            "name": "credentials",
+            "in": "body",
+            "description": "The user name for login",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/credentials"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "headers": {
+              "token": {
+                "type": "string",
+                "description": "JWT token for the user"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid username or password"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "404": {
+            "description": "User was not found in records"
+          },
+          "401": {
+            "description": "Password was invalid or non admin"
+          }
+        }
+      }
+    },
+    "/admin/verify/{id}": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Accept or reject a TA verification request",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "body",
+            "description": "the authentication token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of request to address",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Accept",
+            "in": "body",
+            "description": "True if request to be accepted",
+            "required": true,
+            "type": "bool"
+          },
+          {
+            "name": "Reject",
+            "in": "body",
+            "description": "True if request to be rejected",
+            "required": true,
+            "type": "bool"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "401": {
+            "description": "Invalid JWT token"
+          }
+        }
+      }
+    },
+    "/admin/unban/{id}": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Unbans a user",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "body",
+            "description": "the authentication token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of user to unban",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "401": {
+            "description": "Invalid JWT token"
+          }
+        }
+      }
+    },
+    "/admin/ban/{id}": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Bans a user",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "body",
+            "description": "the authentication token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of user to ban",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "401": {
+            "description": "Password was invalid or non admin"
+          }
+        }
+      }
+    },
+    "/admin/users": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Displays list of users",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "body",
+            "description": "the authentication token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "headers": {
+              "token": {
+                "type": "string",
+                "description": "JWT token for the user"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "401": {
+            "description": "Invalid JWT token"
+          }
+        }
+      }
+    },
+    "/admin/requests": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Displays list of active TA requests",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "body",
+            "description": "the authentication token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "headers": {
+              "token": {
+                "type": "string",
+                "description": "JWT token for the user"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "401": {
+            "description": "Invalid JWT Token"
           }
         }
       }
@@ -1060,21 +1681,69 @@
           "type": "int",
           "example": "5"
         },
-        "hostFirstName": {
+        "hostId": {
           "type": "string",
-          "example": "Tobey"
-        },
-        "hostLastName": {
-          "type": "string",
-          "example": "Maguire"
+          "example": "623e2e7802dcd58af6397e66"
         },
         "description": {
           "type": "string",
           "example": "CSC209 Midterm preparation"
         },
+        "attendees": {
+          "type": "array",
+          "example": "[{id: 623e2e7802dcd58af6397e66, name: Tobey, imgSrc: /assets/ewffejvndqj30.jpg}]",
+          "default": "[]"
+        },
         "tags": {
           "type": "[string]",
           "example": "['Free', 'UTM']"
+        },
+        "recurring": {
+          "type": "enum",
+          "example": "['N/A', 'weekly', 'bi-weekly']",
+          "default": "N/A"
+        },
+        "recurringFinalDateTime": {
+          "type": "date",
+          "example": "2022-11-07T17:04:15.000+00:00",
+          "required": false
+        },
+        "canceledAt": {
+          "type": "date",
+          "example": "undefined",
+          "required": false
+        },
+        "canceled": {
+          "type": "boolean",
+          "example": "false",
+          "default": "false",
+          "required": false
+        },
+        "rescheduled": {
+          "type": "boolean",
+          "example": "false",
+          "default": "false",
+          "required": false
+        },
+        "private": {
+          "type": "boolean",
+          "default": "false",
+          "example": "false"
+        },
+        "paid": {
+          "type": "boolean",
+          "example": "false",
+          "default": "false",
+          "required": false
+        },
+        "invitees": {
+          "type": "array",
+          "example": "[623e2e7802dcd58af6397e66]",
+          "default": "[]"
+        },
+        "seriesId": {
+          "type": "ObjectId",
+          "example": "623e2e7802dcd58af6397e66"
         }
       },
       "xml": {

@@ -1,16 +1,23 @@
 var express = require('express');
 var router = express.Router();
+var crypto = require('crypto');
 var bcrypt = require('bcrypt');
 var helperUser = require('../helpers/helperUser');
 let StudygroupModel = require('../models/studygroup.model');
-var User = require('../models/user.model');
-const { body, validationResult, param } = require('express-validator');
+const notifModel = require('../models/notification.model');
+let User = require('../models/user.model');
+let Token = require('../models/token.model');
+const { unfollowUsers, followUsers } = require('../helpers/helperNotification');
+var tarequest = require('../models/taverify.model');
+const { check, body, validationResult, param } = require('express-validator');
 const mongoose = require('mongoose');
+const user = require('../models/user.model');
+const verifyURL = 'http://localhost:3000/verify';
 
 /* Get non-sensitive user profile info */
 router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
   if (!req.user) {
-    res.status(403).send({ message: 'Invalid JWT token' });
+    res.status(401).send({ message: 'Invalid JWT token' });
     return;
   }
   var usr;
@@ -42,6 +49,8 @@ router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
       profileInterests: usr.profileInterests,
       profileCourses: usr.profileCourses,
       profileFollowers: usr.profileFollowers,
+      profileFollowing: usr.profileFollowing,
+      verified: usr.verified,
     });
   }
 });
@@ -129,7 +138,7 @@ router.patch(
       return;
     }
     if (!req.user) {
-      res.status(403).send({ message: 'Invalid JWT token' });
+      res.status(401).send({ message: 'Invalid JWT token' });
       return;
     }
     var usr = await User.findById(req.user.id).catch(err => {
@@ -180,17 +189,106 @@ router.post(
       lastName: req.body.lastName,
       email: req.body.email,
       username: req.body.username ?? null,
-      role: req.body.role,
       verified: false,
       password: bcrypt.hashSync(req.body.password, saltRounds),
     });
 
+    if (req.body.role == 'TA') {
+      var newrequest = new tarequest({
+        userid: newUser._id,
+        firstname: newUser.firstName,
+        lastname: newUser.lastName,
+      });
+      newUser.role = 'Student';
+      newrequest.save().catch(err => res.status(500).json('Error: ' + err));
+    } else {
+      newUser.role = req.body.role;
+    }
+
+    const url = `${verifyURL}/${newUser.id}`;
     newUser
       .save()
       .then(user =>
         helperUser.respondJWT(user, res, 'User registered successfully!')
       )
       .catch(err => res.status(400).json('Error: ' + err));
+  }
+);
+router.get(
+  '/send-verification/:id',
+  helperUser.verifyToken,
+  async (req, res) => {
+    if (!req.user) {
+      res.status(401).send('Invalid JWT token');
+      return;
+    }
+
+    let person = await User.findById(req.params.id);
+    if (!person) {
+      res.status(404).send('Invalid user');
+      return;
+    }
+    await Token.findOneAndDelete({ email: person.email });
+    var saltRounds = 8;
+    var salt = await bcrypt.genSalt(saltRounds);
+    let verifyToken = crypto.randomBytes(32).toString('hex');
+    const hash = await bcrypt.hash(verifyToken, salt);
+    await new Token({
+      email: person.email,
+      token: hash,
+      createdAt: Date.now(),
+    }).save();
+
+    const link = `${verifyURL}?id=${person.id}&token=${verifyToken}`;
+    helperUser.sendEmail(
+      person.email,
+      'Email verification',
+      `Click this link to verify your email: ${link}  `
+    );
+    res.json({ token: verifyToken, id: person.id });
+  }
+);
+
+router.post(
+  '/verify',
+  body('id').notEmpty(),
+  body('token').notEmpty(),
+  async function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(400).json({ errors: errors.array() });
+      return;
+    }
+    let person = await User.findById(req.body.id).catch(err => {
+      res.status(400).json('Error: ' + err);
+      return;
+    });
+    let verifyToken = await Token.findOne({ email: person.email });
+    if (!verifyToken || verifyToken.length == 0) {
+      res.status(401).send('Invalid token');
+      return;
+    }
+
+    const isValid = bcrypt.compareSync(req.body.token, verifyToken.token);
+    if (!isValid) {
+      res.status(401).send('Invalid token');
+      return;
+    }
+
+    if (
+      person.email.endsWith('@mail.utoronto.ca') ||
+      person.email.endsWith('@utoronto.ca')
+    ) {
+      person.verified = 'University of Toronto';
+    } else {
+      person.verified = 'Not University Email';
+    }
+    person.save().catch(err => {
+      res.status(500).send(err);
+    });
+    await verifyToken.deleteOne();
+    console.log(person);
+    res.json({ verified: person.verified });
   }
 );
 
@@ -336,6 +434,9 @@ router.patch(
       return;
     });
 
+    /* BEGIN Notification */
+    await followUsers(req.user.id, req.params.id, []);
+    /* END Notification */
     res.status(200).json({
       message: 'User followed successfully',
       profileFollowers: followedUser.profileFollowers,
@@ -370,10 +471,41 @@ router.patch(
       res.status(400).send('Err: ' + err);
       return;
     });
+    /* BEGIN Notification */
+    await unfollowUsers(req.user.id, req.params.id, []);
+    /* END Notification */
     res.status(200).json({
       message: 'User unfollowed successfully',
       profileFollowers: followedUser.profileFollowers,
     });
   }
 );
+
+router.get('/notifications', [helperUser.verifyToken], async (req, res) => {
+  if (!req.user) {
+    res.status(401).send({ message: 'Invalid JWT token' });
+    return;
+  }
+  var notifications = [];
+  if (req.query.limit && req.query.limit >= 0) {
+    notifications = await notifModel
+      .find({ subscribers: req.user._id })
+      .limit(req.query.limit)
+      .sort([['_id', -1]])
+      .catch(err => {
+        res.status(400).send('Err: ' + err);
+        return;
+      });
+  } else {
+    notifications = await notifModel
+      .find({ subscribers: req.user._id })
+      .sort([['_id', -1]])
+      .catch(err => {
+        res.status(400).send('Err: ' + err);
+        return;
+      });
+  }
+
+  res.status(200).json(notifications);
+});
 module.exports = router;

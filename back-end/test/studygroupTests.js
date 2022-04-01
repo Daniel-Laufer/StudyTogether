@@ -260,6 +260,22 @@ describe('Studygroup Tests', function () {
     }).timeout(5000);
   });
 
+  /* Test: Fetching study groups a logged in user has already attended */
+  describe('/studygroups/attended', function () {
+    it('Check that fetching study groups a logged in user has already attended is functional', function (done) {
+      chai
+        .request(app)
+        .get('/studygroups/attended')
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `JWT ${token}`)
+        .send()
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          done();
+        });
+    }).timeout(5000);
+  });
+
   /* Test: Attending a study group as a logged in user */
   describe('/studygroups/attend/:id', function () {
     it('Check that attending a study group as a logged in user is functional', function (done) {
@@ -292,6 +308,42 @@ describe('Studygroup Tests', function () {
     }).timeout(5000);
   });
 
+  /* Test: Inviting a user given their email address to a study group as a logged in user */
+  describe('/studygroups/:id/invite', function () {
+    it('Check that sending an invite to a user to join a study group given its id is functional', function (done) {
+      chai
+        .request(app)
+        .post(`/studygroups/${studyGroupId}/invite`)
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `JWT ${token}`)
+        .send({
+          email: 'itachi.uchiha@gmail.com',
+        })
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          done();
+        });
+    }).timeout(5000);
+  });
+
+  /* Test: Removing an invite to a user given their email address to a study group as a logged in user */
+  describe('/studygroups/:id/uninvite', function () {
+    it('Check that removing an invite to a user to join a study group given its id is functional', function (done) {
+      chai
+        .request(app)
+        .post(`/studygroups/${studyGroupId}/uninvite`)
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `JWT ${token}`)
+        .send({
+          email: 'itachi.uchiha@gmail.com',
+        })
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          done();
+        });
+    }).timeout(5000);
+  });
+
   /* Test: Canceling and deleting a study-group */
   describe('Testing canceling and deleting a study-group', function () {
     it('/studygroups/cancel/:id', function (done) {
@@ -306,6 +358,7 @@ describe('Studygroup Tests', function () {
           done();
         });
     });
+
     it('Fetch stud-group to check it was marked as canceled', function (done) {
       chai
         .request(app)
