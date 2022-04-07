@@ -17,6 +17,7 @@ import {
 } from '@chakra-ui/react';
 import { connect } from 'react-redux';
 import axios from 'axios';
+import moment from 'moment';
 import { useNavigate, useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { scroller } from 'react-scroll';
@@ -58,6 +59,7 @@ function Groups({
       .then(res => {
         setLoading(false);
         setGroups(res.data);
+        console.log(res.data);
       })
       .catch(err => {
         setLoading(false);
@@ -190,7 +192,6 @@ function Groups({
                     imgAlt="Study group image"
                     img={g.imageUrl}
                     when={g.time}
-                    host={g.hostFirstName + g.hostLastName}
                     desc={g.description}
                     link={`${g._id}`}
                     status={{
@@ -213,10 +214,26 @@ function Groups({
                     }`}
                     imgAlt="Study group image"
                     img={g.imageUrl}
-                    when={g.time}
-                    host={g.hostFirstName + g.hostLastName}
+                    when={moment(g.startDateTime).format(
+                      'dddd, MMM DD, yyyy HH:mm a'
+                    )}
+                    durationHours={moment(g.endDateTime).diff(
+                      moment(g.startDateTime),
+                      'hours'
+                    )}
+                    durationMins={moment(g.endDateTime)
+                      .subtract(
+                        moment(g.endDateTime).diff(
+                          moment(g.startDateTime),
+                          'hours'
+                        ),
+                        'hours'
+                      )
+                      .diff(moment(g.startDateTime), 'minutes')}
+                    host={g.hostName}
                     desc={g.description}
                     link={`${g._id}`}
+                    hostId={g.hostId}
                     status={{
                       reschedule: g.rescheduled,
                       cancelled: g.canceled,
