@@ -801,7 +801,7 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
                         'hours'
                       )
                       .diff(moment(g.startDateTime), 'minutes')}
-                    host={g.hostFirstName + g.hostLastName}
+                    host={g.hostName}
                     hostId={g.hostId}
                     desc={g.description}
                     status={{
