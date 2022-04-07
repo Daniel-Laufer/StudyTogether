@@ -13,6 +13,8 @@ const diffSize = size =>
         fontSize: '20px',
         noOfLines: '',
         imgMr: ['0', '0', '20px'],
+        imgH: 300,
+        imgW: 400,
         imgAlign: ['center', 'center', 'left'],
       }
     : {
@@ -20,6 +22,8 @@ const diffSize = size =>
         vstackSpacing: '6px',
         fontSize: '12px',
         noOfLines: '1',
+        imgH: 150,
+        ImgW: 300,
         imgMr: '',
         imgAlign: ['center', 'center', 'left'],
       };
@@ -74,22 +78,35 @@ function DetailedGroup({
   selected,
   status,
 }) {
-  const { stackSize, vstackSpacing, fontSize, noOfLines, imgMr, imgAlign } =
-    diffSize(size);
+  const {
+    stackSize,
+    vstackSpacing,
+    fontSize,
+    noOfLines,
+    imgMr,
+    imgAlign,
+    imgH,
+    imgW,
+  } = diffSize(size);
 
   const groupView = (
     <Stack
       w={stackSize}
       direction={{ base: 'column', md: 'row' }}
       align="left"
+      spacing={4}
       wrap
     >
       <VStack>
         <Image
+          marginLeft={5}
           paddingTop="5%"
           paddingBottom="5%"
           src={img}
-          width="400px"
+          sx={{
+            height: imgH,
+            width: imgW,
+          }}
           alt={imgAlt}
           borderRadius="lg"
           mr={imgMr}

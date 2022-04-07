@@ -207,6 +207,7 @@ router.post(
         location: req.body.location,
         maxAttendees: req.body.maxAttendees,
         hostId: req.user.id,
+        hostName: `${req.user.firstName} ${req.user.lastName}`,
         description: req.body.description,
         tags: req.body.tags,
         seriesId: seriesId,

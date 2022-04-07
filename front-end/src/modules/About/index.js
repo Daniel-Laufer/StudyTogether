@@ -24,6 +24,7 @@ import styled from 'styled-components';
 import Fade from 'react-reveal/Fade';
 import groupStudying from '../../assets/images/landing-page-group-studying.jpeg';
 import groupStudyingOutdoors from '../../assets/images/outdoor-group.jpeg';
+import john from "../../assets/images/john.jpeg";
 import studyTogetherFullLogo from '../../assets/images/logolight.png';
 import { apiURL } from '../../utils/constants';
 import { Example } from '../../actions';
@@ -69,7 +70,7 @@ function About({ dispatch }) {
               <Image
                 borderRadius="full"
                 boxSize="150px"
-                src="https://assets.teenvogue.com/photos/586fb5d4f77a0c673d72629f/1:1/w_2417,h_2417,c_limit/GettyImages-165443495.jpg"
+                src={john}
                 alt="John Lewczuk"
               />
               <Text>John Lewczuk</Text>
