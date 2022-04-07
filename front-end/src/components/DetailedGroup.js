@@ -89,7 +89,10 @@ function DetailedGroup({
           paddingTop="5%"
           paddingBottom="5%"
           src={img}
-          width="400px"
+          sx={{
+            height: 150,
+            width: 300,
+          }}
           alt={imgAlt}
           borderRadius="lg"
           mr={imgMr}

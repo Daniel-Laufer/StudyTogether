@@ -83,7 +83,14 @@ function Group({
         ) : null}
       </HStack>
       <ImageContainer style={{ height: '230px' }}>
-        <Image src={img} htmlWidth="334px" htmlHeight="223px" alt={imgAlt} />
+        <Image
+          src={img}
+          sx={{
+            height: 223,
+            width: 334,
+          }}
+          alt={imgAlt}
+        />
       </ImageContainer>
       <Flex>
         <Box color={colors.grey.dark}>{restrict}</Box>
