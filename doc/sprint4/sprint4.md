@@ -1,4 +1,4 @@
-# Sprint 3 Planning Meeting
+# Sprint 4 Planning Meeting
 
 # Sprint 4 goal
 Complete the user stories STUD-61, STUD-64, STUD-65, STUD-78, STUD-75, STUD-77, STUD-79.

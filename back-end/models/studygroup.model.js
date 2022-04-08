@@ -14,6 +14,7 @@ const studygroupSchema = new Schema(
     location: { type: { lng: Number, lat: Number }, required: true },
     maxAttendees: { type: Number, min: 2, required: true },
     hostId: { type: mongoose.Types.ObjectId, required: true },
+    hostName: { type: String, required: true },
     description: { type: String, required: true },
     attendees: {
       type: [

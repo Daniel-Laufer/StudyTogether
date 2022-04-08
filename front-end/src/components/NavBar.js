@@ -70,15 +70,15 @@ function NavBar({ authToken, dispatch, userDetails }) {
           alt="StudyTogether"
         />
         <Flex align="center" gap="1rem" style={{ marginLeft: '1rem' }}>
-          <Text
-            onClick={authToken ? () => navigate('/dashboard') : null}
+        <Text
+            onClick={authToken ? () => navigate('/groups') : null}
             style={{
               cursor: authToken ? 'pointer' : 'default',
               fontWeight: 'bold',
               color: authToken ? 'white' : 'gray',
             }}
           >
-            Dashboard
+            Groups
           </Text>
           <Text
             onClick={authToken ? () => navigate('/groups/create') : null}
@@ -90,16 +90,7 @@ function NavBar({ authToken, dispatch, userDetails }) {
           >
             Create a group
           </Text>
-          <Text
-            onClick={authToken ? () => navigate('/groups') : null}
-            style={{
-              cursor: authToken ? 'pointer' : 'default',
-              fontWeight: 'bold',
-              color: authToken ? 'white' : 'gray',
-            }}
-          >
-            Groups
-          </Text>
+        
           <Text
             onClick={() => navigate('/about')}
             style={{
