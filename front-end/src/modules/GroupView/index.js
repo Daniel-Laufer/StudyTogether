@@ -312,7 +312,7 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
                         onSubmit={(values, { resetForm }) => {
                           setformLoading(true);
                           sendInviteViaEmail(values.email)
-                            .then(res => {
+                            .then(() => {
                               setUserInvSuccess(true);
                               setInterval(() => {
                                 setUserInvSuccess(false);
