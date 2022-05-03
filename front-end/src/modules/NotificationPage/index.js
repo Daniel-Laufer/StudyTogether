@@ -42,7 +42,6 @@ function NotificationPage({ authToken, dispatch }) {
       .get(`${apiURL}/users/notifications`, config)
       .then(res => {
         setLoading(false);
-        console.log(res.data);
         setNotifications(res.data); // res.data is an array of objects
       })
       .catch(err => {

@@ -19,10 +19,8 @@ function EmailVerified() {
 
   useEffect(() => {
     const body = { id, token };
-    console.log(body);
     axios.post(`${apiURL}/users/verify`, body).then(res => {
       setVerified({ ...verified, verified: res.data.verified !== 'false' });
-      console.log(verified);
     });
   }, []);
 

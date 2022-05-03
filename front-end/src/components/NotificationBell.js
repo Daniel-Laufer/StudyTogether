@@ -31,31 +31,6 @@ function NotificationBell({ userDetails }) {
   const [isConnected, setIsConnected] = useState(false);
   const navigate = useNavigate();
 
-  // const getNotifications = () => {
-  //   const config = {
-  //     headers: { Authorization: `JWT ${authToken}` },
-  //   };
-  //   axios
-  //     .get(`${apiURL}/users/notifications`, config)
-  //     .then(res => {
-  //       // console.log(res.data);
-  //       setNotifications([
-  //         ...res.data.map(value => ({
-  //           message: value.preview,
-  //           url: value.groupId ?? value.followedUserID,
-  //         })),
-  //         ...notifications,
-  //       ]); // res.data is an array of objects
-  //       console.log(notifications);
-  //     })
-  //     .catch(err => {
-  //       if (err.response && err.response.status === 401) {
-  //         dispatch(logout());
-  //         navigate('/login');
-  //       }
-  //     });
-  // };
-
   useEffect(async () => {
     // getNotifications();
 

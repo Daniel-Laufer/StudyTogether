@@ -48,10 +48,6 @@ function GroupCreator({ authToken, userRole }) {
   }, []);
 
   useEffect(() => {
-    console.log(id);
-  });
-
-  useEffect(() => {
     if (authToken === null) {
       setTimeout(() => navigate('/login'), 3000);
     }

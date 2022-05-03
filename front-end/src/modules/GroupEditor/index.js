@@ -126,11 +126,9 @@ function GroupEditor({ authToken, userRole, dispatch }) {
           recurring: res.data.recurring || 'N/A',
           finalDate: reccFindalDate || new Date(),
         };
-        console.log(res.data);
         setState({ ...state, ...newState });
       })
       .catch(err => {
-        console.log(err);
         if (err.response && err.response.status === 401) {
           dispatch(logout());
           navigate('/login');
@@ -301,7 +299,6 @@ function GroupEditor({ authToken, userRole, dispatch }) {
           navigate('/groups');
         })
         .catch(err => {
-          console.log(err);
           if (err.response.status === 401) {
             dispatch(logout());
             navigate('/login');
@@ -319,7 +316,6 @@ function GroupEditor({ authToken, userRole, dispatch }) {
         navigate('/groups');
       })
       .catch(err => {
-        console.log(err);
         if (err.response.status === 401) {
           dispatch(logout());
           navigate('/login');

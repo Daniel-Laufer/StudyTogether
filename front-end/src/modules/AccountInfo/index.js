@@ -119,7 +119,6 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
             return { id: i, text: c };
           }),
         });
-        console.log(userInfo);
         setLoading({
           ...loading,
           user: false,
@@ -177,8 +176,6 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
     const config = {
       headers: { Authorization: `JWT ${authToken}` },
     };
-    console.log(id);
-    console.log(authToken);
     axios
       .get(`${apiURL}/users/send-verification/${id}`, config)
       .then(() => {})
@@ -228,7 +225,6 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
         }
       })
       .catch(err => {
-        console.log(err);
         setErrorOccured(true);
         if (err.response.status === 401) {
           dispatch(logout());
@@ -261,7 +257,6 @@ function AccountInfo({ authToken, userDetails, dispatch }) {
         setUserInfo({ ...userInfo, profileFollowers });
       })
       .catch(err => {
-        console.log(err);
         setErrorOccured(true);
         if (err.response.status === 401) {
           dispatch(logout());
