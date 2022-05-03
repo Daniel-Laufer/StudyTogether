@@ -39,7 +39,6 @@ import genericUser from '../assets/images/defuser.jpeg';
 import GreenButton from './GreenButton';
 import * as colors from '../utils/colors';
 import useOutsideAlerter from '../hooks/useOutsideAlerter';
-import NotificationBell from './NotificationBell';
 import { apiURL } from '../utils/constants';
 
 function NavBar({ authToken, dispatch, userDetails }) {
@@ -214,7 +213,7 @@ function NavBar({ authToken, dispatch, userDetails }) {
             )}
           </Flex>
 
-          <PopoverContent style={{ left: '68vw', top: '45px' }}>
+          <PopoverContent>
             <PopoverArrow />
             <PopoverCloseButton />
             <PopoverHeader>Your Notifications!</PopoverHeader>
