@@ -204,7 +204,8 @@ function GroupEditor({ authToken, userRole, dispatch }) {
     const imageUrlInvalid = !imageUrlValid(state.image);
 
     const tagsInvalid = state.tags.length === 0;
-    const dateInvalid = !state.date;
+    const dateInvalid =
+      !state.date || state.date.getDate() < new Date().getDate();
     const locationInvalid =
       state.locationLng === null || state.locationLat === null;
 
@@ -305,6 +306,10 @@ function GroupEditor({ authToken, userRole, dispatch }) {
           if (err.response.status === 401) {
             dispatch(logout());
             navigate('/login');
+          } else if (err.response.status === 409) {
+            if (err.response.data.timeError) {
+              setErrors({ ...errors, startTime: true, endTime: true });
+            }
           }
         });
     }

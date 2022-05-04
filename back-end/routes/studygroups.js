@@ -26,15 +26,24 @@ router.get('/', helperUser.verifyToken, (req, res) => {
   }
   StudygroupModel.find()
     .then(studygroups => {
-      res
-        .status(200)
-        .json(
-          studygroups.filter(
-            studygroup =>
-              studygroup.endDateTime.toLocaleDateString() >=
-                new Date().toLocaleDateString() && !studygroup.private
-          )
-        );
+      res.status(200).json(
+        studygroups.filter(studygroup => {
+          if (
+            studygroup.endDateTime.getTime() >= new Date().getTime() &&
+            !studygroup.private
+          ) {
+            // if the date and the hour are the same, but the meeting already took place
+            if (
+              studygroup.endDateTime.getTime() === new Date().getTime() &&
+              studygroup.endDateTime.getHours() === new Date().getHours() &&
+              studygroup.endDateTime.getMinutes() < new Date().getMinutes()
+            )
+              return;
+
+            return studygroup;
+          }
+        })
+      );
     })
     .catch(err => res.status(400).json('Error: ' + err));
 });
@@ -194,6 +203,20 @@ router.post(
     /* study group creation logic  */
     let start = new Date(req.body.startDateTime);
     let end = new Date(req.body.endDateTime);
+
+    // check if valid time, otherwise, return 409
+    if (
+      end.getTime() < new Date().getTime() ||
+      (end.getTime() === new Date().getTime() &&
+        end.getHours() === new Date().getHours() &&
+        end.getMinutes() < new Date().getMinutes())
+    ) {
+      res
+        .status(409)
+        .json({ timeError: 'Entered start time or end time is invalid' });
+      return;
+    }
+
     do {
       var newStart = new Date(start);
       var newEnd = new Date(end);
@@ -270,6 +293,20 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
     return;
   });
 
+  // check if valid time, otherwise, return 409
+  let end = new Date(req.body.endDateTime);
+  if (
+    end.getTime() < new Date().getTime() ||
+    (end.getTime() === new Date().getTime() &&
+      end.getHours() === new Date().getHours() &&
+      end.getMinutes() < new Date().getMinutes())
+  ) {
+    res
+      .status(409)
+      .json({ timeError: 'Entered start time or end time is invalid' });
+    return;
+  }
+
   let emailList = [];
   let usersAndChanges = {};
   if (editAll) {
@@ -283,7 +320,6 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
       numDays = 14;
     }
     let start = new Date(req.body.startDateTime);
-    let end = new Date(req.body.endDateTime);
     var newStudyGroupsList = [];
     var i = 0;
     while (start <= new Date(req.body.finalDate)) {
@@ -310,9 +346,6 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
           session.startDateTime.toString() != newStart.toString() ||
           session.endDateTime.toString() != newEnd.toString()
         ) {
-          // console.log(session);
-          // console.log(session.startDateTime + ' : ' + newStart);
-          // console.log(session.endDateTime + ' : ' + newEnd);
           isRescheduled = true;
         }
 
@@ -423,8 +456,6 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
     });
   } else {
     groups_changed = 'The following group has been changed or cancelled<br>';
-    // console.log(studyGroup);
-    // console.log(studyGroup.title);
     groups_changed += helperUser.constructMessage(
       studyGroup.title,
       studyGroup.startDateTime,
