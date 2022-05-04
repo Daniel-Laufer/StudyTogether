@@ -293,6 +293,20 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
     return;
   });
 
+  // check if valid time, otherwise, return 409
+  let end = new Date(req.body.endDateTime);
+  if (
+    end.getTime() < new Date().getTime() ||
+    (end.getTime() === new Date().getTime() &&
+      end.getHours() === new Date().getHours() &&
+      end.getMinutes() < new Date().getMinutes())
+  ) {
+    res
+      .status(409)
+      .json({ timeError: 'Entered start time or end time is invalid' });
+    return;
+  }
+
   let emailList = [];
   let usersAndChanges = {};
   if (editAll) {
@@ -306,7 +320,6 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
       numDays = 14;
     }
     let start = new Date(req.body.startDateTime);
-    let end = new Date(req.body.endDateTime);
     var newStudyGroupsList = [];
     var i = 0;
     while (start <= new Date(req.body.finalDate)) {
@@ -333,9 +346,6 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
           session.startDateTime.toString() != newStart.toString() ||
           session.endDateTime.toString() != newEnd.toString()
         ) {
-          // console.log(session);
-          // console.log(session.startDateTime + ' : ' + newStart);
-          // console.log(session.endDateTime + ' : ' + newEnd);
           isRescheduled = true;
         }
 
@@ -446,8 +456,6 @@ router.patch('/edit/:id', helperUser.verifyToken, async (req, res) => {
     });
   } else {
     groups_changed = 'The following group has been changed or cancelled<br>';
-    // console.log(studyGroup);
-    // console.log(studyGroup.title);
     groups_changed += helperUser.constructMessage(
       studyGroup.title,
       studyGroup.startDateTime,

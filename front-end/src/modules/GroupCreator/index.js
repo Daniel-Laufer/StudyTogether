@@ -157,9 +157,6 @@ function GroupCreator({ authToken, userRole }) {
     const imageUrlInvalid = !imageUrlValid(state.image);
 
     const tagsInvalid = state.tags.length === 0;
-    console.log(!state.date || state.date.getDate() < new Date().getDate());
-    console.log(state.date.getDate());
-    console.log(new Date().getDate());
     const dateInvalid =
       !state.date || state.date.getDate() < new Date().getDate();
     const locationInvalid =
@@ -257,7 +254,6 @@ function GroupCreator({ authToken, userRole }) {
         })
         .catch(err => {
           console.log(err);
-          console.log(err.response.data);
           if (err.response.status === 409) {
             if (err.response.data.timeError) {
               setErrors({ ...errors, startTime: true, endTime: true });
