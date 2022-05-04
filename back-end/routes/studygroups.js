@@ -203,6 +203,20 @@ router.post(
     /* study group creation logic  */
     let start = new Date(req.body.startDateTime);
     let end = new Date(req.body.endDateTime);
+
+    // check if valid time, otherwise, return 409
+    if (
+      end.getTime() < new Date().getTime() ||
+      (end.getTime() === new Date().getTime() &&
+        end.getHours() === new Date().getHours() &&
+        end.getMinutes() < new Date().getMinutes())
+    ) {
+      res
+        .status(409)
+        .json({ timeError: 'Entered start time or end time is invalid' });
+      return;
+    }
+
     do {
       var newStart = new Date(start);
       var newEnd = new Date(end);
