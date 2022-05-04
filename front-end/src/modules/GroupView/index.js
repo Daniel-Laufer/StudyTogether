@@ -72,7 +72,6 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
           setGroupOwnerId(hostId);
         })
         .catch(err => {
-          console.log(err.response.status);
           setLoading(false);
           if (err.response.status === 400) {
             dispatch(logout());
@@ -196,7 +195,7 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
         setLoading(false);
         setErrorOccured(true);
         if (err.response.status === 400) {
-          console.log('error 400');
+          // pass
         } else if (err.response.status === 401) {
           dispatch(logout());
           navigate('/login');
@@ -313,8 +312,7 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
                         onSubmit={(values, { resetForm }) => {
                           setformLoading(true);
                           sendInviteViaEmail(values.email)
-                            .then(res => {
-                              console.log(res);
+                            .then(() => {
                               setUserInvSuccess(true);
                               setInterval(() => {
                                 setUserInvSuccess(false);
@@ -326,7 +324,6 @@ function GroupView({ authToken, dispatch, studyGroupsEndPoint, userDetails }) {
                               }, 1000);
                             })
                             .catch(err => {
-                              console.log(err);
                               if (err === 409) {
                                 setUserAlrInvError(true);
                                 setInterval(() => {

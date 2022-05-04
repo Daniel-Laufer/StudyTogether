@@ -14,6 +14,8 @@ import {
   FormLabel,
   Switch,
   Text,
+  Stack,
+  Input,
 } from '@chakra-ui/react';
 import { connect } from 'react-redux';
 import axios from 'axios';
@@ -38,6 +40,8 @@ function Groups({
   const navigate = useNavigate();
   const location = useLocation();
   const [groups, setGroups] = useState([]);
+  const [groupsToDisplay, setGroupsToDisplay] = useState([]);
+  const [searchBarValue, setSearchBarValue] = useState('');
   // eslint-disable-next-line no-unused-vars
   const [currentlySelectedGroup, setCurrentlySelectedGroup] = useState(null);
   const [viewDetailedGroupCards, setViewDetailedGroupCards] = useState(false);
@@ -59,7 +63,7 @@ function Groups({
       .then(res => {
         setLoading(false);
         setGroups(res.data);
-        console.log(res.data);
+        setGroupsToDisplay(res.data);
       })
       .catch(err => {
         setLoading(false);
@@ -90,6 +94,21 @@ function Groups({
     };
   };
 
+  const handleSearchBarValueChange = event => {
+    const newSearchBarValue = event.target.value;
+
+    if (!groups) return;
+
+    // filter the groups
+    const filteredGroups = groups.filter(
+      group =>
+        group.title.toLowerCase().indexOf(newSearchBarValue.toLowerCase()) > -1
+    );
+
+    setGroupsToDisplay(filteredGroups);
+    setSearchBarValue(event.target.value);
+  };
+
   useEffect(() => {
     if (!currentlySelectedGroup) return;
 
@@ -107,8 +126,8 @@ function Groups({
   }, [currentlySelectedGroup]);
 
   const formatGroupDataForMapDisplay = () => {
-    if (!groups) return [];
-    return groups.reduce((acc, curr) => {
+    if (!groupsToDisplay) return [];
+    return groupsToDisplay.reduce((acc, curr) => {
       if (curr.location && 'lat' in curr.location && 'lng' in curr.location)
         acc.push({ ...curr.location, id: curr._id, metaData: { ...curr } });
       return acc;
@@ -138,25 +157,35 @@ function Groups({
         marginTop: '2rem',
       }}
     >
-      <Flex justify="space-between" wrap="wrap" gap="1rem">
-        <Heading as="h2" size="2xl">
-          {headerContent}
-        </Heading>
-        <FormControl
-          style={{ width: 'auto' }}
-          display="flex"
-          alignItems="center"
-        >
-          <FormLabel htmlFor="email-alerts" mb="0">
-            More study group details
-          </FormLabel>
-          <Switch
-            id="email-alerts"
-            isChecked={viewDetailedGroupCards}
-            onChange={() => setViewDetailedGroupCards(!viewDetailedGroupCards)}
-          />
-        </FormControl>
-      </Flex>
+      <Stack>
+        <Flex justify="space-between" wrap="wrap" gap="1rem">
+          <Heading as="h2" size="2xl">
+            {headerContent}
+          </Heading>
+          <FormControl
+            style={{ width: 'auto' }}
+            display="flex"
+            alignItems="flex-end"
+          >
+            <FormLabel htmlFor="email-alerts" mb="0">
+              More study group details
+            </FormLabel>
+            <Switch
+              id="email-alerts"
+              isChecked={viewDetailedGroupCards}
+              onChange={() =>
+                setViewDetailedGroupCards(!viewDetailedGroupCards)
+              }
+            />
+          </FormControl>
+        </Flex>
+        <Input
+          value={searchBarValue}
+          placeholder="seach study groups by title..."
+          size="md"
+          onChange={handleSearchBarValueChange}
+        />
+      </Stack>
 
       <Box
         id="group-card-results"
@@ -179,8 +208,8 @@ function Groups({
           }}
           gap="0.5rem"
         >
-          {groups.length > 0 ? (
-            groups.map(g =>
+          {groupsToDisplay.length > 0 ? (
+            groupsToDisplay.map(g =>
               !viewDetailedGroupCards ? (
                 <div id={`group-${g._id}`}>
                   <Group
