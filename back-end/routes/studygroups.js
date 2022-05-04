@@ -26,15 +26,24 @@ router.get('/', helperUser.verifyToken, (req, res) => {
   }
   StudygroupModel.find()
     .then(studygroups => {
-      res
-        .status(200)
-        .json(
-          studygroups.filter(
-            studygroup =>
-              studygroup.endDateTime.toLocaleDateString() >=
-                new Date().toLocaleDateString() && !studygroup.private
-          )
-        );
+      res.status(200).json(
+        studygroups.filter(studygroup => {
+          if (
+            studygroup.endDateTime.getTime() >= new Date().getTime() &&
+            !studygroup.private
+          ) {
+            // if the date and the hour are the same, but the meeting already took place
+            if (
+              studygroup.endDateTime.getTime() === new Date().getTime() &&
+              studygroup.endDateTime.getHours() === new Date().getHours() &&
+              studygroup.endDateTime.getMinutes() < new Date().getMinutes()
+            )
+              return;
+
+            return studygroup;
+          }
+        })
+      );
     })
     .catch(err => res.status(400).json('Error: ' + err));
 });
