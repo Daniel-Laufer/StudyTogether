@@ -7,7 +7,7 @@ let user = require('../models/user.model');
 let Token = require('../models/token.model');
 const { body, validationResult } = require('express-validator');
 const helperUser = require('../helpers/helperUser');
-const resetURL = 'http://localhost:3000/reset-password'; //to be replaced with the proper frontend page
+const resetURL = `${process.env.FRONTEND_URI}/reset-password`; //to be replaced with the proper frontend page
 
 router.post('/', body('email').notEmpty(), async function (req, res) {
   const errors = validationResult(req);

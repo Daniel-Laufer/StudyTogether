@@ -7,7 +7,7 @@ var socketStore = Sockets.getInstance();
 var io = null;
 const config = {
   cors: {
-    origin: 'http://localhost:3000',
+    origin: process.env.FRONTEND_URI,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   },
 };
