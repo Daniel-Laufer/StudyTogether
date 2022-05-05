@@ -1,7 +1,7 @@
 var jwt = require('jsonwebtoken');
 var User = require('../models/user.model');
 var tarequest = require('../models/taverify.model');
-const adminurl = 'http://localhost:8000/admin';
+const adminurl = `${process.env.BACK_END_URI}/admin`;
 
 module.exports = {
   verifyTokenInBody(req, res, next) {
