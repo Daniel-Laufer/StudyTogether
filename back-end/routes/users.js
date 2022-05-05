@@ -12,7 +12,7 @@ var tarequest = require('../models/taverify.model');
 const { check, body, validationResult, param } = require('express-validator');
 const mongoose = require('mongoose');
 const user = require('../models/user.model');
-const verifyURL = 'http://localhost:3000/verify';
+const verifyURL = `${process.env.FRONTEND_URI}/verify`;
 
 /* Get non-sensitive user profile info */
 router.get('/profile/:id', helperUser.verifyToken, async (req, res) => {
