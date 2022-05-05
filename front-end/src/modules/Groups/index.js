@@ -287,8 +287,6 @@ function Groups({
           border: '1px solid var(--chakra-colors-gray-200)',
           borderRadius: 'var(--chakra-radii-md)',
           padding: '0.5rem',
-          height: '40vh',
-          // overflowY: 'scroll',
         }}
       >
         <Heading size="sm">Locations</Heading>
