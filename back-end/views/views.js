@@ -3,7 +3,7 @@ var jwt = require('jsonwebtoken');
 var router = express.Router();
 var bcrypt = require('bcrypt');
 const { check, body, validationResult } = require('express-validator');
-const adminurl = 'http://localhost:8000/admin';
+const adminurl = `${process.env.BACK_END_URI}/admin`;
 
 var helperUser = require('../helpers/helperUser');
 const taverify = require('../models/taverify.model');

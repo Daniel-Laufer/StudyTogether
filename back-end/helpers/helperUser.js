@@ -2,7 +2,7 @@ var jwt = require('jsonwebtoken');
 var User = require('../models/user.model');
 
 var tarequest = require('../models/taverify.model');
-const adminurl = 'http://localhost:8000/admin';
+const adminurl = `${process.env.BACK_END_URI}/admin`;
 const { validationResult } = require('express-validator');
 var nodemailer = require('nodemailer');
 
@@ -197,11 +197,9 @@ module.exports = {
     let startTime = this.dateParser(start);
     let endTime = this.dateParser(end);
 
-    let string = `<strong>${title}</strong> on <strong>${start.toDateString()}</strong> from <strong>${
-      startTime.hours
-    }:${startTime.mins} ${startTime.mornOrEve}</strong> till <strong>${
-      endTime.hours
-    }:${endTime.mins} ${endTime.mornOrEve}</strong><br>`;
+    let string = `<strong>${title}</strong> on <strong>${start.toDateString()}</strong> from <strong>${startTime.hours
+      }:${startTime.mins} ${startTime.mornOrEve}</strong> till <strong>${endTime.hours
+      }:${endTime.mins} ${endTime.mornOrEve}</strong><br>`;
     if (messageNum == 0) {
       string += ' has become:<br>';
     } else if (messageNum == 1) {
