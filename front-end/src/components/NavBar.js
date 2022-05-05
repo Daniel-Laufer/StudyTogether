@@ -31,6 +31,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { io } from 'socket.io-client';
 
 import styled from 'styled-components';
 import { logout } from '../actions/Auth';
