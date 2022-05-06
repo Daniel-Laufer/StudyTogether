@@ -15,8 +15,10 @@
 
 .custom-dot-list-style button {
   border: none;
-  background: rgb(255, 68, 68);
+  background: #25c870;
+  opacity: 0.6;
 }
 .react-multi-carousel-dot.react-multi-carousel-dot--active button {
-  background: rgb(255, 68, 68) !important;
+  background: #25c870 !important;
+  opacity: 1;
 }
