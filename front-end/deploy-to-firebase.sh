@@ -1,1 +1,1 @@
-npm run build && firebase deploy
+npm install && npm run build && firebase deploy
