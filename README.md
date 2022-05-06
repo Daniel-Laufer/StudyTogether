@@ -11,14 +11,20 @@ Studying with others is an effective way of preparing for assessments, however i
 
 # Installation/Usage
 
+
+
 Begin by cloning this repository onto your computer by **git** and `cd` into it.
 ```bash
 $ git clone https://github.com/UTSCCSCC01/finalprojectw22-studytogether.git my-app
 $ cd my-app
+
 ```
+
+## Environment Variables
+You need to create a *.env *in both* front-end/* and *back-end/* directories and provide the necessary values for the variables specified in the dotenv-format file found in both aforementioned directories.
 ## Front-end 
 
-   - First `cd` into the front-end directory and then run `npm install` to install all of the front-end's dependencies.
+   - First `cd` into the front-end directory and then run `npm install --legacy-peer-deps` to install all of the front-end's dependencies.
     
         - After doing that, here is a list of useful commands:
 
@@ -30,6 +36,8 @@ $ cd my-app
 
           - `npm test`
             - Starts the test runner
+
+  
            
 ## Back-end 
 
