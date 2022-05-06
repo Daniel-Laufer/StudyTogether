@@ -25,7 +25,7 @@ const responsive = {
 const sliderImage = [
   {
     url: 'https://i.guim.co.uk/img/media/1f88ae6599ec098c9c0e4556c68a95f01fd314fc/0_187_4287_2572/master/4287.jpg?width=465&quality=45&auto=format&fit=max&dpr=2&s=b1920bd90879b36e616bee6130b95b31',
-    subject: 'MAT137 ',
+    subject: 'MAT137',
     school: 'University of Toronto',
   },
   {
@@ -35,12 +35,12 @@ const sliderImage = [
   },
   {
     url: 'https://images.newscientist.com/wp-content/uploads/2019/05/15163211/quantum_gettyimages-807324710.jpg?width=1200',
-    subject: 'PHY147H5',
+    subject: 'PHY147',
     school: 'University of Toronto',
   },
   {
     url: 'https://images.ctfassets.net/cnu0m8re1exe/1v6Kh7bIsgVU4PA1Qi44bb/3e8e11c131620bb0080266a01a8cf36c/shutterstock_127915121.jpg?fm=jpg&fl=progressive&w=660&h=433&fit=fill',
-    subject: 'CHM211H5 ',
+    subject: 'CHM211 ',
     school: 'University of Toronto',
   },
   {
@@ -56,6 +56,7 @@ export default function Slider() {
       <Carousel
         responsive={responsive}
         autoPlay={true}
+        autoPlaySpeed={20000}
         swipeable={true}
         draggable={true}
         showDots={true}
