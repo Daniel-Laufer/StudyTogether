@@ -11,6 +11,7 @@ import {
   UnorderedList,
   ListItem,
   Container,
+  Stack,
   Flex,
   Text,
   Image,
@@ -29,6 +30,7 @@ import { apiURL } from '../../utils/constants';
 import { Example } from '../../actions';
 import * as colors from '../../utils/colors';
 import useGetScrollPosition from '../../hooks/useGetScrollPosition';
+import Slider from '../Slider';
 
 function LandingPage({ dispatch }) {
   const [users, setUsers] = useState([]);
@@ -139,21 +141,35 @@ function LandingPage({ dispatch }) {
       </SectionTwoContainer>
 
       <SectionThreeContainer>
-        <div className="custom-shape-divider-top-1651780203">
-          <svg
-            data-name="Layer 1"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 1200 120"
-            preserveAspectRatio="none"
+        <Stack style={{ marginTop: '2rem' }}>
+          <div className="custom-shape-divider-top-1651780203">
+            <svg
+              data-name="Layer 1"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 1200 120"
+              preserveAspectRatio="none"
+            >
+              <path
+                d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z"
+                className="shape-fill"
+              />
+            </svg>
+          </div>
+
+          <h1
+            style={{
+              fontWeight: '900',
+              fontSize: '45px',
+              color: 'black',
+              marginTop: '1.5rem',
+            }}
           >
-            <path
-              d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z"
-              className="shape-fill"
-            />
-          </svg>
-        </div>
-        TODO
+            Topics students have studied in the past
+          </h1>
+          <Slider />
+        </Stack>
       </SectionThreeContainer>
+
       <SectionFourContainer>
         <div className="custom-shape-divider-top-1651780402">
           <svg
@@ -275,12 +291,8 @@ const SectionTwoContainer = styled.section`
 const SectionThreeContainer = styled.section`
   padding: 4rem;
   position: relative;
-  padding-top: 8rem;
   background-color: ${colors.white};
-  display: flex;
-  flex-wrap: no-wrap;
   gap: 4rem;
-  justify-content: center;
   height: 90vh;
 
   .custom-shape-divider-top-1651780203 {
