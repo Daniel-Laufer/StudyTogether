@@ -8,8 +8,17 @@ Studying with others is an effective way of preparing for assessments, however i
 
 **StudyTogether** is a web application that facilitates the process of forming study groups at a university. Users will be able to form their own study groups that others can then view and request to join. Users can easily filter through study groups using specific fields like dates, times, courses, topics, locations etc, and request to join the study group that’s perfect for them! 
 
-## Create an account on **StudyTogether** here! [https://studytogether-bad5e.firebaseapp.com/](https://studytogether-bad5e.firebaseapp.com/) 
+<!-- ## Create an account on **StudyTogether** here! [https://studytogether-bad5e.firebaseapp.com/](https://studytogether-bad5e.firebaseapp.com/)  -->
 
+# Images
+<p align="center">
+  <img src="./readme-images/home.png"/>
+  <img src="./readme-images/map2.png"/>
+  <img src="./readme-images/map1.png"/>
+  <img src="./readme-images/myGroups.png"/>
+  <img src="./readme-images/studyGroupDetails.png"/>
+  <img src="./readme-images/calendar.png"/>
+</p>
 
 # Installation/Usage
 
